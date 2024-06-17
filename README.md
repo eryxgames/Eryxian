@@ -4,11 +4,7 @@ description: Print2Play Edition of Deckbuilding Card Game
 
 # Eryxian Civilizations Card Game
 
-{% hint style="info" %}
-**Rules of desktop/mobile app and** Print2Play Edition differ
-{% endhint %}
-
-<table data-view="cards" data-full-width="true"><thead><tr><th></th><th></th><th></th><th data-hidden data-card-cover data-type="files"></th></tr></thead><tbody><tr><td></td><td></td><td></td><td><a href=".gitbook/assets/itch-eryxian-promo.png">itch-eryxian-promo.png</a></td></tr><tr><td></td><td></td><td></td><td><a href=".gitbook/assets/itch-eryxian-promo3.png">itch-eryxian-promo3.png</a></td></tr><tr><td></td><td></td><td></td><td><a href=".gitbook/assets/itch-eryxian-promo5.png">itch-eryxian-promo5.png</a></td></tr></tbody></table>
+<figure><img src=".gitbook/assets/itch-eryxian-promo.png" alt=""><figcaption></figcaption></figure>
 
 {% hint style="danger" %}
 Erythian Civilizations is currently in closed beta
@@ -17,6 +13,10 @@ Erythian Civilizations is currently in closed beta
 ## Overview
 
 <figure><img src=".gitbook/assets/eryxian-logo2.png" alt=""><figcaption></figcaption></figure>
+
+{% hint style="info" %}
+**Rules of desktop/mobile app and** Print2Play Edition differ
+{% endhint %}
 
 Here are a couple of example overviews from products with really great docs:
 
@@ -31,6 +31,8 @@ Here are a couple of example overviews from products with really great docs:
 > Players can create their own cards using provided **ERYXIAN Rules & Lore Book**, using own graphics or provided template graphics and/or custom AI model for card generation
 >
 > — Download From the [https://eryxgames.itch.io/](https://eryxgames.itch.io/)
+
+<table data-view="cards" data-full-width="true"><thead><tr><th></th><th></th><th></th><th data-hidden data-card-cover data-type="files"></th></tr></thead><tbody><tr><td></td><td></td><td></td><td><a href=".gitbook/assets/itch-eryxian-promo.png">itch-eryxian-promo.png</a></td></tr><tr><td></td><td></td><td></td><td><a href=".gitbook/assets/itch-eryxian-promo3.png">itch-eryxian-promo3.png</a></td></tr><tr><td></td><td></td><td></td><td><a href=".gitbook/assets/itch-eryxian-promo5.png">itch-eryxian-promo5.png</a></td></tr></tbody></table>
 
 ## Overview
 
@@ -53,8 +55,6 @@ On the fringe of explored space, where the tendrils of charted civilization fray
 Here, twisted flora and fauna serve the enigmatic Eryxians, while brutal Collective's extermination units are establishing its presence on the planet. The struggle for resources once hardened humanity, but the darkness of Eryx twists their resolve. Now, they fight not just for survival, but against the insidious whispers that threaten to corrupt their very souls.
 
 Whispers of the Ancients, cosmic horrors from beyond the stars, fuel the planet's malevolent aura. Can humanity survive this desolate crucible, or will they succumb to the madness within Eryx's ancient ruins?
-
-<figure><img src=".gitbook/assets/itch-eryxian-promo.png" alt=""><figcaption></figcaption></figure>
 
 ## Rule and Lore Books
 
