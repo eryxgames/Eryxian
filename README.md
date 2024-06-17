@@ -14,24 +14,15 @@ description: Print2Play Edition of Deckbuilding Card Game
 >
 > — Download From the [https://eryxgames.itch.io/](https://eryxgames.itch.io/)
 
-{% hint style="danger" %}
-Erythian Civilizations is currently in closed beta
-{% endhint %}
+> :warning: <mark style="color:yellow;">Eryxian Civilizations is currently in closed beta</mark>
 
 > Players can create their own cards using provided **ERYXIAN Rules & Lore Book**, using own graphics or provided template graphics and/or custom AI model for card generation
 >
 > — Download From the [https://eryxgames.itch.io/](https://eryxgames.itch.io/)
 
-{% hint style="info" %}
-**Rules of desktop/mobile app and** Print2Play Edition differ
-{% endhint %}
-
 <figure><img src=".gitbook/assets/itch-eryxian-promo.png" alt=""><figcaption></figcaption></figure>
 
-```markdown
-> [!NOTE]
-> This is a note.
-```
+> :information\_source: <mark style="color:blue;">**Rules of desktop/mobile app and**</mark> <mark style="color:blue;"></mark><mark style="color:blue;">Print2Play Edition differ</mark>
 
 ## Game Overview
 
