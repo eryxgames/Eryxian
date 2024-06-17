@@ -28,6 +28,11 @@ Erythian Civilizations is currently in closed beta
 
 <figure><img src=".gitbook/assets/itch-eryxian-promo.png" alt=""><figcaption></figcaption></figure>
 
+```markdown
+> [!NOTE]
+> This is a note.
+```
+
 ## Game Overview
 
 {% content-ref url="overview/world-of-eryxian.md" %}
