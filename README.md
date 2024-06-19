@@ -18,7 +18,7 @@ description: Print2Play Edition of Deckbuilding Card Game
 
 > Players can create their own cards using provided **ERYXIAN Rules & Lore Book**, using own graphics or provided template graphics and/or custom AI model for card generation
 >
-> — Download From the [https://eryxgames.itch.io/](https://eryxgames.itch.io/)
+> — Download Print2Play Edition From the [https://github.com/eryxgames/eryxian](https://github.com/eryxgames/eryxian)
 
 <figure><img src=".gitbook/assets/itch-eryxian-promo.png" alt=""><figcaption></figcaption></figure>
 
