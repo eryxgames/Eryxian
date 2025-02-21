@@ -12,7 +12,8 @@ description: Print2Play Edition of Deckbuilding Card Game
 > * Can be played from custom decks as CCG (Collectible Card Game) or from common deck for all players
 > * Duel, Arena, and Tournament/Objectives rules
 >
-> — Download From the [https://eryxgames.itch.io/](https://eryxgames.itch.io/)
+> — Download From the [https://eryxgames.itch.io/](https://eryxgames.itch.io/)\
+> — Actualized Eryxian Lore Wiki [https://github.com/eryxgames/eryxian/wiki](https://github.com/eryxgames/eryxian/wiki)
 
 > :warning: <mark style="color:yellow;">Eryxian Civilizations is currently in closed beta</mark>
 
