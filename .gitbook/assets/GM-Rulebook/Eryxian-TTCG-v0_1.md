@@ -2,7 +2,7 @@
 # Eryxian TTRPG: Core Concepts & Mechanics**
 
 ---
-v0.0.1a
+v0.0.1a, created by Daniel Sandner
 ---
 
 
