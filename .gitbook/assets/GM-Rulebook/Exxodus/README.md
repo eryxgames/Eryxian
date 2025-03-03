@@ -1,5 +1,8 @@
 # Exxodus: Limited Edition - Game Rules (v1.1e)
 (Predecessor of Eryxian games)
+---
+Created by Daniel Sandner
+---
 This document outlines the rules for Exxodus: Limited Edition, a strategic card game of interstellar trade, combat, and corporate stellar conquest and dominance.
 
 ## Table of Contents
@@ -263,3 +266,381 @@ These optional rules can be used to modify gameplay, especially for tournament p
 *   Publisher: DarkFusion Studios
 
 Enjoy the game!
+
+
+
+Formatted list of the Exxodus cards from the images, including their stats and descriptions. Organized  by type (Planet, Leader, Ship, Tech, Mission) 
+
+**Note:** I am using the following abbreviations for card statistics:
+
+*   **TECH:** Technology
+*   **DEF:** Defense
+*   **POP:** Population
+*   **VALUE:** Credit Cost
+*   **CHAR:** Charisma
+*   **LEAD** Leadership
+*   **AGILITY** Agility
+*   **POWER:** Ship Attack Power
+*   **SHIELD:** Ship Defense Shield
+*   **SPEED:** Ship Speed
+
+
+## Exxodus Card List
+
+### Planets
+
+1.  **HELIOS**
+    *   Type: Planet
+    *   TECH: 0
+    *   DEF: +1
+    *   POP: -1
+    *   VALUE: 1
+    *   Special: SPECIAL: Trading bonus.
+
+2.  **CASSIUS**
+    *   Type: Planet
+    *   TECH: +1
+    *   DEF: -1
+    *   POP: +1
+    *   VALUE: 1
+
+3.  **TITANIA**
+    *   Type: Planet
+    *   TECH: +1
+    *   DEF: 0
+    *   POP: +2
+    *   VALUE: 1
+    *   Special: UPGRADE FANATICS: All modifications played on this planet are 1 credit cheaper.
+
+4.  **HERMES IV**
+    *   Type: Planet
+    *   TECH: -1
+    *   DEF: 0
+    *   POP: +1
+    *   VALUE: 1
+    *   Special: TOURIST ROUTE: Trading bonus to passenger ship revenues.
+
+5.  **TERRA NOVA**
+    *   Type: Planet
+    *   TECH: 2
+    *   DEF: 2
+    *   POP: -2
+    *   VALUE: 1
+    *   Special: RESERVATION: All technology achievements are ignored.
+
+6.  **ELDERAN**
+    *   Type: Planet
+    *   TECH: +1
+    *   DEF: 2
+    *   POP: -2
+    *   VALUE: 2
+    *   Special: RIGID SOCIETY: Immune to modifications.
+
+7.  **CALEDONIA**
+    *   Type: Planet
+    *   TECH: 2
+    *   DEF: -2
+    *   POP: +2
+    *   VALUE: 2
+
+8.  **BLACKMOOR**
+    *   Type: Planet
+    *   TECH: +1
+    *   DEF: -1
+    *   POP: +2
+    *   VALUE: 1
+
+9. **EXXODUS**
+    *  Type: Planet
+    *   TECH: 2
+    *   DEF: 0
+    *   POP: -1
+    *   VALUE: (Alien Resource - no cost, no value)
+    *   Special: DOOMED ALIEN PLANET: Put class-M ship from your resources in game. Destroy Exxodus.
+
+10. **PROCYON**
+    *  Type: Planet
+    *   TECH: 2
+    *   DEF: +1
+    *   POP: -2
+    *   VALUE: 2
+    *   Special: SCRAPMETAL TRADER.
+
+### Leaders
+
+1.  **AEN STARK**
+    *   Type: Leader
+    *   CHAR: +1
+    *   LEAD: -1
+    *    AGILITY: -1
+    *   VALUE: 1
+    *   Special: IMMUNE. Ignores target docking costs.
+
+2.  **OR-SLAGG THE WARRIOR**
+    *   Type: Leader
+    *   CHAR: -1
+    *   LEAD: +2
+    *   AGILITY: -2
+    *   VALUE: 2
+    *   Special: ASSASIN. When fighting enemy leader, his agility is doubled.
+
+3.  **COMMANDER BUCK FIREWALL**
+    *   Type: Leader
+    *   CHAR: 0
+    *   LEAD: +2
+    *   AGILITY: -2
+    *   VALUE: 2
+    *   Special: After winning a battle, draw one card from resources.
+
+4. **HIGH COMMANDER DRAGG VOXX**
+      * Type: Leader
+    *   CHAR: 0
+    *   LEAD: +2
+    *   AGILITY: -2
+    *   VALUE: 2
+    * Special: BATTLE TACTICS. Put one target ship in battle to your resources.
+
+5.  **SWIGG THE PRIVATEER**
+    *   Type: Leader
+    *   CHAR: +1
+    *   LEAD: -1
+    *   AGILITY: +2
+    *   VALUE: 1
+    *   Special: Steal 1 credit from target trade revenue.
+
+6.  **DOC BRAINAC**
+    *   Type: Leader
+    *   CHAR: -1
+    *   LEAD: +1
+    *   AGILITY: 0
+    *   VALUE: 1
+    *   Special: RESEARCHER: Experiment costs are halved.
+
+### Ships
+(duplicated cards are listed only once, with stats)
+
+1.  **CARGO LINER** (M-CLASS)
+    *   Type: Ship
+    *   POWER: +1
+    *   SHIELD: 0
+    *   SPEED: +1
+    *   VALUE: 1
+    *   Special: CARGO ROUTE: Trading bonus to goods trade revenues.
+
+2.  **RAPTOR** (S-CLASS)
+    *   Type: Ship
+    *   POWER: +1
+    *   SHIELD: -1
+    *   SPEED: +1
+    *   VALUE: 1
+
+3.  **STAR FIGHTER** (S-CLASS)
+    *   Type: Ship
+    *   POWER: +1
+    *   SHIELD: 0
+    *   SPEED: +2
+    *   VALUE: 2
+    *   Special: Damage target ship. Destroy ship STAR FIGHTER.
+
+4.  **FRIGATE** (M-CLASS)
+    *   Type: Ship
+    *   POWER: +1
+    *   SHIELD: -1
+    *   SPEED: +2
+    *   VALUE: 1
+
+5.  **DESTROYER** (L-CLASS)
+    *   Type: Ship
+    *   POWER: +2
+    *   SHIELD: -2
+    *   SPEED: -1
+    *   VALUE: 3
+
+6.  **RAIDER** (S-CLASS)
+    *   Type: Ship
+    *   POWER: +2
+    *   SHIELD: 0
+    *   SPEED: -1
+    *   VALUE: 2
+    *   Special: Destroy target technology. Destroy ship RAIDER.
+
+7.  **CRUISER** (M-CLASS)
+      *   Type: Ship
+    *   POWER: +2
+    *   SHIELD: 0
+    *   SPEED: -1
+    *   VALUE: 2
+
+8.  **STINGER** (M-CLASS)
+    *   Type: Ship
+    *   POWER: +2
+    *   SHIELD: -1
+    *   SPEED: +1
+    *   VALUE: 1
+
+### Tech
+
+1.  **CYBERSYMBIONTS**
+    *   Type: Tech
+    *   +1 / +1 / -1
+    *   VALUE: 2
+    *   Special: -1 credit: REPULSIVE APPEARANCE: Trading penalty to all trade revenues.
+
+2.  **PROSPECTIVE MATERIALS**
+    *   Type: Tech
+    *   +1 / +0 / +1
+    *   VALUE: 2
+    *   Special: +1: GALACTIC PATENT: Trading bonus to goods trade revenues.
+
+3.  **MOLECULAR DISINTEGRATOR**
+    *   Type: Tech
+    *   +1 / +1 / -1
+    *   VALUE: 2
+    *   Special: TEMPORARY POWER BOOST: If you pay additional 2 credits in battle, card bonus is doubled.
+
+4.  **FOCUSED EXPERIMENTS**
+    *   Type: Tech
+    *    +1/+1/-2
+    *   VALUE: 2
+    *   Special: CONTINUAL RESEARCH: Experimental technology returns it back to your resources.
+
+5.  **QUANTUM PHASOR** DOUBLE CARD
+    *   Type: Tech
+    *   +1 / +0 / +1
+    *   VALUE: 2
+    *   Special: QUANTUM PHASING
+
+    **QUANTUM REACTOR**
+    *   Type: Tech
+    *   -1 / +2 / -1
+    *   VALUE: 2
+    *   Special: QUANTUM PHASING    
+
+6. **ENERGY TRACER** DOUBLE CARD
+    * Type: Tech
+    * +1 / +0 / +1
+    * Value: 2
+    * Special: POWER COMPRIMATION
+
+   **ENERGY DISPERSION**
+    * Type: Tech
+    * -2 / +1 / +1
+    * Value: 2
+    * Special: POWER COMPRIMATION    
+
+7. **BIO AUGMENTATION** DOUBLE CARD
+      * Type: Tech
+    * +2/+1/-2
+    * Value: 2
+    * Special: BIO ENHANCEMENT
+
+   **CYBORG PROJECT**
+    * Type: Tech
+    * -2/+2/+1
+    * Value: 2
+    * Special: BIO ENHANCEMENT    
+
+8.  **CLOAKING DEVICE** DOUBLE CARD
+    *  Type: Tech
+    * +1 / +1 / -1
+    * Value: 2
+    * Special: SPATIAL CONVERSION
+
+   **CONVERSION FIELD**
+    *  Type: Tech
+    * -1 / +2 / -1
+    * Value: 2
+    * Special: SPATIAL CONVERSION    
+
+### Missions
+
+1.  **MEGA CORPORATION**
+    *   Type: Mission
+    *   +1 / +2 / -1
+    *   VALUE: 2
+    *   Special: CORPORATE POLITICS: Trading bonus to target trade revenues.
+
+2.  **SYSTEM COLLAPSE**
+    *   Type: Mission
+    *   +1 / +1 / -1
+    *   VALUE: 2
+    *   Special: POWER SHOTCUT: Destroy target technology. Destroy SYSTEM COLLAPSE.
+
+3.  **DEPRESSION**
+    *   Type: Mission
+    *   +1 / +2 / -1
+    *   VALUE: 2
+    *   Special: CORPORATE POLITICS: Trading bonus to target trade revenues.
+
+4.  **UPLINK**
+    *   Type: Mission
+    *   X / X / X
+    *   VALUE: 2
+    *   Special: TECH COPY: Exact copy of target technology.
+
+5.  **WINDS OF WAR** DOUBLE CARD
+    *   Type: Mission
+    *   +2 / 0 / -1
+    *   VALUE: 3
+    *   Special: You may play this card for free just before losing a battle.
+
+    **WINDS OF WAR** DOUBLE CARD
+    *   Type: Mission
+    *   +1 / +2 / -2
+    *   VALUE: 3
+    *   Special: You may play this card for free just before losing a battle.    
+
+6.  **MILITARISTIC REVOLUTION** DOUBLE CARD
+    *   Type: Mission
+    *   +2 / 0 / -1
+    *   VALUE: 1
+    *   Special: double card
+
+    **ISOLACIONISTIC REVOLUTION** DOUBLE CARD
+    *   Type: Mission
+    *   -1 / +2 / -2
+    *   VALUE: 1
+    *   Special: double card    
+
+7.  **TECHNOCRATIC REVOLUTION** DOUBLE CARD
+    *   Type: Mission
+    *   +2 / 0 / -1
+    *   VALUE: 2
+    *   Special: double card
+
+    **FUNDAMENTALISTIC REVOLUTION** DOUBLE CARD
+    *   Type: Mission
+    *   -1 / -1 / +2
+    *   VALUE: 2
+    *   Special: double card    
+
+8.  **UNAUTHORIZED ACCESS**
+    *   Type: Mission
+    *   X / X / X
+    *   VALUE: 2
+    *   Special: PARTIAL DATA STRUCTURE: Copy of basic statistics of target modification.
+
+
+This list provides a complete overview of the cards shown in the images, including their stats and special abilities, formatted for clarity and easy reference. This should be helpful for understanding the card interactions and potential strategies in Exxodus.
+
+
+# Strengths of the Exxodus System:
+
+*   **Interconnected Mechanics:** The core loop of resource gathering (drawing cards), spending resources (credits and actions), trading, and combat is well-integrated. Actions are a limited resource that force meaningful choices.
+*   **Asymmetric Card Abilities:** The different card types and their special abilities create asymmetry, leading to diverse strategies. Players aren't just playing "numbers"; they're leveraging unique card interactions.
+*   **Stacking Mechanic:** The card stacking system adds a layer of depth. It encourages players to build up powerful fleets or planetary defenses, but also makes those stacks vulnerable. The ability to move Ships and Leaders between stacks adds tactical flexibility.
+*   **Variable Game End Conditions:** The multiple win conditions (empty deck, target value, target credits) prevent the game from becoming overly predictable. It allows for different strategic focuses.
+*   **Combat Resolution with Speed:** The Speed stat in combat is a good design choice. It creates a "rock-paper-scissors" dynamic and prevents straightforward power comparisons from being the sole determinant of victory.
+*   **Trade System Complexity:** The trade system, with its action costs, commodity values, and docking fees, provides a satisfying economic engine without being overly cumbersome.
+*    **Theme:** The game combines the elements of space combat and strategy well.
+
+# Weaknesses and Areas for Improvement (Analysis):
+
+*   **Shared Resource Deck:** While simple, a shared resource deck can lead to luck-of-the-draw issues. One player might consistently draw the cards they need, while another struggles.  This reduces player agency. **Use Drafting (Mitigate Luck), allow more cards at beginning, discard over limit and reshuffle resources, and "Scry" Mechanic (preview some cards for a price, maybe later in the game)
+*   **Potential for Runaway Leaders:** If a player gets an early lead (e.g., strong planets and trade routes), it might be difficult for others to catch up. The game lacks explicit "catch-up" mechanics.
+*   **Complexity in Combat:** While the Speed mechanic is good, the overall combat system (especially with stacked cards, special abilities, and Missions) can become complex to resolve.  The timing rules in the FAQ hint at potential for confusion.
+*   **Limited Player Interaction (Potentially):** The game could potentially become somewhat "multiplayer solitaire," where players focus primarily on building their own empires with limited direct interaction, aside from occasional attacks.
+*   **Action Economy Tightness:** Three actions per turn *might* feel restrictive, especially in the mid-to-late game when players have more options.  This could slow down the pace.
+*   **Double Card Rules** The rule might be confusing for new players.
+
+
