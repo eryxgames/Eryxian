@@ -8,8 +8,8 @@ card_types:
   "5": "Hero"
 
 fields:
-  - type
   - team
+  - type
   - title
   - text
   - mana
