@@ -1,6 +1,13 @@
 import os
 import glob
 import yaml
+import argparse
+
+# --- Constants ---
+MONOBEHAVIOUR_START = 'MonoBehaviour:'
+YAML_SEPARATOR = '---'
+TYPE_FIELD = 'type'
+TEAM_FIELD = 'team'
 
 def generate_card_list(cards_root_dir, config_file, output_md_file):
     """Generates a Markdown card list from .asset files."""
@@ -14,12 +21,14 @@ def generate_card_list(cards_root_dir, config_file, output_md_file):
 
     card_type_mapping = config.get('card_types', {})
     fields_to_extract = config.get('fields', [])
-    output_format = config.get('output_format', 'csv').lower()  # Default to CSV
+    output_format = config.get('output_format', 'csv').lower()
     team_overrides = config.get('team_overrides', {})
-    
-    # FIX: Always include stats, and ensure headers match
-    standard_fields = fields_to_extract + ['stats']
-    headers = config.get('headers', standard_fields)
+    custom_headers = config.get('headers', {})
+
+    # --- Build final headers, based on *actual* fields ---
+    headers = []
+    for field in fields_to_extract:  # No 'stats' here
+        headers.append(custom_headers.get(field, field.capitalize()))
 
     if not card_type_mapping or not fields_to_extract:
         print("Error: 'card_types' or 'fields' missing in config.")
@@ -28,14 +37,10 @@ def generate_card_list(cards_root_dir, config_file, output_md_file):
         print("Error: Invalid 'output_format'. Must be 'csv' or 'table'.")
         return
 
-    # FIX: More flexible headers check
-    if output_format == 'table':
-        if headers is None:
-            # Generate default headers if not provided
-            headers = [field.capitalize() for field in standard_fields]
-        elif len(headers) != len(standard_fields):
-            print(f"Warning: Headers count ({len(headers)}) does not match fields count ({len(standard_fields)}). Using default headers.")
-            headers = [field.capitalize() for field in standard_fields]
+    # --- Header check only for table format ---
+    if output_format == 'table' and len(headers) != len(fields_to_extract): # No + 1
+        print(f"Error: Number of custom headers ({len(headers)}) does not match the number of fields ({len(fields_to_extract)}).")
+        return
 
     card_data = []
 
@@ -66,12 +71,12 @@ def extract_card_info_text(asset_file, fields, card_types, cards_root_dir, team_
             for line in f:
                 line = line.strip()
 
-                if line.startswith('MonoBehaviour:'):
+                if line.startswith(MONOBEHAVIOUR_START):
                     in_mono_behaviour_block = True
                     continue
 
                 if in_mono_behaviour_block:
-                    if line.startswith('---'):  # End of MonoBehaviour block
+                    if line.startswith(YAML_SEPARATOR):
                         break
 
                     parts = line.split(':', 1)
@@ -81,16 +86,15 @@ def extract_card_info_text(asset_file, fields, card_types, cards_root_dir, team_
                     field = parts[0].strip()
                     value = parts[1].strip()
 
-                    if field == 'team':
+                    if field == TEAM_FIELD:
                         rel_path = os.path.relpath(os.path.dirname(asset_file), cards_root_dir)
                         team_name = os.path.basename(rel_path)
-                        # Apply team overrides
-                        card_info['team'] = team_overrides.get(team_name, team_name)
+                        card_info[TEAM_FIELD] = team_overrides.get(team_name, team_name)
                         continue
 
-                    if field == 'type' and 'type' in fields:
+                    if field == TYPE_FIELD and TYPE_FIELD in fields:
                         if '{' not in value and '}' not in value:
-                            card_info['type'] = card_types.get(value, f"Unknown ({value})")
+                            card_info[TYPE_FIELD] = card_types.get(value, f"Unknown ({value})")
 
                     elif field in fields:
                         card_info[field] = value
@@ -106,12 +110,11 @@ def extract_card_info_text(asset_file, fields, card_types, cards_root_dir, team_
         print(f"MonoBehaviour not found in file {asset_file}")
         return None
 
-    # Combine stats into a single string
-    if all(stat in card_info for stat in ["mana", "attack", "hp"]):
-        card_info['stats'] = f"{card_info['mana']} / {card_info['attack']} / {card_info['hp']}"
+    # --- FIX: Don't calculate 'stats' here ---
+    # if all(stat in card_info for stat in ["mana", "attack", "hp"]):
+    #     card_info['stats'] = f"{card_info['mana']} / {card_info['attack']} / {card_info['hp']}"
 
-    # Add a check for required fields with a bit more flexibility
-    required_fields = ["type", "team", "title", "text"]
+    required_fields = ["type", "team", "title", "text"]  # No 'stats' here
     if not all(field in card_info for field in required_fields):
         print(f"Warning: Some required fields are missing in {asset_file}")
         return None
@@ -125,43 +128,38 @@ def write_to_markdown(card_data, output_file, fields, output_format, headers):
         if output_format == 'csv':
             for card in card_data:
                 line_parts = []
+                # --- FIX:  Iterate only through 'fields' ---
                 for field in fields:
                     value = card.get(field, "")
                     line_parts.append(str(value))
-
-                # Add stats at the end
-                stats_str = card.get('stats', '')
-                line_parts.append(stats_str)
-
                 f.write(", ".join(line_parts) + "\n")
 
         elif output_format == 'table':
-            # Write table header and separator
             header_line = "| " + " | ".join(headers) + " |"
             separator_line = "| " + " | ".join(["---"] * len(headers)) + " |"
             f.write(header_line + "\n")
             f.write(separator_line + "\n")
 
-            # Write table rows
             for card in card_data:
                 row_parts = []
+                # --- FIX: Iterate only through 'fields' ---
                 for field in fields:
                     value = card.get(field, "")
                     row_parts.append(str(value))
-
-                # Add stats at the end
-                stats_str = card.get('stats', '')
-                row_parts.append(stats_str)
-
                 f.write("| " + " | ".join(row_parts) + " |\n")
 
     print(f"Finished writing to {output_file}")
 
-# Main execution remains the same
+def main():
+    """Main function to handle command-line arguments and run the script."""
+
+    parser = argparse.ArgumentParser(description="Generate a Markdown card list from Unity .asset files.")
+    parser.add_argument("cards_root_dir", help="The root directory containing card definitions.")
+    parser.add_argument("config_file", help="Path to the YAML configuration file.")
+    parser.add_argument("output_md_file", help="Path to the output Markdown file.")
+    args = parser.parse_args()
+
+    generate_card_list(args.cards_root_dir, args.config_file, args.output_md_file)
+
 if __name__ == "__main__":
-    # Existing directory and file creation code...
-    generate_card_list("Cards", "config.yaml", "output.md")
-    
-    # Read and print the output file
-    with open("output.md", "r", encoding="utf-8") as file:
-        print("File content: \n" + file.read())
+    main() #Simplified, we call it using cmd arguments

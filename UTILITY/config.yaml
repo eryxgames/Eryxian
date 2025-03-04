@@ -1,4 +1,3 @@
-
 card_types:
   "10": "Character"
   "50": "Equipment"
@@ -14,9 +13,10 @@ fields:
   - text
   - mana
   - attack
-  - hp
+  - hp  # Keep mana, attack, hp if you want them as separate columns
+#  - stats
 
-output_format: table  # Can be 'csv' or 'table'
+output_format: table  # Or 'csv'
 
 team_overrides:
   "Fire": "Humans"
@@ -24,8 +24,12 @@ team_overrides:
   "Ancients": "The Ancients"
 
 headers:
-  - "Card Type"
-  - "Faction"
-  - "Card Name"
-  - "Card Text"
-  - "Stats"
+  "type": "Card Type"
+  "team": "Faction"
+  "title": "Card Name"
+  "text": "Card Text"
+  "mana": "Cost"  # Keep these if you want separate columns
+  "attack": "Attack"
+  "hp": "HP"
+#  "stats": "Stats"  # Add a header for 'stats'
+   # No 'stats' header!
