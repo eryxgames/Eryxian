@@ -1,0 +1,49 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 843a21f7f6f205741a0a7341aec8e84d, type: 3}
+  m_Name: grizzly
+  m_EditorClassIdentifier: 
+  id: grizzly
+  title: Grizzly
+  art_full: {fileID: -866389354704752144, guid: 4eb40f73e475ce243a8e36521ce5af79,
+    type: 3}
+  art_board: {fileID: 4364392610822677627, guid: 2e498748f6054d544a3b205c788021b7,
+    type: 3}
+  type: 10
+  team: {fileID: 11400000, guid: 6bbb96863ece0314fb318c0fce569afc, type: 2}
+  rarity: {fileID: 11400000, guid: 72248f07232412e4db2f6864dbb4e271, type: 2}
+  mana: 5
+  attack: 4
+  hp: 5
+  traits:
+  - {fileID: 11400000, guid: e605f241a0b12f043a3dad31ca6073b5, type: 2}
+  stats: []
+  abilities:
+  - {fileID: 11400000, guid: d512ef5a37e7a1c4ebb5c337e37b96bd, type: 2}
+  text: <b>Play:</b> Gain Taunt or Fury
+  desc: Grizzly (Ground Reconnaissance and Infantry Liaison System) has scouting,
+    troop transport, and defense roles on ground terrain planetary missions.
+  spawn_fx: {fileID: 5791330189299518109, guid: 1fa8fa11b2c6b9b4d976743e5bbb3956,
+    type: 3}
+  death_fx: {fileID: 0}
+  attack_fx: {fileID: 0}
+  damage_fx: {fileID: 0}
+  idle_fx: {fileID: 0}
+  spawn_audio: {fileID: 0}
+  death_audio: {fileID: 0}
+  attack_audio: {fileID: 8300000, guid: 9d5c277ef8c156845a3d7d780bc03c67, type: 3}
+  damage_audio: {fileID: 0}
+  deckbuilding: 1
+  cost: 100
+  packs:
+  - {fileID: 11400000, guid: bafca3757bf537c43b1d2ba696456e2c, type: 2}
+  - {fileID: 11400000, guid: 2db0d9f08bdfa57419101c08b8598c1a, type: 2}

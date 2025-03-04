@@ -1,0 +1,46 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 843a21f7f6f205741a0a7341aec8e84d, type: 3}
+  m_Name: board_rock
+  m_EditorClassIdentifier: 
+  id: board_rock
+  title: Impassable Terrain
+  art_full: {fileID: 5546735777836528176, guid: 6178e3e17259a9441be08313ebef9385,
+    type: 3}
+  art_board: {fileID: -5011612222703117187, guid: 6f0e8e7b3dd9158469aa482b1a81ee30,
+    type: 3}
+  type: 0
+  team: {fileID: 11400000, guid: 44accef98e769754d9edb8fe6051443a, type: 2}
+  rarity: {fileID: 11400000, guid: fab1a52f5a36cc942985dea95be18ac9, type: 2}
+  mana: 0
+  attack: 0
+  hp: 2
+  traits:
+  - {fileID: 11400000, guid: bdc029d97fec7334f8fc4f0b86ee6720, type: 2}
+  stats: []
+  abilities: []
+  text: 'Impassable Rocky Terrain.
+
+    Destructible by Heavy Weapons.'
+  desc: 
+  spawn_fx: {fileID: 0}
+  death_fx: {fileID: 0}
+  attack_fx: {fileID: 0}
+  damage_fx: {fileID: 0}
+  idle_fx: {fileID: 0}
+  spawn_audio: {fileID: 0}
+  death_audio: {fileID: 0}
+  attack_audio: {fileID: 0}
+  damage_audio: {fileID: 0}
+  deckbuilding: 0
+  cost: 100
+  packs: []
