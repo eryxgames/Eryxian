@@ -396,7 +396,6 @@ These optional rules can be used to modify gameplay:
 
 Enjoy the game!
 
-Okay, I'll generate a new set of Exxodus cards, extrapolating from the existing theme and mechanics. I'll aim for variety and try to introduce some new, but compatible, concepts. I'll follow the same format as before. I'll create 20 cards (5 of each basic type would feel repetitive): 4 Planets, 4 Leaders, 6 Ships, 4 Tech, and 2 Missions. I am adding new keywords.
 
 ---
 
