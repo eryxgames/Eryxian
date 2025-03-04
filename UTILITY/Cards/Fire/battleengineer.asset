@@ -1,0 +1,44 @@
+
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 51285281531359749a8d6cf671798d52, type: 3}
+  m_Name: "战斗工程师"
+  m_EditorClassIdentifier:
+  id: "战斗工程师"
+  title: "Battle Engineer"
+  art_full: {fileID: 2800000, guid: 336242767f3f05641a2d70a529561f4e, type: 3}
+  art_board: {fileID: 2800000, guid: 045a4df9a69984848968f591f87f5b4f, type: 3}
+  type: 10
+  team: {fileID: 0}
+  rarity: {fileID: 11400000, guid: 13b592f40b7cd424c966f5d7eef425aa, type: 2}
+  mana: 3
+  attack: 2
+  hp: 5
+  traits: []
+  stats: []
+  abilities: []
+  text: "Effect damage +1."
+  desc:
+  spawn_fx: {fileID: 0}
+  death_fx: {fileID: 0}
+  attack_fx: {fileID: 0}
+  damage_fx: {fileID: 0}
+  idle_fx: {fileID: 0}
+  spawn_audio: {fileID: 0}
+  death_audio: {fileID: 0}
+  attack_audio: {fileID: 0}
+  damage_audio: {fileID: 0}
+  deckbuilding: 1
+  cost: 100
+  packs:
+  - {fileID: 11400000, guid: 2c2a08b3166092848b69d4a7164920ca, type: 2}
+  - {fileID: 11400000, guid: 096e90c2734806f44953264509285316, type: 2}
