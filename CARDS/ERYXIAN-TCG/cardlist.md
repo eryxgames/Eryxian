@@ -1,4 +1,4 @@
-| Type | Team | Title | Text | Mana | Attack | Hp | Stats |
+| Type | Team | Title | Text | Cost | Attack | Hp | Stats |
 | --- | --- | --- | --- | --- | --- | --- | --- |
 | Character | The Ancients | Octogoth | When attacking, roll a D6. On 4+ gain +6 attack. | 4 | 3 | 3 | 4 / 3 / 3 |
 | Spell | The Ancients | Maelstorm Vortex | Destroys creatures with lowest HP. All other cards return to their owner's | 6 | 0 | 0 | 6 / 0 / 0 |
