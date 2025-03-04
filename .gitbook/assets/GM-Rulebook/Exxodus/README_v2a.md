@@ -1200,16 +1200,16 @@ Okay, let's create another Exxodus expansion, drawing inspiration from cutting-e
 
 *   **Research Projects:** These introduce a long-term investment strategy, rewarding players for planning and dedication. The RP mechanic adds a new resource to manage.
 *   **Phenomena:** These create a dynamic, ever-changing galactic environment, forcing players to adapt their strategies. They add a sense of a living, breathing universe.
-*   **Dr. Aris Thorne:** Specializes in accelerating Research Projects.
-*   **Xy'lar:** Provides immunity to negative global effects.
-* **Jax the Engineer**: Helps with bringing hyperstructures to play.
-*   **Alcubierre Drive Cruiser:** Introduces the concept of faster-than-light travel (theoretically possible, though highly speculative).
+*   **Dr. Ais:** Specializes in accelerating Research Projects.
+*   **Y'lia:** Provides immunity to negative global effects.
+*   **Json the Engineer**: Helps with bringing hyperstructures to play.
+*   **Drive Cruiser:** Introduces the concept of faster-than-light travel (theoretically possible, though highly speculative).
 *   **Biotrophic Scavenger:** Rewards aggressive play with permanent stat boosts.
-* **Science Vessel:** Provides instant deployment of structures.
+*   **Science Vessel:** Provides instant deployment of structures.
 *   **Controlled Singularity Reactor:** Offers a powerful burst of extra actions.
 *   **Genetic Rewriter:** Allows for targeted modification of card stats.
-* **Exotic Material Shielding:** Creates targeted invulnerability.
-* **Complete Research, Harness the Phenomenon**: Mission focused on new mechanics.
+*   **Exotic Material Shielding:** Creates targeted invulnerability.
+*   **Complete Research, Harness the Phenomenon**: Mission focused on new mechanics.
 
 This "Frontiers of Science" expansion leans heavily into the speculative science fiction theme, introducing concepts like quantum entanglement, exotic matter, artificial biospheres, and genetic engineering. The new card types (Research Projects and Phenomena) add significant strategic depth and variability to the game, while the new Leaders, Ships, and Tech offer exciting new tactical possibilities. The expansion aims to evoke a sense of wonder and discovery, encouraging players to explore the cutting edge of scientific possibility within the Exxodus universe.
 
@@ -1371,8 +1371,6 @@ This "Frontiers of Science" expansion leans heavily into the speculative science
 
 This "Alien Worlds" expansion is designed to inject a strong dose of the unknown and the powerful into Exxodus. The Alien Zones, Artifacts, and other cards introduce a higher level of asymmetry and strategic complexity, rewarding players who are willing to adapt to unpredictable situations and harness the power of ancient alien civilizations. The expansion emphasizes exploration, discovery, and the potential for game-changing events.
 
-Okay, let's craft one final Exxodus expansion, focusing on more conventional (yet still strategically interesting) aspects of interstellar travel and conquest, and introducing some new card types to add fresh gameplay dynamics.
-
 
 # Exxodus: Expansion - Stellar Dominance
 
@@ -1521,10 +1519,10 @@ Stellar projects are similar to research projects, but are focused around develo
 
 *   **Starbases:** These add a layer of strategic defense and economic development to existing locations, making them more valuable and contested.
 *   **Commanders:** These provide global bonuses, allowing players to specialize their overall strategy (military, economic, technological).
-*  **Stellar Projects**: Focused on new infrastructure, like establishing colonies.
+*   **Stellar Projects**: Focused on new infrastructure, like establishing colonies.
 *   **Blockade Runner:** Specializes in ignoring movement restrictions.
 *   **Carrier:** A powerful combat ship that enhances fleet strength.
-*  **Ion Frigate**: Disrupts the target ship operations.
+*   **Ion Frigate**: Disrupts the target ship operations.
 *   **Advanced Propulsion Systems:** Improves fleet speed.
 *   **Adaptive Camouflage:** Provides protection against targeted effects.
 *   **Orbital Construction Yard**: Fast starbase deployment.
