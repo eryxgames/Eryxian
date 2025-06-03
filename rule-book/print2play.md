@@ -1,13 +1,35 @@
-# 📪 Print2Play
+# 📪 Eryxian Civilizations Card Game: Print & Play Edition
 
-## Step 1 - Start journalling
+Welcome, Commander! This guide will help you get the Print & Play (PnP) Edition of Eryxian Civilizations onto your tabletop.
 
-Donec sed odio dui. Curabitur blandit tempus porttitor. Vivamus sagittis lacus vel augue laoreet rutrum faucibus dolor auctor. Donec ullamcorper nulla non metus auctor fringilla. Maecenas sed diam eget risus varius blandit sit amet non magna. Aenean lacinia bibendum nulla sed consectetur.
+## Step 1: Obtain the Files
 
-![](https://images.unsplash.com/photo-1522881451255-f59ad836fdfb?crop=entropy\&cs=tinysrgb\&fm=jpg\&ixid=MnwxOTcwMjR8MHwxfHNlYXJjaHw0fHx3cml0ZXxlbnwwfHx8fDE2NjA1ODc5Nzk\&ixlib=rb-1.2.1\&q=80)
+*   **Download:** Get the latest PnP package (including rulebook PDF, card sheets, token sheets, and any other necessary files) from:
+    *   **[Our Official itch.io Page](https://eryxgames.itch.io/eryxian-civilizations)** (Recommended for the latest curated version)
+    *   The [`/PrintAndPlay_CardGame`](./PrintAndPlay_CardGame) directory in this GitHub repository (may contain development versions).
 
-## Step 2 - Create Post
+## Step 2: Print Your Game
 
-Praesent commodo cursus magna, vel scelerisque nisl consectetur et. Maecenas faucibus mollis interdum. Cras mattis consectetur purus sit amet fermentum. Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum nibh, ut fermentum massa justo sit amet risus. Donec ullamcorper nulla non metus auctor fringilla. Nullam quis risus eget urna mollis ornare vel eu leo. Aenean eu leo quam. Pellentesque ornare sem lacinia quam venenatis vestibulum.
+*   **Paper/Cardstock:** For best results, print cards on sturdy cardstock (e.g., 200-300 gsm or 80-110 lb cover). Tokens and game boards can also be printed on cardstock or mounted on thicker cardboard.
+*   **Printer Settings:** Print at 100% scale (actual size). Ensure your printer is set to its best quality for clarity of text and art. Color printing is recommended for the full experience.
+*   **Quantity:** Check the rulebook or PnP instructions for the number of copies needed for each sheet (especially for common cards or tokens).
 
-![](https://images.unsplash.com/photo-1515378791036-0648a3ef77b2?crop=entropy\&cs=tinysrgb\&fm=jpg\&ixid=MnwxOTcwMjR8MHwxfHNlYXJjaHw2fHxwb3N0fGVufDB8fHx8MTY2MDU4ODAzMg\&ixlib=rb-1.2.1\&q=80)
+## Step 3: Assemble Your Game
+
+*   **Cutting:** Carefully cut out the cards and tokens using scissors, a hobby knife and ruler, or a paper guillotine.
+*   **Sleeving (Recommended):** To protect your PnP cards and give them a better feel, consider sleeving them. You can insert the printed card along with a standard playing card (like a Magic: The Gathering or Pokémon card) into a sleeve for added rigidity.
+*   **Tokens & Boards:** Assemble any tokens or game board segments as per the PnP instructions.
+
+## Step 4: Learn the Rules
+
+*   The PnP package includes a comprehensive **Rulebook PDF**. Read this thoroughly to understand game setup, turn structure, card types, combat, and victory conditions.
+*   *(A link to an online version of the rulebook or video tutorials will be added here when available.)*
+
+## Step 5: Conquer the Galaxy!
+
+You're all set! Gather your fellow commanders, choose your factions, and begin your journey to dominate the Eryxian Universe.
+
+---
+
+We are excited for you to experience Eryxian Civilizations! Share your PnP creations and game sessions with our community!
+*(Link to Telegram/Discord/Social Media)*
