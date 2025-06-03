@@ -2,76 +2,87 @@
 description: Print2Play Edition of Deckbuilding Card Game
 ---
 
-# Eryxian Civilizations Card Game
+# Eryxian Civilizations Strategic Card Game and TTRPG
 
-<figure><img src=".gitbook/assets/eryxian-logo2.png" alt=""><figcaption></figcaption></figure>
+<p align="center">
+  <img src=".gitbook/assets/eryxian-logo2.png" alt="Eryxian Universe Logo" width="750"/>
+</p>
 
-> This strategic card game challenges you to build a thriving interstellar civilization, balancing exploration, diplomacy, resource management, and thrilling card-based combat. Game takes place in Eryx TCG game universe.
->
-> * Game for 2+ players
-> * Can be played from custom decks as CCG (Collectible Card Game) or from common deck for all players
-> * Duel, Arena, and Tournament/Objectives rules
->
-> — Download From the [https://eryxgames.itch.io/](https://eryxgames.itch.io/)\
-> — Actualized Eryxian Lore Wiki [https://github.com/eryxgames/eryxian/wiki](https://github.com/eryxgames/eryxian/wiki)
+Beyond the charted stars and the familiar laws of physics lies the **Eryxian Universe** – a rich science-fantasy setting born from real astronomical wonders and fueled by boundless imagination. This repository serves as the central hub for:
 
-> :warning: <mark style="color:yellow;">Eryxian Civilizations is currently in closed beta</mark>
+*   **The Eryxian Universe Lore Wiki:** The most comprehensive and up-to-date source for the history, civilizations, technologies, mythos, and unique phenomena that define this expansive cosmos. Dive into the [**Official Eryxian Wiki here!**](https://github.com/eryxgames/eryxian/wiki)
+*   🃏 **Eryxian Civilizations Card Game:** A strategic deckbuilding game where you lead a unique interstellar faction to explore, expand, exploit, and exterminate. *(Under Development)*
+*   🎲 **Eryxian Universe TTRPG (Tabletop Roleplaying Game):** *(Under Development)* An upcoming TTRPG experience allowing you to forge your own legends within this vast universe.
 
-> Players can create their own cards using provided **ERYXIAN Rules & Lore Book**, using own graphics or provided template graphics and/or custom AI model for card generation
->
-> — Download Print2Play Edition From the [https://github.com/eryxgames/eryxian](https://github.com/eryxgames/eryxian)
+## Primary Mission
+*   To develop rich original open-source game world and flexible game system for unlimited game scenarios and various genres
+---
 
-<figure><img src=".gitbook/assets/itch-eryxian-promo.png" alt=""><figcaption></figcaption></figure>
+## Eryxian Civilizations: The Card Game
 
-> :information\_source: <mark style="color:blue;">**Rules of desktop/mobile app and**</mark> <mark style="color:blue;"></mark><mark style="color:blue;">Print2Play Edition differ</mark>
+Take command of a burgeoning interstellar civilization in this strategic card game for 2+ players. Balance exploration, diplomacy, resource management, and thrilling card-based combat.
 
-## Game Overview
+*   **Gameplay:** Choose your faction, build your deck, and vie for dominance. Can be played with custom-built decks (Collectible Card Game style) or from a common deck for all players.
+*   **Game Modes:** Features rules for Duels (1v1), Arena (multiplayer free-for-all), and objective-based Tournament play.
+*   **Print & Play (PnP) Edition:**
+    *   The PnP version allows you to print and assemble the game at home.
+    *   **Download the latest PnP files and rulebook from our [itch.io page](https://eryxgames.itch.io/eryxian-civilizations) or directly from the [`/PrintAndPlay_CardGame`](./PrintAndPlay_CardGame) directory in this repository (coming soon).**
+    *   Players are encouraged to create their own cards using the official **ERYXIAN Rules & Lore Book** (to be released), leveraging provided templates or custom AI for unique card generation.
+*   **Digital Editions:**
+    *   A [Tabletop Simulator module](link-to-your-tts-mod-if-available-else-remove-or-say-coming-soon) is available/planned for online play.
+    *   A standalone digital version for desktop/mobile is in early development.
+    *   :information_source: <mark style="color:blue;">Rules for digital versions may differ from the Print & Play Edition.</mark>
 
-{% content-ref url="overview/world-of-eryxian.md" %}
-[world-of-eryxian.md](overview/world-of-eryxian.md)
-{% endcontent-ref %}
+---
 
-{% content-ref url="overview/game-features.md" %}
-[game-features.md](overview/game-features.md)
-{% endcontent-ref %}
+## Eryxian Universe: The TTRPG
 
-{% content-ref url="overview/factions.md" %}
-[factions.md](overview/factions.md)
-{% endcontent-ref %}
+*(Under Development)*
 
-## ERYXIAN: An Another Lovecraftian Fable
+Embark on epic adventures across the diverse and mysterious worlds of the Eryxian Universe! The upcoming Tabletop Roleplaying Game will allow players to:
 
-On the fringe of explored space, where the tendrils of charted civilization fray into the unknown, lies the desolate planet Eryx. Scarred by the Collective conflict, humankind seek resources for a battered Earth. **Extraterrestrial Reconnaissance & Yield Xenobiology (ERYX)** project is found and sent to reestablish outposts, mining facilities and xenoarcheology sites on the planet and its two moons. But Eryx holds a sinister truth.
+*   Create unique characters from various human factions, alien species, or even as entities within the Collective.
+*   Explore uncharted star systems, ancient Architect ruins, and the enigmatic [Eryxian Labyrinths](https://github.com/eryxgames/eryxian/wiki/Eryxian-Labyrinths).
+*   Engage in factional politics, corporate espionage, daring cargo runs, and confront cosmic horrors.
+*   Utilize unique technologies, from modular UIT starships to the subtle powers of [Ethnosorcery](https://github.com/eryxgames/eryxian/wiki/Ethnosorcery-and-Technosorcery) and [Technosorcery](https://github.com/eryxgames/eryxian/wiki/Ethnosorcery-and-Technosorcery).
 
-Here, twisted flora and fauna serve the enigmatic Eryxians, while brutal Collective's extermination units are establishing its presence on the planet. The struggle for resources once hardened humanity, but the darkness of Eryx twists their resolve. Now, they fight not just for survival, but against the insidious whispers that threaten to corrupt their very souls.
+---
 
-Whispers of the Ancients, cosmic horrors from beyond the stars, fuel the planet's malevolent aura. Can humanity survive this desolate crucible, or will they succumb to the madness within Eryx's ancient ruins?
+The TTRPG will be deeply integrated with the lore established in the [Eryxian Wiki](https://github.com/eryxgames/eryxian/wiki). Game system details, character creation rules, and adventure modules will be released in a dedicated section of this repository or a companion repository as development progresses.
+<p align="center">
+  <img src=".gitbook/assets/itch-eryxian-promo.png" alt="Eryxian Universe Logo" width="450"/>
+</p>
 
-<table data-view="cards" data-full-width="true"><thead><tr><th></th><th></th><th></th><th data-hidden data-card-cover data-type="files"></th></tr></thead><tbody><tr><td></td><td></td><td></td><td><a href=".gitbook/assets/itch-eryxian-promo.png">itch-eryxian-promo.png</a></td></tr><tr><td></td><td></td><td></td><td><a href=".gitbook/assets/itch-eryxian-promo3.png">itch-eryxian-promo3.png</a></td></tr><tr><td></td><td></td><td></td><td><a href=".gitbook/assets/itch-eryxian-promo5.png">itch-eryxian-promo5.png</a></td></tr></tbody></table>
 
-## Rule and Lore Books
 
-{% content-ref url="rule-book/print2play.md" %}
-[print2play.md](rule-book/print2play.md)
-{% endcontent-ref %}
+## Delve into the Lore
 
-{% content-ref url="rule-book/online-platforms.md" %}
-[online-platforms.md](rule-book/online-platforms.md)
-{% endcontent-ref %}
+The heart of the Eryxian Universe lies in its rich, interconnected lore. The **[Official Eryxian Wiki](https://github.com/eryxgames/eryxian/wiki)** is your primary portal to discover:
 
-## Installation and Multiplayer
+*   **[Eryxian World](https://github.com/eryxgames/eryxian/wiki/Eryxian-World):** The science and speculative biology of planet Eryxia, its unique trinary star system (GW Orionis), and its bizarre flora and fauna.
+*   **[Eryxian Civilizations](https://github.com/eryxgames/eryxian/wiki/Eryxian-Civilizations):** Detailed profiles of Human Factions (TAM, Stellar Concord, FHC), The Collective, native Eryxians, the enigmatic Ancients, and other unique alien species.
+*   **[Eryxian Technology](https://github.com/eryxgames/eryxian/wiki/Eryxian-Technology):** From FTL travel and advanced weaponry to unique energy sources and the mysterious "magic" of Ethnosorcery and Technosorcery.
+*   **[Eryxian Mythos](https://github.com/eryxgames/eryxian/wiki/Eryxian-Mythos):** The ancient legends, cosmic deities (like Star Minds), and creation stories that shape the beliefs of the universe's inhabitants.
+*   **[Eryxian Eras and Epochs](https://github.com/eryxgames/eryxian/wiki/Eryxian-Eras-and-Epochs):** A chronicle of cosmic time, providing context for the current state of the galaxy.
+*   **[Cargo Haulers & Networks](https://github.com/eryxgames/eryxian/wiki/Cargo-Haulers-Networks):** The subculture, ships, and economic forces driving interstellar trade.
+*   ...and much more, constantly expanding!
 
-{% content-ref url="fundamentals/getting-set-up/" %}
-[getting-set-up](fundamentals/getting-set-up/)
-{% endcontent-ref %}
+---
 
-{% content-ref url="fundamentals/getting-set-up/setting-permissions.md" %}
-[setting-permissions.md](fundamentals/getting-set-up/setting-permissions.md)
-{% endcontent-ref %}
+## Join the Community & Get Involved!
 
-{% content-ref url="fundamentals/getting-set-up/inviting-members.md" %}
-[inviting-members.md](fundamentals/getting-set-up/inviting-members.md)
-{% endcontent-ref %}
+The Eryxian Universe is an ever-expanding project, and community involvement is key!
 
-ERYX TCG (Print2Play Edition) by Daniel Sandner is licensed under [CC BY-NC-SA 4.0\
-![](https://camo.githubusercontent.com/458ceef6cb2ac6b254b4b0dfd4e48377408aec5fac260cd05cd8b2d8ae7662ba/68747470733a2f2f6d6972726f72732e6372656174697665636f6d6d6f6e732e6f72672f70726573736b69742f69636f6e732f63632e7376673f7265663d63686f6f7365722d7631)![](https://camo.githubusercontent.com/0facd73730f0913c3efc1c96c1b102dbca6ede745526e26314994d9811121f72/68747470733a2f2f6d6972726f72732e6372656174697665636f6d6d6f6e732e6f72672f70726573736b69742f69636f6e732f62792e7376673f7265663d63686f6f7365722d7631)![](https://camo.githubusercontent.com/a68cb809bc229256e15bdfe2ec830decaca1ec797d908ebfb33940800b264d72/68747470733a2f2f6d6972726f72732e6372656174697665636f6d6d6f6e732e6f72672f70726573736b69742f69636f6e732f6e632e7376673f7265663d63686f6f7365722d7631)![](https://camo.githubusercontent.com/de62616994ac1d6a9c7ea9c011dc563027c16ea9113aca09be0b5aae70799586/68747470733a2f2f6d6972726f72732e6372656174697665636f6d6d6f6e732e6f72672f70726573736b69742f69636f6e732f73612e7376673f7265663d63686f6f7365722d7631)](https://creativecommons.org/licenses/by-nc-sa/4.0/?ref=chooser-v1)
+*   💬 **Discuss & Share:** Join the [Eryxian Science Talks on Telegram](https://t.me/+tiszM2PilHU3NmI0).
+*   🌐 **Official Website:** Visit [eryxian.com](https://eryxian.com/) for more information and older lore archives.
+*   🛠️ **Contribute:** Check out the [Get Involved](https://github.com/eryxgames/eryxian/wiki/Get-Involved) page on our Wiki for ways to contribute to the lore and game development.
+
+---
+
+<p align="center">
+  <img src=".gitbook/assets/itch-eryxian-promo3.png" alt="Eryxian Universe Logo" width="450"/>
+</p>
+
+## License
+ERYX TCG (Print2Play Edition) by Daniel Sandner is licensed under [CC BY-NC-SA 4.0](https://creativecommons.org/licenses/by-nc-sa/4.0/?ref=chooser-v1). For commercial use contact the benevolent author.
+The utilities and helper code on this repository is licensed under [MIT License](LICENSE)
