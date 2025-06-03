@@ -32,4 +32,4 @@ You're all set! Gather your fellow commanders, choose your factions, and begin y
 ---
 
 We are excited for you to experience Eryxian Civilizations! Share your PnP creations and game sessions with our community!
-*(Link to Telegram/Discord/Social Media)*
+
