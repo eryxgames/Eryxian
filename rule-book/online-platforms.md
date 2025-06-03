@@ -1,21 +1,28 @@
-# 📎 Online Platforms
+# 📎 Eryxian Civilizations: Online Platforms
 
-## How Projects work
+Experience Eryxian Civilizations beyond the tabletop! Here's how you can play or connect online:
 
-Nullam quis risus eget urna mollis ornare vel eu leo. Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum nibh, ut fermentum massa justo sit amet risus. Maecenas sed diam eget risus varius blandit sit amet non magna. Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum nibh, ut fermentum massa justo sit amet risus. Etiam porta sem malesuada magna mollis euismod. Donec id elit non mi porta gravida at eget metus. Donec id elit non mi porta gravida at eget metus.
+## Tabletop Simulator (TTS)
 
-### The Basics
+*   **Status:** *("Planned for Future Release")*
+*   **Link:** *(Steam Workshop link if available)*
+*   **Details:** Play Eryxian Civilizations with friends (or solo) in a virtual 3D environment. The TTS module aims to replicate the PnP experience with automated features for setup and gameplay.
 
-Praesent commodo cursus magna, vel scelerisque nisl consectetur et. Duis mollis, est non commodo luctus, nisi erat porttitor ligula, eget lacinia odio sem nec elit.
+## Standalone Digital Game (Desktop/Mobile)
 
-Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum nibh, ut fermentum massa justo sit amet risus. Aenean eu leo quam. Pellentesque ornare sem lacinia quam venenatis vestibulum.
+*   **Status:** Early Development
+*   **Details:** We are in the early stages of developing a dedicated digital version of Eryxian Civilizations. This version will feature:
+    *   A tailored user interface for digital play.
+    *   AI opponents for solo play.
+    *   Online multiplayer matchmaking.
+    *   Digital card collection and deckbuilding.
+    *   Potentially unique digital-only features and content.
+*   :information_source: <mark style="color:blue;">Rules and card balance in the standalone digital game may differ significantly from the Print & Play edition to best suit the digital medium.</mark>
+*   *(Stay tuned for development updates and beta testing opportunities!)*
 
-### Creating a Project
+## Finding Other Players & Community
 
-Nullam quis risus eget urna mollis ornare vel eu leo. Cras justo odio, dapibus ac facilisis in, egestas eget quam. Praesent commodo cursus magna, vel scelerisque nisl consectetur et.
+*   **[Eryxian Science Talks on Telegram](https://t.me/+tiszM2PilHU3NmI0):** Join our Telegram group to discuss the game, find opponents for online play, share strategies, and connect with other fans.
+*   **(Future: Discord Server Link):** A dedicated Discord server for the Eryxian community is planned.
 
-### Organizing your Projects
-
-Sed posuere consectetur est at lobortis. Curabitur blandit tempus porttitor. Donec ullamcorper nulla non metus auctor fringilla. Donec sed odio dui.
-
-Curabitur blandit tempus porttitor. Donec id elit non mi porta gravida at eget metus. Nullam id dolor id nibh ultricies vehicula ut id elit. Aenean eu leo quam. Pellentesque ornare sem lacinia quam venenatis vestibulum.
+We are committed to expanding the ways you can experience the Eryxian Universe. Check back here for the latest updates on online platforms!
