@@ -33,6 +33,12 @@ Take command of a burgeoning interstellar civilization in this strategic card ga
     *   A standalone digital version for desktop/mobile is in early development.
     *   :information_source: <mark style="color:blue;">Rules for digital versions may differ from the Print & Play Edition.</mark>
 
+
+
+<p align="center">
+  <img src=".gitbook/assets/itch-eryxian-promo.png" alt="Eryxian Universe Logo" width="450"/>
+</p>
+
 ---
 
 ## Eryxian Universe: The TTRPG
@@ -49,9 +55,7 @@ Embark on epic adventures across the diverse and mysterious worlds of the Eryxia
 ---
 
 The TTRPG will be deeply integrated with the lore established in the [Eryxian Wiki](https://github.com/eryxgames/eryxian/wiki). Game system details, character creation rules, and adventure modules will be released in a dedicated section of this repository or a companion repository as development progresses.
-<p align="center">
-  <img src=".gitbook/assets/itch-eryxian-promo.png" alt="Eryxian Universe Logo" width="450"/>
-</p>
+
 
 
 
