@@ -1,44 +1,25 @@
----
-description: Factions in game Eryxian Civilizations
----
+# 🌀 Factions of the Eryxian Universe
 
-# 🌀 Factions
+The Eryxian Universe is populated by a diverse array of sentient species and interstellar civilizations, each with its own history, motivations, and unique approach to the cosmos.
 
-### **Humans**
+The **[Official Eryxian Wiki - Civilizations Page](https://github.com/eryxgames/eryxian/wiki/Eryxian-Civilizations)** provides the most comprehensive and up-to-date information on all major and minor factions.
 
-Driven by a spirit of exploration and expansion, the Terran Federation represents the vanguard of human exploration efforts in Eryx.
+**Primary Playable/Significant Factions in "Eryxian Civilizations Card Game" and Lore:**
 
-### **Collective**
+*   **[Humans](https://github.com/eryxgames/eryxian/wiki/Eryxian-Civilizations#human):** Scattered and divided, with major power blocs including:
+    *   [Terran Ascendancy Mandate (TAM)](https://github.com/eryxgames/eryxian/wiki/Terran--Mandate): Militaristic and expansionist.
+    *   [Stellar Concord](https://github.com/eryxgames/eryxian/wiki/Human-Stellar-Concord): Utopian control and technological superiority.
+    *   [Fractured Humanity Conglomerate (FHC)](https://github.com/eryxgames/eryxian/wiki/Humanity-Conglomerate): Resourceful scavengers and independent colonies.
+*   **[The Collective](https://github.com/eryxgames/eryxian/wiki/Eryxian-Civilizations#collective):** A sentient machine intelligence pursuing logical "Optimization" and "Ascension."
+*   **[Eryxians](https://github.com/eryxgames/eryxian/wiki/Eryxian-Civilizations#eryxians):** The enigmatic, nature-attuned humanoid inhabitants of planet Eryxia, masters of [Ethnosorcery](https://github.com/eryxgames/eryxian/wiki/Ethnosorcery-and-Technosorcery).
+*   **[The Ancients (Architects)](https://github.com/eryxgames/eryxian/wiki/Eryxian-Civilizations#ancients):** The mysterious precursor race whose hyperstructures and forgotten technologies litter the galaxy.
+*   **[K'tharr Concordance](https://github.com/eryxgames/eryxian/wiki/Other-Civilizations#civilization-1-the-ktharr-concordance):** Silicon-based lifeforms focused on harmony and gravitational manipulation.
+*   *(Other factions like the Cygnus Swarm, Ascendancy Transients, Neuro-Weave, etc., are detailed on the Wiki's [Other Civilizations](https://github.com/eryxgames/eryxian/wiki/Other-Civilizations) page.)*
 
-The Ascended Collective : A mysterious faction rumored to have transcended their physical forms and achieved a collective consciousness.
+**Legacy Faction Concepts (from earlier development, may be integrated or superseded by Wiki lore):**
 
-### **Eryxians**
+*   **Aquatoids:** (Previously conceptualized as amphibious beings from Eryx's oceans. Current lore on Eryxia's oceans and the [Profundi](https://github.com/eryxgames/eryxian/wiki/Eryxian-World#c-the-profundi-the-deep-divers) Eryxians, or the [Cetacean Confluence](https://github.com/eryxgames/eryxian/wiki/Other-Civilizations#civilization-22-the-cetacean-confluence) may cover similar themes.)
+*   **Zenithians:** (Previously conceptualized as an ancient machine race. The lore of [The Collective](https://github.com/eryxgames/eryxian/wiki/Eryxian-Civilizations#collective) and [The Ancients](https://github.com/eryxgames/eryxian/wiki/Eryxian-Civilizations#ancients) likely provides more current detail.)
+*   **Cyreneans:** (Previously conceptualized as masters of fast interstellar travel and research. Elements of this may be found in various human factions or advanced alien species on the Wiki.)
 
-Descendants of a long-lost human colony on Eryx, the Eryxians have adapted to the planet's harsh environment. They possess a deep connection to the land and a unique understanding of Eryx's forgotten secrets.
-
-### **Ancients**
-
-An enigmatic race of precursors believed to have seeded ominous lifeforms across the galaxy. Their advanced technology and forgotten cities are scattered throughout Eryxian sector, waiting to be rediscovered.
-
-## Galactic Factions
-
-### **Crystalines**
-
-Crystalline beings with advanced psionic abilities and a deep connection to the cosmos.
-
-### **Aquatoids**
-
-An amphibious race dwelling in the vast oceans of Eryx. They are masters of underwater technology and possess a deep understanding of the planet's aquatic ecosystems. Their motivations are shrouded in mystery, but rumors suggest they possess knowledge of ancient events.
-
-### **Insectoids**
-
-A hive mind of insectoid creatures driven by an insatiable hunger for knowledge and expansion. A race of social insects with a hive mind mentality. They are relentless and highly adaptable, capable of swarming planets and overwhelming their defenses. Their primary focus is resource acquisition, and they will negotiate or conquer to achieve it.
-
-### **The Zenithians**
-
-An ancient machine race shrouded in mystery, rumored to possess technology capable of reshaping galaxies.
-
-### **The** Cyreneans
-
-A race mastering fast interstellar travel and scientific research.
-
+For the definitive list and details, always consult the [Eryxian Wiki](https://github.com/eryxgames/eryxian/wiki).
