@@ -1,0 +1,1298 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Eryxian Planetary Utility</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background: #0a0a0a;
+            color: #00ff88;
+            font-family: 'Courier New', monospace;
+            overflow: hidden;
+        }
+        
+        #container {
+            display: flex;
+            height: 100vh;
+        }
+        
+        #viewport {
+            flex: 1;
+            position: relative;
+        }
+        
+        #controls {
+            width: 400px;
+            background: rgba(10, 10, 10, 0.9);
+            padding: 20px;
+            overflow-y: auto;
+            border-left: 2px solid #00ff88;
+        }
+        
+        .system-selector {
+            margin-bottom: 20px;
+        }
+        
+        .system-btn {
+            background: rgba(0, 255, 136, 0.1);
+            border: 1px solid #00ff88;
+            color: #00ff88;
+            padding: 8px 16px;
+            margin: 5px;
+            cursor: pointer;
+            font-family: inherit;
+            transition: all 0.3s;
+        }
+        
+        .system-btn:hover,
+        .system-btn.active {
+            background: rgba(0, 255, 136, 0.3);
+        }
+        
+        .info-section {
+            margin-bottom: 20px;
+            padding: 10px;
+            border: 1px solid #004444;
+            background: rgba(0, 255, 136, 0.05);
+        }
+        
+        .info-section h3 {
+            margin: 0 0 10px 0;
+            color: #00ffaa;
+            border-bottom: 1px solid #004444;
+            padding-bottom: 5px;
+        }
+        
+        .slider-group {
+            margin: 10px 0;
+        }
+        
+        .slider-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-size: 0.9em;
+        }
+        
+        .slider {
+            width: 100%;
+            -webkit-appearance: none;
+            height: 4px;
+            background: #004444;
+            outline: none;
+            border-radius: 2px;
+        }
+        
+        .slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 16px;
+            height: 16px;
+            background: #00ff88;
+            border-radius: 50%;
+            cursor: pointer;
+        }
+        
+        .data-display {
+            font-size: 0.8em;
+            color: #88ffaa;
+            line-height: 1.4;
+        }
+        
+        .warning {
+            color: #ff8844;
+            background: rgba(255, 136, 68, 0.1);
+            padding: 5px;
+            border-left: 3px solid #ff8844;
+            margin: 10px 0;
+        }
+        
+        .stellar-object {
+            margin: 5px 0;
+            padding: 5px;
+            background: rgba(0, 255, 136, 0.05);
+            border-left: 2px solid #006644;
+        }
+        
+        .cycle-indicator {
+            background: rgba(0, 100, 150, 0.2);
+            border: 1px solid #0088ff;
+            padding: 8px;
+            margin: 5px 0;
+            border-radius: 3px;
+        }
+        
+        .cycle-wet { border-color: #00ff88; background: rgba(0, 255, 136, 0.1); }
+        .cycle-dry { border-color: #ff8844; background: rgba(255, 136, 68, 0.1); }
+        .cycle-transition { border-color: #ffaa44; background: rgba(255, 170, 68, 0.1); }
+        
+        .reference-point {
+            background: rgba(255, 255, 136, 0.1);
+            border: 1px solid #ffff88;
+            padding: 5px;
+            margin: 3px 0;
+            font-size: 0.8em;
+        }
+        
+        #info-overlay {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            background: rgba(0, 0, 0, 0.8);
+            color: #00ff88;
+            padding: 10px;
+            border: 1px solid #00ff88;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9em;
+            max-width: 300px;
+        }
+        
+        #logo-overlay {
+            position: absolute;
+            bottom: 20px;
+            left: 20px;
+            background: rgba(0, 0, 0, 0.7);
+            color: #00ff88;
+            padding: 10px;
+            border: 1px solid #00ff88;
+            font-family: 'Courier New', monospace;
+            font-size: 0.8em;
+        }
+        
+        .object-label {
+            position: absolute;
+            background: rgba(0, 0, 0, 0.8);
+            color: #00ff88;
+            padding: 4px 8px;
+            border: 1px solid #00ff88;
+            font-size: 0.8em;
+            pointer-events: none;
+            z-index: 100;
+            border-radius: 3px;
+        }
+        
+        .object-info-panel {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            width: 300px;
+            background: rgba(0, 0, 0, 0.9);
+            border: 2px solid #00ff88;
+            color: #00ff88;
+            padding: 15px;
+            font-size: 0.85em;
+            display: none;
+            z-index: 200;
+        }
+        
+        .fade-transition {
+            opacity: 0;
+            transition: opacity 0.5s ease-in-out;
+        }
+        
+        .mesh-controls {
+            background: rgba(0, 50, 100, 0.1);
+            border: 1px solid #0088ff;
+            padding: 10px;
+            margin: 10px 0;
+        }
+        
+        .checkbox-group {
+            margin: 8px 0;
+            display: flex;
+            align-items: center;
+        }
+        
+        .checkbox-group input[type="checkbox"] {
+            margin-right: 8px;
+        }
+    </style>
+</head>
+<body>
+    <div id="container">
+        <div id="viewport">
+            <div id="info-overlay">
+                <div id="system-name">ERYXIA SYSTEM (ATHE)</div>
+                <div id="current-time">Standard Time: 2387.156</div>
+                <div id="system-status">System Status: STABLE</div>
+                <div id="daylight-status">Daylight: Double Star</div>
+            </div>
+            
+            <div id="logo-overlay">
+                <!-- Logo container - replace with <img src="eryxian-logo.png" alt="Eryxian" style="height: 24px;"> when available -->
+                <div style="font-weight: bold; color: #00ff88;">ERYXIAN UNIVERSE</div>
+                <div style="font-size: 0.7em; color: #88ffaa;">Planetary Utility v1.2.3</div>
+            </div>
+            
+            <div class="object-info-panel" id="object-info">
+                <div id="object-title">Object Information</div>
+                <div id="object-details"></div>
+            </div>
+        </div>
+        
+        <div id="controls">
+            <div class="system-selector">
+                <h3>PLANETARY SYSTEMS</h3>
+                <button class="system-btn active" data-system="eryxia">ERYXIA (Athe System)</button>
+                <button class="system-btn" data-system="gordian">GORDIAN MOON (Er System)</button>
+                <button class="system-btn" data-system="ionthara">IONTHARA (Rheos System)</button>
+            </div>
+            
+            <div class="info-section">
+                <h3>TEMPORAL CONTROLS</h3>
+                <div class="slider-group">
+                    <label>Time Scale: <span id="time-scale-value">0.1x</span></label>
+                    <input type="range" class="slider" id="time-scale" min="0.025" max="1.0" step="0.025" value="0.1">
+                </div>
+                <div class="slider-group">
+                    <label>Current Phase: <span id="current-phase">Day</span></label>
+                    <input type="range" class="slider" id="phase-control" min="0" max="360" value="0">
+                </div>
+            </div>
+            
+            <div class="info-section mesh-controls">
+                <h3>DISPLAY SETTINGS</h3>
+                <div class="slider-group">
+                    <label>Mesh Density: <span id="mesh-density-value">8</span></label>
+                    <input type="range" class="slider" id="mesh-density" min="4" max="16" value="8">
+                </div>
+                <div class="checkbox-group">
+                    <input type="checkbox" id="use-spherical" checked>
+                    <label for="use-spherical">Spherical Geometry</label>
+                </div>
+                <div class="checkbox-group">
+                    <input type="checkbox" id="show-labels" checked>
+                    <label for="show-labels">Object Labels</label>
+                </div>
+                <div class="checkbox-group">
+                    <input type="checkbox" id="show-orbits" checked>
+                    <label for="show-orbits">Orbit Traces</label>
+                </div>
+            </div>
+            
+            <div class="info-section">
+                <h3>STELLAR CONFIGURATION</h3>
+                <div id="stellar-info">
+                    <div class="stellar-object">
+                        <strong>ATHE (Primary):</strong><br>
+                        Type: G2V | Temp: 5,720K<br>
+                        Status: <span class="status-active">ACTIVE</span>
+                    </div>
+                    <div class="stellar-object">
+                        <strong>NYX (Secondary):</strong><br>
+                        Type: M4V | Period: 65 years<br>
+                        Phase: <span id="nyx-phase">Approach</span>
+                    </div>
+                    <div class="stellar-object">
+                        <strong>KHAO (Distant):</strong><br>
+                        Type: K5III | Period: 3,847 years<br>
+                        Next Chaos: <span id="chaos-countdown">1,203 years</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="info-section">
+                <h3>PLANETARY CONDITIONS</h3>
+                <div class="data-display" id="conditions-display">
+                    <div>Surface Temp: <span id="surface-temp">24°C</span></div>
+                    <div>Radiation Level: <span id="radiation">Normal</span></div>
+                    <div>Atmospheric Pressure: <span id="pressure">2.3 atm</span></div>
+                    <div>Breathable Altitude: <span id="breathable">1,500-3,000m</span></div>
+                    <div>Tidal Activity: <span id="tidal">Moderate</span></div>
+                    <div>Ring Interference: <span id="ring-status">Minimal</span></div>
+                </div>
+            </div>
+            
+            <div class="info-section">
+                <h3>REFERENCE POINTS</h3>
+                <div id="reference-points">
+                    <div class="reference-point">
+                        <strong>Terran Mandate Outpost HQ:</strong><br>
+                        <span id="hq-conditions">Daylight: Double Star | 26°C</span>
+                    </div>
+                    <div class="reference-point">
+                        <strong>Collective Dropzone Node:</strong><br>
+                        <span id="node-conditions">Daylight: Single Star | 22°C</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="info-section">
+                <h3>CYCLES & SEASONS</h3>
+                <div id="cycles-display">
+                    <div class="cycle-indicator cycle-wet">
+                        <strong>Scorched Cycle:</strong> Wet Phase<br>
+                        <small>Explosive vegetation growth, high humidity</small>
+                    </div>
+                    <div>Next Transition: 47 days</div>
+                    <div>Daylight Type: <span id="daylight-type">Double Star</span></div>
+                </div>
+            </div>
+            
+            <div class="info-section">
+                <h3>GM EVENTS & HAZARDS</h3>
+                <div id="events-display">
+                    <div class="warning" id="current-events">
+                        • Nyx radiation surge in 2.3 days<br>
+                        • Ring particle storm affecting northern hemisphere<br>
+                        • Flux-shift season beginning
+                    </div>
+                </div>
+            </div>
+            
+            <div class="info-section">
+                <h3>CIVILIZATION STATUS</h3>
+                <div class="data-display" id="civilization-status">
+                    <div><strong>Aerav:</strong> High Altitude Settlements</div>
+                    <div><strong>Terrax:</strong> Jungle Communities</div>
+                    <div><strong>Profundi:</strong> Coastal Diving Operations</div>
+                    <div><strong>Ystai:</strong> Hidden Enclaves</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Global variables
+        let scene, camera, renderer, currentSystem = 'eryxia';
+        let animationId;
+        let systemObjects = {};
+        let orbitTraces = {};
+        let protoplanetaryRings = {};
+        let timeScale = 0.1;
+        let currentTime = 0;
+        let meshDensity = 8;
+        let useSpherical = true;
+        let showLabels = true;
+        let showOrbits = true;
+        let labels = [];
+        let isTransitioning = false;
+        let raycaster = new THREE.Raycaster();
+        let mouse = new THREE.Vector2();
+        
+        // Reference points on planet surface (longitude, latitude in degrees)
+        const referencePoints = {
+            hq: { name: "Terran Mandate Outpost HQ", lon: 45, lat: 15 },
+            node: { name: "Collective Dropzone Node", lon: -120, lat: -30 }
+        };
+        
+        // System data with enhanced cycles information
+        const systems = {
+            eryxia: {
+                name: "ERYXIA SYSTEM (ATHE)",
+                stars: [
+                    { name: "Athe", type: "G2V", color: 0xffffff, size: 20, distance: 0, period: 0, description: "Primary G-type star providing base illumination" },
+                    { name: "Nyx", type: "M4V", color: 0xff4444, size: 8, distance: 150, period: 65, description: "Red dwarf causing radiation surges during close approach" },
+                    { name: "Khao", type: "K5III", color: 0xff8844, size: 25, distance: 400, period: 3847, description: "Distant giant triggering Chaos Cycles every few millennia" }
+                ],
+                planet: {
+                    name: "Eryxia",
+                    color: 0x44ff88,
+                    size: 12,
+                    distance: 100,
+                    rings: true,
+                    atmosphere: true,
+                    description: "Living world with hyper-evolved ecosystems and breathable atmospheric layer"
+                },
+                protoplanetaryDisks: {
+                    inner: { distance: 60, width: 15, color: 0xff6644, opacity: 0.3, description: "Volatile zone of intense radiation and heat" },
+                    middle: { distance: 100, width: 25, color: 0x44ff88, opacity: 0.2, description: "Eryxia's habitable zone" },
+                    outer: { distance: 200, width: 40, color: 0x4488ff, opacity: 0.15, description: "Cold region with icy planetesimals" }
+                },
+                conditions: {
+                    baseTemp: 24,
+                    pressure: 2.3,
+                    breathable: "1,500-3,000m",
+                    radiation: "Normal",
+                    tidal: "Moderate"
+                },
+                cycles: {
+                    type: "Scorched Cycles",
+                    currentPhase: "wet",
+                    phaseDuration: 94,
+                    nextTransition: 47,
+                    description: "Dramatic wet/dry cycles affecting jungle and oceanic regions"
+                }
+            },
+            gordian: {
+                name: "GORDIAN MOON (ER SYSTEM)",
+                stars: [
+                    { name: "Er Prime", type: "G2V", color: 0xffffff, size: 18, distance: 0, period: 0, description: "Primary star of the Er binary system" },
+                    { name: "Er Minor", type: "K1V", color: 0xffaa44, size: 12, distance: 80, period: 47.3, description: "Orange dwarf companion creating complex heating cycles" }
+                ],
+                gasGiant: {
+                    name: "Gord",
+                    color: 0x8844ff,
+                    size: 40,
+                    distance: 180,
+                    description: "Massive gas giant generating powerful magnetosphere and tidal forces"
+                },
+                planet: {
+                    name: "Gordian Moon",
+                    color: 0x4488ff,
+                    size: 8,
+                    distance: 60,
+                    rings: false,
+                    atmosphere: false,
+                    description: "Ancient Worldship with methane atmosphere and MHD phenomena"
+                },
+                conditions: {
+                    baseTemp: -120,
+                    pressure: 0.1,
+                    breathable: "None - Methane Atmosphere",
+                    radiation: "High MHD",
+                    tidal: "Extreme"
+                },
+                cycles: {
+                    type: "MHD Storms",
+                    currentPhase: "building",
+                    phaseDuration: 28,
+                    nextTransition: 12,
+                    description: "Magnetohydrodynamic phenomena affecting technology and life"
+                }
+            },
+            ionthara: {
+                name: "IONTHARA (RHEOS SYSTEM)",
+                stars: [
+                    { name: "Rheos Prima", type: "G2V", color: 0xffffff, size: 19, distance: 0, period: 0, description: "Primary star of the Rheos quintuple system" },
+                    { name: "Rheos Secundus", type: "K1V", color: 0xffaa44, size: 14, distance: 120, period: 47.3, description: "Binary companion triggering Great Convergence events" },
+                    { name: "Distant Star 1", type: "M5V", color: 0xff6666, size: 6, distance: 500, period: 234, description: "Red dwarf in outer system" },
+                    { name: "Distant Star 2", type: "K3V", color: 0xffbb44, size: 8, distance: 600, period: 456, description: "Orange dwarf affecting long-term stability" },
+                    { name: "Distant Star 3", type: "G5V", color: 0xffffaa, size: 10, distance: 700, period: 789, description: "Yellow dwarf in distant orbit" }
+                ],
+                planet: {
+                    name: "Ionthara",
+                    color: 0x44aaff,
+                    size: 16,
+                    distance: 150,
+                    rings: false,
+                    atmosphere: true,
+                    description: "Oceanic Super-Earth with ionic liquid atmosphere and potential sapient life"
+                },
+                conditions: {
+                    baseTemp: 35,
+                    pressure: 12000,
+                    breathable: "Ionic Liquid Ocean",
+                    radiation: "Variable EM",
+                    tidal: "Massive"
+                },
+                cycles: {
+                    type: "Great Convergence",
+                    currentPhase: "inter-convergence",
+                    phaseDuration: 47.3 * 365,
+                    nextTransition: 12.3 * 365,
+                    description: "47.3-year stellar alignment causing extreme planetary phenomena"
+                }
+            }
+        };
+        
+        // Initialize Three.js
+        function init() {
+            scene = new THREE.Scene();
+            camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 2000);
+            renderer = new THREE.WebGLRenderer({ antialias: true });
+            renderer.setSize(window.innerWidth - 400, window.innerHeight);
+            renderer.setClearColor(0x000000);
+            document.getElementById('viewport').appendChild(renderer.domElement);
+            
+            camera.position.set(200, 100, 300);
+            camera.lookAt(0, 0, 0);
+            
+            createStarField();
+            switchSystem('eryxia');
+            
+            // Event listeners
+            document.querySelectorAll('.system-btn').forEach(function(btn) {
+                btn.addEventListener('click', function(e) {
+                    if (!isTransitioning) {
+                        document.querySelectorAll('.system-btn').forEach(function(b) {
+                            b.classList.remove('active');
+                        });
+                        e.target.classList.add('active');
+                        switchSystem(e.target.dataset.system);
+                    }
+                });
+            });
+            
+            document.getElementById('time-scale').addEventListener('input', function(e) {
+                timeScale = parseFloat(e.target.value);
+                document.getElementById('time-scale-value').textContent = timeScale.toFixed(3) + 'x';
+            });
+            
+            document.getElementById('phase-control').addEventListener('input', function(e) {
+                currentTime = parseFloat(e.target.value) * 10;
+                updateSystemDisplay();
+            });
+            
+            document.getElementById('mesh-density').addEventListener('input', function(e) {
+                meshDensity = parseInt(e.target.value);
+                document.getElementById('mesh-density-value').textContent = meshDensity;
+                rebuildCurrentSystem();
+            });
+            
+            document.getElementById('use-spherical').addEventListener('change', function(e) {
+                useSpherical = e.target.checked;
+                rebuildCurrentSystem();
+            });
+            
+            document.getElementById('show-labels').addEventListener('change', function(e) {
+                showLabels = e.target.checked;
+                toggleLabels();
+            });
+            
+            document.getElementById('show-orbits').addEventListener('change', function(e) {
+                showOrbits = e.target.checked;
+                toggleOrbits();
+            });
+            
+            // Mouse interaction
+            renderer.domElement.addEventListener('click', onMouseClick);
+            renderer.domElement.addEventListener('mousemove', onMouseMove);
+            
+            // Mouse controls
+            var isMouseDown = false;
+            var mouseX = 0, mouseY = 0;
+            
+            renderer.domElement.addEventListener('mousedown', function(e) {
+                if (e.button === 2) {
+                    isMouseDown = true;
+                    mouseX = e.clientX;
+                    mouseY = e.clientY;
+                }
+            });
+            
+            window.addEventListener('mouseup', function() {
+                isMouseDown = false;
+            });
+            
+            window.addEventListener('mousemove', function(e) {
+                if (!isMouseDown) return;
+                
+                var deltaX = e.clientX - mouseX;
+                var deltaY = e.clientY - mouseY;
+                
+                var radius = camera.position.length();
+                var theta = Math.atan2(camera.position.x, camera.position.z);
+                var phi = Math.acos(camera.position.y / radius);
+                
+                var newTheta = theta + deltaX * 0.01;
+                var newPhi = Math.max(0.1, Math.min(Math.PI - 0.1, phi - deltaY * 0.01));
+                
+                camera.position.x = radius * Math.sin(newPhi) * Math.sin(newTheta);
+                camera.position.y = radius * Math.cos(newPhi);
+                camera.position.z = radius * Math.sin(newPhi) * Math.cos(newTheta);
+                camera.lookAt(0, 0, 0);
+                
+                mouseX = e.clientX;
+                mouseY = e.clientY;
+            });
+            
+            // Zoom
+            renderer.domElement.addEventListener('wheel', function(e) {
+                camera.position.multiplyScalar(e.deltaY > 0 ? 1.1 : 0.9);
+                camera.lookAt(0, 0, 0);
+            });
+            
+            // Prevent context menu
+            renderer.domElement.addEventListener('contextmenu', function(e) {
+                e.preventDefault();
+            });
+            
+            animate();
+        }
+        
+        function createGeometry(size, density, spherical) {
+            if (spherical === undefined) spherical = true;
+            if (spherical) {
+                return new THREE.SphereGeometry(size, density * 2, density);
+            } else {
+                return new THREE.BoxGeometry(size, size, size, density, density, density);
+            }
+        }
+        
+        function createOrbitTrace(distance, color) {
+            var points = [];
+            var segments = 128;
+            for (var i = 0; i <= segments; i++) {
+                var angle = (i / segments) * Math.PI * 2;
+                points.push(new THREE.Vector3(
+                    Math.cos(angle) * distance,
+                    0,
+                    Math.sin(angle) * distance
+                ));
+            }
+            
+            var geometry = new THREE.BufferGeometry().setFromPoints(points);
+            var material = new THREE.LineBasicMaterial({ 
+                color: color,
+                transparent: true,
+                opacity: 0.3
+            });
+            
+            return new THREE.Line(geometry, material);
+        }
+        
+        function createProtoplanetaryDisk(diskData) {
+            var innerRadius = diskData.distance - diskData.width / 2;
+            var outerRadius = diskData.distance + diskData.width / 2;
+            
+            var geometry = new THREE.RingGeometry(innerRadius, outerRadius, 64);
+            var material = new THREE.MeshBasicMaterial({
+                color: diskData.color,
+                transparent: true,
+                opacity: diskData.opacity,
+                side: THREE.DoubleSide
+            });
+            
+            var disk = new THREE.Mesh(geometry, material);
+            disk.rotation.x = Math.PI / 2;
+            
+            var positions = geometry.attributes.position;
+            for (var i = 0; i < positions.count; i++) {
+                var vertex = new THREE.Vector3().fromBufferAttribute(positions, i);
+                var noise = (Math.random() - 0.5) * 10;
+                vertex.y += noise;
+                positions.setXYZ(i, vertex.x, vertex.y, vertex.z);
+            }
+            positions.needsUpdate = true;
+            
+            return disk;
+        }
+        
+        function createStarField() {
+            var starsGeometry = new THREE.BufferGeometry();
+            var starsMaterial = new THREE.PointsMaterial({ color: 0x888888, size: 0.5 });
+            
+            var starsVertices = [];
+            for (var i = 0; i < 1000; i++) {
+                var x = (Math.random() - 0.5) * 2000;
+                var y = (Math.random() - 0.5) * 2000;
+                var z = (Math.random() - 0.5) * 2000;
+                starsVertices.push(x, y, z);
+            }
+            
+            starsGeometry.setAttribute('position', new THREE.Float32BufferAttribute(starsVertices, 3));
+            var starField = new THREE.Points(starsGeometry, starsMaterial);
+            scene.add(starField);
+        }
+        
+        function switchSystem(systemName) {
+            if (isTransitioning) return;
+            
+            isTransitioning = true;
+            
+            // Fade out current system
+            Object.values(systemObjects).forEach(function(obj) {
+                if (obj.mesh) {
+                    obj.mesh.traverse(function(child) {
+                        if (child.material) {
+                            child.material.transparent = true;
+                            fadeOut(child.material, 0.5, function() {
+                                scene.remove(obj.mesh);
+                            });
+                        }
+                    });
+                }
+            });
+            
+            // Fade out orbit traces
+            Object.values(orbitTraces).forEach(function(trace) {
+                if (trace.material) {
+                    fadeOut(trace.material, 0.5, function() {
+                        scene.remove(trace);
+                    });
+                }
+            });
+            
+            // Fade out protoplanetary rings
+            Object.values(protoplanetaryRings).forEach(function(ring) {
+                if (ring.material) {
+                    fadeOut(ring.material, 0.5, function() {
+                        scene.remove(ring);
+                    });
+                }
+            });
+            
+            // Clear labels
+            clearLabels();
+            
+            setTimeout(function() {
+                systemObjects = {};
+                orbitTraces = {};
+                protoplanetaryRings = {};
+                currentSystem = systemName;
+                currentTime = 0;
+                
+                var system = systems[systemName];
+                
+                // Create protoplanetary disks for Eryxia system
+                if (systemName === 'eryxia' && system.protoplanetaryDisks) {
+                    Object.keys(system.protoplanetaryDisks).forEach(function(name) {
+                        var diskData = system.protoplanetaryDisks[name];
+                        var disk = createProtoplanetaryDisk(diskData);
+                        scene.add(disk);
+                        protoplanetaryRings[name] = disk;
+                        
+                        fadeIn(disk.material, diskData.opacity, 0.5);
+                    });
+                }
+                
+                // Create stars
+                system.stars.forEach(function(star, index) {
+                    var geometry = createGeometry(star.size, meshDensity, useSpherical);
+                    var material = new THREE.MeshBasicMaterial({ 
+                        color: star.color,
+                        transparent: true,
+                        opacity: 0
+                    });
+                    var mesh = new THREE.Mesh(geometry, material);
+                    
+                    // Add edge highlighting
+                    var edges = new THREE.EdgesGeometry(geometry);
+                    var edgesMaterial = new THREE.LineBasicMaterial({ 
+                        color: star.color,
+                        transparent: true,
+                        opacity: 0
+                    });
+                    var edgesMesh = new THREE.LineSegments(edges, edgesMaterial);
+                    mesh.add(edgesMesh);
+                    
+                    // Add glow
+                    var glowGeometry = createGeometry(star.size * 1.5, Math.max(4, meshDensity - 2), useSpherical);
+                    var glowMaterial = new THREE.MeshBasicMaterial({
+                        color: star.color,
+                        transparent: true,
+                        opacity: 0
+                    });
+                    var glow = new THREE.Mesh(glowGeometry, glowMaterial);
+                    mesh.add(glow);
+                    
+                    mesh.userData = { type: 'star', data: star, index: index };
+                    scene.add(mesh);
+                    systemObjects['star_' + index] = { mesh: mesh, data: star };
+                    
+                    // Create orbit trace
+                    if (star.distance > 0 && showOrbits) {
+                        var trace = createOrbitTrace(star.distance, star.color);
+                        scene.add(trace);
+                        orbitTraces['star_' + index] = trace;
+                    }
+                    
+                    // Fade in
+                    fadeIn(material, 0.8, 0.5);
+                    fadeIn(edgesMaterial, 1.0, 0.5);
+                    fadeIn(glowMaterial, 0.2, 0.5);
+                });
+                
+                // Create gas giant if exists
+                if (system.gasGiant) {
+                    var geometry = createGeometry(system.gasGiant.size, meshDensity, useSpherical);
+                    var material = new THREE.MeshBasicMaterial({ 
+                        color: system.gasGiant.color,
+                        transparent: true,
+                        opacity: 0
+                    });
+                    var mesh = new THREE.Mesh(geometry, material);
+                    
+                    var edges = new THREE.EdgesGeometry(geometry);
+                    var edgesMaterial = new THREE.LineBasicMaterial({ 
+                        color: system.gasGiant.color,
+                        transparent: true,
+                        opacity: 0
+                    });
+                    var edgesMesh = new THREE.LineSegments(edges, edgesMaterial);
+                    mesh.add(edgesMesh);
+                    
+                    mesh.userData = { type: 'gasGiant', data: system.gasGiant };
+                    scene.add(mesh);
+                    systemObjects.gasGiant = { mesh: mesh, data: system.gasGiant };
+                    
+                    // Create orbit trace for gas giant
+                    if (showOrbits) {
+                        var trace = createOrbitTrace(system.gasGiant.distance, system.gasGiant.color);
+                        scene.add(trace);
+                        orbitTraces.gasGiant = trace;
+                    }
+                    
+                    fadeIn(material, 0.6, 0.5);
+                    fadeIn(edgesMaterial, 1.0, 0.5);
+                }
+                
+                // Create planet
+                var planetGeometry = createGeometry(system.planet.size, meshDensity, useSpherical);
+                var planetMaterial = new THREE.MeshBasicMaterial({ 
+                    color: system.planet.color,
+                    transparent: true,
+                    opacity: 0
+                });
+                var planetMesh = new THREE.Mesh(planetGeometry, planetMaterial);
+                
+                var planetEdges = new THREE.EdgesGeometry(planetGeometry);
+                var planetEdgesMaterial = new THREE.LineBasicMaterial({ 
+                    color: system.planet.color,
+                    transparent: true,
+                    opacity: 0
+                });
+                var planetEdgesMesh = new THREE.LineSegments(planetEdges, planetEdgesMaterial);
+                planetMesh.add(planetEdgesMesh);
+                
+                // Add rings if applicable
+                if (system.planet.rings) {
+                    var ringGeometry = new THREE.RingGeometry(system.planet.size * 2, system.planet.size * 3, 32);
+                    var ringMaterial = new THREE.MeshBasicMaterial({ 
+                        color: 0x888888,
+                        transparent: true,
+                        opacity: 0,
+                        side: THREE.DoubleSide
+                    });
+                    var rings = new THREE.Mesh(ringGeometry, ringMaterial);
+                    rings.rotation.x = Math.PI / 2;
+                    planetMesh.add(rings);
+                    
+                    fadeIn(ringMaterial, 0.3, 0.5);
+                }
+                
+                planetMesh.userData = { type: 'planet', data: system.planet };
+                scene.add(planetMesh);
+                systemObjects.planet = { mesh: planetMesh, data: system.planet };
+                
+                // Create planet orbit trace
+                if (showOrbits) {
+                    var orbitDistance = system.gasGiant ? system.planet.distance : system.planet.distance;
+                    var trace = createOrbitTrace(orbitDistance, system.planet.color);
+                    scene.add(trace);
+                    orbitTraces.planet = trace;
+                }
+                
+                fadeIn(planetMaterial, 0.7, 0.5);
+                fadeIn(planetEdgesMaterial, 1.0, 0.5);
+                
+                updateSystemInfo();
+                updateSystemDisplay();
+                
+                setTimeout(function() {
+                    isTransitioning = false;
+                    if (showLabels) createLabels();
+                }, 1000);
+            }, 500);
+        }
+        
+        function rebuildCurrentSystem() {
+            if (!isTransitioning) {
+                switchSystem(currentSystem);
+            }
+        }
+        
+        function toggleOrbits() {
+            Object.values(orbitTraces).forEach(function(trace) {
+                trace.visible = showOrbits;
+            });
+        }
+        
+        function fadeIn(material, targetOpacity, duration) {
+            var startOpacity = 0;
+            var startTime = Date.now();
+            
+            function animate() {
+                var elapsed = (Date.now() - startTime) / 1000;
+                var progress = Math.min(elapsed / duration, 1);
+                
+                material.opacity = startOpacity + (targetOpacity - startOpacity) * progress;
+                
+                if (progress < 1) {
+                    requestAnimationFrame(animate);
+                }
+            }
+            
+            animate();
+        }
+        
+        function fadeOut(material, duration, callback) {
+            var startOpacity = material.opacity;
+            var startTime = Date.now();
+            
+            function animate() {
+                var elapsed = (Date.now() - startTime) / 1000;
+                var progress = Math.min(elapsed / duration, 1);
+                
+                material.opacity = startOpacity * (1 - progress);
+                
+                if (progress < 1) {
+                    requestAnimationFrame(animate);
+                } else if (callback) {
+                    callback();
+                }
+            }
+            
+            animate();
+        }
+        
+        function createLabels() {
+            if (!showLabels) return;
+            
+            Object.keys(systemObjects).forEach(function(key) {
+                var obj = systemObjects[key];
+                if (obj.mesh && obj.data) {
+                    var label = document.createElement('div');
+                    label.className = 'object-label';
+                    label.textContent = obj.data.name;
+                    label.style.display = 'none';
+                    document.body.appendChild(label);
+                    labels.push({ element: label, mesh: obj.mesh });
+                }
+            });
+        }
+        
+        function clearLabels() {
+            labels.forEach(function(label) {
+                document.body.removeChild(label.element);
+            });
+            labels = [];
+        }
+        
+        function toggleLabels() {
+            if (showLabels) {
+                createLabels();
+            } else {
+                clearLabels();
+            }
+        }
+        
+        function updateLabels() {
+            if (!showLabels) return;
+            
+            labels.forEach(function(label) {
+                var vector = label.mesh.position.clone();
+                vector.project(camera);
+                
+                var x = (vector.x * 0.5 + 0.5) * (window.innerWidth - 400);
+                var y = (vector.y * -0.5 + 0.5) * window.innerHeight;
+                
+                if (vector.z < 1) {
+                    label.element.style.display = 'block';
+                    label.element.style.left = x + 'px';
+                    label.element.style.top = y + 'px';
+                } else {
+                    label.element.style.display = 'none';
+                }
+            });
+        }
+        
+        function calculateDaylightAtPoint(lon, lat, time) {
+            var system = systems[currentSystem];
+            var illumination = 0;
+            var temperature = system.conditions.baseTemp;
+            var description = [];
+            
+            // Calculate contribution from each star
+            system.stars.forEach(function(star, index) {
+                if (systemObjects['star_' + index]) {
+                    var starPos = systemObjects['star_' + index].mesh.position;
+                    var planetPos = systemObjects.planet.mesh.position;
+                    
+                    var starAngle = Math.atan2(starPos.z - planetPos.z, starPos.x - planetPos.x);
+                    var pointAngle = (lon * Math.PI / 180) + (time * 0.01);
+                    var angleDiff = Math.abs(starAngle - pointAngle);
+                    
+                    if (angleDiff < Math.PI / 2 || angleDiff > 3 * Math.PI / 2) {
+                        illumination += star.size / 20;
+                        if (star.name === "Athe") {
+                            temperature += 5;
+                            description.push("Athe");
+                        } else if (star.name === "Nyx") {
+                            temperature += 2;
+                            description.push("Nyx");
+                        } else if (star.name === "Khao") {
+                            temperature += 1;
+                            description.push("Khao");
+                        }
+                    }
+                }
+            });
+            
+            var daylightType = "Night";
+            if (description.length === 3) daylightType = "Triple Daylight";
+            else if (description.length === 2) daylightType = "Double Daylight";
+            else if (description.length === 1) daylightType = "Single Daylight";
+            else if (illumination > 0.1) daylightType = "Twilight";
+            
+            return { daylightType: daylightType, temperature: Math.round(temperature), description: description.join("+") };
+        }
+        
+        function updateReferencePoints() {
+            if (currentSystem === 'eryxia' && systemObjects.planet) {
+                var hqConditions = calculateDaylightAtPoint(referencePoints.hq.lon, referencePoints.hq.lat, currentTime);
+                document.getElementById('hq-conditions').textContent = 
+                    'Daylight: ' + hqConditions.daylightType + ' | ' + hqConditions.temperature + '°C';
+                
+                var nodeConditions = calculateDaylightAtPoint(referencePoints.node.lon, referencePoints.node.lat, currentTime);
+                document.getElementById('node-conditions').textContent = 
+                    'Daylight: ' + nodeConditions.daylightType + ' | ' + nodeConditions.temperature + '°C';
+            }
+        }
+        
+        function onMouseClick(event) {
+            mouse.x = (event.clientX / (window.innerWidth - 400)) * 2 - 1;
+            mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
+            
+            raycaster.setFromCamera(mouse, camera);
+            
+            var objects = [];
+            Object.values(systemObjects).forEach(function(obj) {
+                if (obj.mesh) objects.push(obj.mesh);
+            });
+            
+            var intersects = raycaster.intersectObjects(objects);
+            
+            if (intersects.length > 0) {
+                var object = intersects[0].object;
+                showObjectInfo(object.userData);
+            } else {
+                hideObjectInfo();
+            }
+        }
+        
+        function onMouseMove(event) {
+            updateLabels();
+        }
+        
+        function showObjectInfo(userData) {
+            var panel = document.getElementById('object-info');
+            var title = document.getElementById('object-title');
+            var details = document.getElementById('object-details');
+            
+            if (userData && userData.data) {
+                title.textContent = userData.data.name.toUpperCase();
+                
+                var detailsHTML = '';
+                if (userData.type === 'star') {
+                    detailsHTML = '<strong>Type:</strong> ' + userData.data.type + '<br>' +
+                        '<strong>Distance:</strong> ' + userData.data.distance + ' AU<br>' +
+                        '<strong>Period:</strong> ' + userData.data.period + ' years<br>' +
+                        '<strong>Size:</strong> ' + userData.data.size + ' units<br>' +
+                        '<strong>Description:</strong> ' + userData.data.description;
+                } else if (userData.type === 'planet') {
+                    var system = systems[currentSystem];
+                    detailsHTML = '<strong>Type:</strong> ' + (userData.data.rings ? 'Ringed Planet' : 'Planet') + '<br>' +
+                        '<strong>Atmosphere:</strong> ' + (userData.data.atmosphere ? 'Present' : 'None') + '<br>' +
+                        '<strong>Temperature:</strong> ' + system.conditions.baseTemp + '°C<br>' +
+                        '<strong>Pressure:</strong> ' + system.conditions.pressure + ' atm<br>' +
+                        '<strong>Breathable Zone:</strong> ' + system.conditions.breathable + '<br>' +
+                        '<strong>Description:</strong> ' + userData.data.description;
+                } else if (userData.type === 'gasGiant') {
+                    detailsHTML = '<strong>Type:</strong> Gas Giant<br>' +
+                        '<strong>Distance:</strong> ' + userData.data.distance + ' AU<br>' +
+                        '<strong>Size:</strong> ' + userData.data.size + ' units<br>' +
+                        '<strong>Description:</strong> ' + userData.data.description;
+                }
+                
+                details.innerHTML = detailsHTML;
+                panel.style.display = 'block';
+            }
+        }
+        
+        function hideObjectInfo() {
+            document.getElementById('object-info').style.display = 'none';
+        }
+        
+        function updateSystemInfo() {
+            var system = systems[currentSystem];
+            document.getElementById('system-name').textContent = system.name;
+            
+            var stellarInfo = document.getElementById('stellar-info');
+            stellarInfo.innerHTML = '';
+            
+            system.stars.forEach(function(star) {
+                var div = document.createElement('div');
+                div.className = 'stellar-object';
+                div.innerHTML = '<strong>' + star.name + ':</strong><br>' +
+                    'Type: ' + star.type + ' | Distance: ' + star.distance + 'AU<br>' +
+                    'Status: <span class="status-active">ACTIVE</span>';
+                stellarInfo.appendChild(div);
+            });
+            
+            var conditions = system.conditions;
+            document.getElementById('surface-temp').textContent = conditions.baseTemp + '°C';
+            document.getElementById('pressure').textContent = conditions.pressure + ' atm';
+            document.getElementById('breathable').textContent = conditions.breathable;
+            document.getElementById('radiation').textContent = conditions.radiation;
+            document.getElementById('tidal').textContent = conditions.tidal;
+            
+            updateSystemSpecificInfo();
+            updateCycleInfo();
+        }
+        
+        function updateCycleInfo() {
+            var system = systems[currentSystem];
+            var cyclesDisplay = document.getElementById('cycles-display');
+            
+            var cycleClass = 'cycle-indicator';
+            if (system.cycles.currentPhase === 'wet') cycleClass += ' cycle-wet';
+            else if (system.cycles.currentPhase === 'dry') cycleClass += ' cycle-dry';
+            else cycleClass += ' cycle-transition';
+            
+            var cycleContent = '';
+            switch(currentSystem) {
+                case 'eryxia':
+                    cycleContent = '<div class="' + cycleClass + '">' +
+                        '<strong>Scorched Cycle:</strong> ' + system.cycles.currentPhase.charAt(0).toUpperCase() + system.cycles.currentPhase.slice(1) + ' Phase<br>' +
+                        '<small>' + getScorchedPhaseDescription(system.cycles.currentPhase) + '</small>' +
+                        '</div>' +
+                        '<div>Next Transition: ' + system.cycles.nextTransition + ' days</div>' +
+                        '<div>Daylight Type: <span id="daylight-type">' + getDaylightType() + '</span></div>';
+                    break;
+                    
+                case 'gordian':
+                    cycleContent = '<div class="' + cycleClass + '">' +
+                        '<strong>MHD Storm:</strong> ' + system.cycles.currentPhase.charAt(0).toUpperCase() + system.cycles.currentPhase.slice(1) + '<br>' +
+                        '<small>Magnetohydrodynamic field fluctuations</small>' +
+                        '</div>' +
+                        '<div>Next Peak: ' + system.cycles.nextTransition + ' days</div>' +
+                        '<div>Tidal Heating: <span id="tidal-heating">Moderate</span></div>';
+                    break;
+                    
+                case 'ionthara':
+                    cycleContent = '<div class="' + cycleClass + '">' +
+                        '<strong>Great Convergence:</strong> Inter-period<br>' +
+                        '<small>47.3-year stellar alignment cycle</small>' +
+                        '</div>' +
+                        '<div>Next Convergence: ' + Math.floor(system.cycles.nextTransition / 365) + ' years</div>' +
+                        '<div>Pressure Dynamics: <span id="pressure-dynamics">Stable</span></div>';
+                    break;
+            }
+            
+            cyclesDisplay.innerHTML = cycleContent;
+        }
+        
+        function getScorchedPhaseDescription(phase) {
+            switch(phase) {
+                case 'wet': return 'Explosive vegetation growth, high humidity, swollen rivers';
+                case 'dry': return 'Intense solar radiation, evaporating water, increased fire risk';
+                case 'transition': return 'Rapid environmental changes over weeks';
+                default: return 'Unknown phase';
+            }
+        }
+        
+        function getDaylightType() {
+            var time = currentTime % 360;
+            if (time < 60) return 'Triple Daylight';
+            if (time < 120) return 'Double Daylight';
+            if (time < 180) return 'Single Daylight';
+            if (time < 240) return 'Twilight';
+            if (time < 300) return 'True Night';
+            return 'Double Daylight';
+        }
+        
+        function updateSystemSpecificInfo() {
+            var events = document.getElementById('events-display');
+            var civStatus = document.getElementById('civilization-status');
+            
+            switch(currentSystem) {
+                case 'eryxia':
+                    events.innerHTML = '<div class="warning">' +
+                        '• Nyx radiation surge in 2.3 days<br>' +
+                        '• Ring particle storm affecting northern hemisphere<br>' +
+                        '• Scorched cycle transition approaching<br>' +
+                        '• Flux-shift season beginning in jungle regions' +
+                        '</div>';
+                    civStatus.innerHTML = '<div><strong>Aerav:</strong> High Altitude Settlements</div>' +
+                        '<div><strong>Terrax:</strong> Jungle Communities</div>' +
+                        '<div><strong>Profundi:</strong> Coastal Diving Operations</div>' +
+                        '<div><strong>Ystai:</strong> Hidden Enclaves</div>';
+                    break;
+                    
+                case 'gordian':
+                    events.innerHTML = '<div class="warning">' +
+                        '• MHD storm activity increasing<br>' +
+                        '• Methane freeze predicted in polar regions<br>' +
+                        '• Ancient construct energy readings detected<br>' +
+                        '• Tidal heating affecting geothermal vents' +
+                        '</div>';
+                    civStatus.innerHTML = '<div><strong>Krystalloi:</strong> Crystal Cities Stable</div>' +
+                        '<div><strong>Ventus:</strong> Geothermal Operations</div>' +
+                        '<div><strong>Ferrum:</strong> Scrapfield Nomads</div>' +
+                        '<div><strong>Umbra:</strong> Polar Settlements</div>' +
+                        '<div><strong>Perditus:</strong> Tech Scavenging</div>';
+                    break;
+                    
+                case 'ionthara':
+                    events.innerHTML = '<div class="warning">' +
+                        '• Great Convergence in 12.3 years<br>' +
+                        '• Thalassicon showing increased activity<br>' +
+                        '• Deep mining disrupting Leviathan migration<br>' +
+                        '• Ionic storm systems forming in mid-zones' +
+                        '</div>';
+                    civStatus.innerHTML = '<div><strong>Pressure Guild:</strong> Deep Operations</div>' +
+                        '<div><strong>Iontech Syndicate:</strong> Surface Platforms</div>' +
+                        '<div><strong>Rheostorm Company:</strong> Current Harvesting</div>' +
+                        '<div><strong>Deep Riders:</strong> Symbiotic Mining</div>' +
+                        '<div><strong>Void Walker Cults:</strong> Growing Influence</div>';
+                    break;
+            }
+        }
+        
+        function updateSystemDisplay() {
+            var system = systems[currentSystem];
+            
+            // Animate orbital mechanics
+            system.stars.forEach(function(star, index) {
+                if (star.period > 0 && systemObjects['star_' + index]) {
+                    var angle = (currentTime / star.period) * Math.PI * 2;
+                    systemObjects['star_' + index].mesh.position.x = Math.cos(angle) * star.distance;
+                    systemObjects['star_' + index].mesh.position.z = Math.sin(angle) * star.distance;
+                }
+            });
+            
+            // Position gas giant
+            if (systemObjects.gasGiant) {
+                systemObjects.gasGiant.mesh.position.x = system.gasGiant.distance;
+            }
+            
+            // Position planet
+            if (systemObjects.planet) {
+                if (system.gasGiant) {
+                    var angle = currentTime * 0.1;
+                    systemObjects.planet.mesh.position.x = system.gasGiant.distance + Math.cos(angle) * system.planet.distance;
+                    systemObjects.planet.mesh.position.z = Math.sin(angle) * system.planet.distance;
+                } else {
+                    var angle = currentTime * 0.05;
+                    systemObjects.planet.mesh.position.x = Math.cos(angle) * system.planet.distance;
+                    systemObjects.planet.mesh.position.z = Math.sin(angle) * system.planet.distance;
+                }
+                
+                systemObjects.planet.mesh.rotation.y = currentTime * 0.02;
+            }
+            
+            var phase = Math.floor((currentTime % 360) / 30);
+            var phases = ['Dawn', 'Morning', 'Noon', 'Afternoon', 'Dusk', 'Evening', 'Night', 'Deep Night', 'Pre-Dawn', 'Late Night', 'Early Dawn', 'Sunrise'];
+            document.getElementById('current-phase').textContent = phases[phase] || 'Day';
+            
+            document.getElementById('daylight-status').textContent = 'Daylight: ' + getDaylightType();
+            
+            updateReferencePoints();
+            updateLabels();
+        }
+        
+        function animate() {
+            animationId = requestAnimationFrame(animate);
+            
+            currentTime += timeScale;
+            updateSystemDisplay();
+            
+            renderer.render(scene, camera);
+        }
+        
+        // Handle window resize
+        window.addEventListener('resize', function() {
+            camera.aspect = (window.innerWidth - 400) / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth - 400, window.innerHeight);
+        });
+        
+        // Initialize on load
+        init();
+    </script>
+</body>
+</html>

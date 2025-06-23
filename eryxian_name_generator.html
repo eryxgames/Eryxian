@@ -1,0 +1,722 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Eryxian Universe Name Generator</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1a1a2e, #16213e, #0f3460);
+            color: #e0e6ed;
+            margin: 0;
+            padding: 20px;
+            min-height: 100vh;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 30px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        h1 {
+            text-align: center;
+            color: #4fc3f7;
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            text-shadow: 0 0 20px rgba(79, 195, 247, 0.3);
+        }
+        
+        .subtitle {
+            text-align: center;
+            color: #81c784;
+            font-size: 1.2em;
+            margin-bottom: 30px;
+        }
+        
+        .section {
+            margin: 30px 0;
+            padding: 20px;
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 10px;
+            border-left: 4px solid #4fc3f7;
+        }
+        
+        .section h2 {
+            color: #4fc3f7;
+            margin-top: 0;
+        }
+        
+        .generator-section {
+            background: rgba(79, 195, 247, 0.1);
+            border-left: 4px solid #81c784;
+        }
+        
+        .name-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+        
+        .name-category {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 15px;
+            border-radius: 8px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .name-category h3 {
+            color: #81c784;
+            margin-top: 0;
+            font-size: 1.1em;
+        }
+        
+        .name-list {
+            list-style: none;
+            padding: 0;
+            margin: 10px 0;
+        }
+        
+        .name-list li {
+            padding: 3px 0;
+            color: #b0bec5;
+        }
+        
+        .generator-controls {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin: 20px 0;
+            align-items: center;
+        }
+        
+        select, button {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: #e0e6ed;
+            padding: 10px 15px;
+            border-radius: 6px;
+            font-size: 14px;
+        }
+        
+        button {
+            background: linear-gradient(45deg, #4fc3f7, #81c784);
+            cursor: pointer;
+            font-weight: bold;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(79, 195, 247, 0.3);
+        }
+        
+        .generated-names {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 10px;
+            margin: 20px 0;
+        }
+        
+        .generated-name {
+            background: rgba(129, 199, 132, 0.1);
+            padding: 10px;
+            border-radius: 6px;
+            text-align: center;
+            font-weight: bold;
+            color: #81c784;
+            border: 1px solid rgba(129, 199, 132, 0.3);
+        }
+        
+        .lore-text {
+            font-style: italic;
+            color: #90a4ae;
+            line-height: 1.6;
+        }
+        
+        .epoch {
+            margin: 15px 0;
+            padding: 15px;
+            background: rgba(255, 255, 255, 0.02);
+            border-radius: 6px;
+        }
+        
+        .epoch h4 {
+            color: #ffb74d;
+            margin: 0 0 10px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Eryxian Universe</h1>
+        <p class="subtitle">Advanced Name Generation System</p>
+        
+        <div class="section">
+            <h2>🌌 Linguistic Evolution in the Eryxian Timeline</h2>
+            <div class="lore-text">
+                <p>The Eryxian Universe spans millennia of human expansion across the galaxy. Languages evolved through distinct epochs, shaped by interstellar travel, alien contact, and technological advancement.</p>
+                
+                <div class="epoch">
+                    <h4>Exodus Era (2387-2891 CE)</h4>
+                    <p>Earth languages merged during the Great Departure. Names retained familiar roots but gained harder consonants and extended vowels due to ship-born generations.</p>
+                </div>
+                
+                <div class="epoch">
+                    <h4>Void Tongue Period (2891-3156 CE)</h4>
+                    <p>Deep space isolation created the "Void Tongue" - a compressed, efficient language. Names became shorter, more functional, with X, Z, and K sounds predominating.</p>
+                </div>
+                
+                <div class="epoch">
+                    <h4>Nexus Renaissance (3156-3847 CE)</h4>
+                    <p>Discovery of alien civilizations brought exotic sounds and structures. Names incorporated flows, clicks, and harmonic patterns from non-human languages.</p>
+                </div>
+                
+                <div class="epoch">
+                    <h4>Current Eryxian Age (3847+ CE)</h4>
+                    <p>Modern naming blends all eras - ancient Earth echoes, Void efficiency, and Nexus complexity, creating the distinctive Eryxian naming conventions.</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="section">
+            <h2>🌍 Cultural Evolution Patterns</h2>
+            <div class="lore-text">
+                <p>During humanity's exodus to the stars, Earth's diverse naming traditions evolved through technological and social pressures. Each cultural group developed distinct patterns of linguistic change:</p>
+                
+                <div class="name-grid">
+                    <div class="name-category">
+                        <h3>East Asian Evolution</h3>
+                        <ul class="name-list">
+                            <li><strong>Original:</strong> Liu Wei, Takeshi</li>
+                            <li><strong>Void Era:</strong> Lux, Tkshx</li>
+                            <li><strong>Current:</strong> Liuon, Takesheth</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="name-category">
+                        <h3>Slavic Evolution</h3>
+                        <ul class="name-list">
+                            <li><strong>Original:</strong> Viktor, Volkov</li>
+                            <li><strong>Void Era:</strong> Vktyn, Vlkvyn</li>
+                            <li><strong>Current:</strong> Viktion, Volkion</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="name-category">
+                        <h3>Anglo-Saxon Evolution</h3>
+                        <ul class="name-list">
+                            <li><strong>Original:</strong> William, MacLeod</li>
+                            <li><strong>Void Era:</strong> Wx-7, Mx-6</li>
+                            <li><strong>Current:</strong> Willaris, MacLearis</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="name-category">
+                        <h3>Semitic Evolution</h3>
+                        <ul class="name-list">
+                            <li><strong>Original:</strong> David, Al-Rashid</li>
+                            <li><strong>Void Era:</strong> Dvdx, Rshx</li>
+                            <li><strong>Current:</strong> Davidian, Rashidian</li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <p><strong>Evolution Principles:</strong></p>
+                <ul>
+                    <li><strong>Exodus Era:</strong> Minimal change, some shortening for efficiency</li>
+                    <li><strong>Void Tongue:</strong> Extreme compression, vowel deletion, numerical suffixes</li>
+                    <li><strong>Nexus Renaissance:</strong> Flowing extensions, harmony with alien phonetics</li>
+                    <li><strong>Current Eryxian:</strong> Sophisticated blend of all evolutionary phases</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="section generator-section">
+            <h2>🎯 Interactive Name Generator</h2>
+            <div class="generator-controls">
+                <select id="nameType">
+                    <option value="character">Character Names</option>
+                    <option value="fullname">Full Names (First + Last)</option>
+                    <option value="planet">Planet Names</option>
+                    <option value="station">Space Stations</option>
+                    <option value="faction">Faction Names</option>
+                    <option value="ship">Ship Names</option>
+                    <option value="city">City Names</option>
+                </select>
+                
+                <select id="nameEra">
+                    <option value="mixed">Mixed Era</option>
+                    <option value="exodus">Exodus Era</option>
+                    <option value="void">Void Tongue</option>
+                    <option value="nexus">Nexus Renaissance</option>
+                    <option value="current">Current Eryxian</option>
+                </select>
+                
+                <select id="culturalInfluence">
+                    <option value="mixed">Mixed Cultural</option>
+                    <option value="eastasian">East Asian (Chinese/Japanese)</option>
+                    <option value="slavic">Slavic (Russian/Czech/Polish)</option>
+                    <option value="anglosaxon">Anglo-Saxon (English/Scottish)</option>
+                    <option value="indian">Indian Subcontinent</option>
+                    <option value="ancient">Ancient Mediterranean</option>
+                    <option value="semitic">Semitic (Hebrew/Aramaic/Arabic)</option>
+                    <option value="germanic">Germanic/Nordic</option>
+                    <option value="romance">Romance (Latin derivatives)</option>
+                </select>
+                
+                <button onclick="generateNames()">Generate Names</button>
+                <button onclick="generateSingle()">Single Name</button>
+                <button onclick="generateFullNamesBatch()">Generate 20 Full Names</button>
+            </div>
+            
+            <div id="generatedNamesContainer" class="generated-names"></div>
+        </div>
+        
+        <div class="section">
+            <h2>📋 Curated Name Collections</h2>
+            
+            <div class="name-grid">
+                <div class="name-category">
+                    <h3>Human Characters (Male)</h3>
+                    <ul class="name-list">
+                        <li>Kaelix Vorthane</li>
+                        <li>Zephyr Aldricson</li>
+                        <li>Thane Xerion</li>
+                        <li>Daxen Kyrell</li>
+                        <li>Orion Nexvault</li>
+                        <li>Vex Torimane</li>
+                        <li>Jaxon Syldris</li>
+                        <li>Ryker Voidborn</li>
+                        <li>Caius Stellarex</li>
+                        <li>Zane Kruxxis</li>
+                    </ul>
+                </div>
+                
+                <div class="name-category">
+                    <h3>Human Characters (Female)</h3>
+                    <ul class="name-list">
+                        <li>Lyra Vexhaven</li>
+                        <li>Zara Nyxellis</li>
+                        <li>Kira Stellawind</li>
+                        <li>Nova Qyrentis</li>
+                        <li>Sera Voidmark</li>
+                        <li>Axara Kynevault</li>
+                        <li>Mira Xenthara</li>
+                        <li>Vera Starlynx</li>
+                        <li>Nyx Vorthania</li>
+                        <li>Lux Zephyris</li>
+                    </ul>
+                </div>
+                
+                <div class="name-category">
+                    <h3>Planet Names</h3>
+                    <ul class="name-list">
+                        <li>Xerion Prime</li>
+                        <li>Vorthak Secundus</li>
+                        <li>Nyx'thara</li>
+                        <li>Stellaris Kai</li>
+                        <li>Zephyron Major</li>
+                        <li>Kyrenthis</li>
+                        <li>Voidhaven</li>
+                        <li>Nexarial</li>
+                        <li>Thalyx System</li>
+                        <li>Qor'vethia</li>
+                    </ul>
+                </div>
+                
+                <div class="name-category">
+                    <h3>Faction Names</h3>
+                    <ul class="name-list">
+                        <li>Xerion Hegemony</li>
+                        <li>Vorthane Syndicate</li>
+                        <li>Stellaris Consortium</li>
+                        <li>Nexus Wardens</li>
+                        <li>Void Shepherds</li>
+                        <li>Kyrenthis Coalition</li>
+                        <li>Zephyr Vanguard</li>
+                        <li>Thalyx Brotherhood</li>
+                        <li>Nyx'thara Collective</li>
+                        <li>Quantum Architects</li>
+                    </ul>
+                </div>
+                
+                <div class="name-category">
+                    <h3>Space Stations</h3>
+                    <ul class="name-list">
+                        <li>Nexus Spire</li>
+                        <li>Vorthane Gate</li>
+                        <li>Stellaris Hub</li>
+                        <li>Xerion Bastion</li>
+                        <li>Void Anchor</li>
+                        <li>Kyrenthis Beacon</li>
+                        <li>Zephyr Station</li>
+                        <li>Thalyx Outpost</li>
+                        <li>Nyx'thara Port</li>
+                        <li>Quantum Nexus</li>
+                    </ul>
+                </div>
+                
+                <div class="name-category">
+                    <h3>Starship Names</h3>
+                    <ul class="name-list">
+                        <li>EXS Vorthane's Edge</li>
+                        <li>EXS Stellar Wanderer</li>
+                        <li>EXS Void Piercer</li>
+                        <li>EXS Nexus Crown</li>
+                        <li>EXS Zephyr's Wake</li>
+                        <li>EXS Kyrenthis Dawn</li>
+                        <li>EXS Thalyx Runner</li>
+                        <li>EXS Nyx'thara Dream</li>
+                        <li>EXS Quantum Arrow</li>
+                        <li>EXS Xerion's Fist</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        
+        <div class="section">
+            <h2>🔧 Advanced Naming Guidelines & Patterns</h2>
+            <div class="name-grid">
+                <div class="name-category">
+                    <h3>Character Naming Patterns</h3>
+                    <ul class="name-list">
+                        <li><strong>First Names:</strong> 1-2 syllables, hard consonants</li>
+                        <li><strong>Surnames:</strong> Often compound or descriptive</li>
+                        <li><strong>Void-born:</strong> X, Z, K sounds common</li>
+                        <li><strong>Planet-born:</strong> Softer, flowing sounds</li>
+                        <li><strong>Noble Houses:</strong> Ancient Earth echoes</li>
+                    </ul>
+                </div>
+                
+                <div class="name-category">
+                    <h3>Full Name Harmony Rules</h3>
+                    <ul class="name-list">
+                        <li><strong>Syllable Balance:</strong> Short first + long last, or reverse</li>
+                        <li><strong>Consonant Flow:</strong> Avoid hard/hard combinations</li>
+                        <li><strong>Cultural Consistency:</strong> Same evolution era</li>
+                        <li><strong>Rhythmic Pattern:</strong> da-DA-da or DA-da-DA</li>
+                        <li><strong>Meaning Layers:</strong> Hidden cultural references</li>
+                    </ul>
+                </div>
+                
+                <div class="name-category">
+                    <h3>Location Naming Rules</h3>
+                    <ul class="name-list">
+                        <li><strong>Planets:</strong> Often end in -is, -on, -ar</li>
+                        <li><strong>Systems:</strong> Named after discoverers</li>
+                        <li><strong>Colonies:</strong> Prime, Secundus, Major</li>
+                        <li><strong>Stations:</strong> Function + Location</li>
+                        <li><strong>Cities:</strong> Geographic + Cultural blend</li>
+                    </ul>
+                </div>
+                
+                <div class="name-category">
+                    <h3>Cultural Authenticity Tips</h3>
+                    <ul class="name-list">
+                        <li><strong>Research Origins:</strong> Understand root meanings</li>
+                        <li><strong>Evolution Logic:</strong> Follow technological pressures</li>
+                        <li><strong>Mixing Cultures:</strong> Use for hybrid characters</li>
+                        <li><strong>Regional Variants:</strong> Same name, different evolution</li>
+                        <li><strong>Family Patterns:</strong> Consistent evolution within families</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Cultural evolution patterns - how names from Earth cultures evolved in space
+        const culturalRoots = {
+            eastasian: {
+                firstNames: ['Liu', 'Wei', 'Chen', 'Wang', 'Zhang', 'Li', 'Huang', 'Zhao', 'Wu', 'Zhou',
+                           'Takeshi', 'Hiroshi', 'Yuki', 'Kenji', 'Akira', 'Satoshi', 'Ryu', 'Hana', 'Yuki', 'Mika'],
+                lastNames: ['Yamamoto', 'Tanaka', 'Suzuki', 'Watanabe', 'Liu', 'Chen', 'Wang', 'Zhang', 'Li', 'Wu'],
+                evolutionPatterns: {
+                    shortening: (name) => name.length > 4 ? name.substring(0, 3) + 'x' : name + 'x',
+                    voidification: (name) => name.replace(/[aeiou]/g, '') + 'ax',
+                    nexusForm: (name) => name + (Math.random() > 0.5 ? 'on' : 'eth')
+                }
+            },
+            slavic: {
+                firstNames: ['Viktor', 'Ivan', 'Dmitri', 'Alexei', 'Boris', 'Pavel', 'Sergei', 'Mikhail', 'Novak', 'Petr'],
+                lastNames: ['Volkov', 'Petrov', 'Ivanov', 'Smirnov', 'Novak', 'Svoboda', 'Dvorak', 'Kowalski', 'Nowak', 'Wojcik'],
+                evolutionPatterns: {
+                    shortening: (name) => name.substring(0, 4) + 'ex',
+                    voidification: (name) => name.replace(/[aeiou]/g, '') + 'yn',
+                    nexusForm: (name) => name.replace(/ov$|ski$|ak$/g, '') + 'ion'
+                }
+            },
+            anglosaxon: {
+                firstNames: ['William', 'James', 'Robert', 'John', 'David', 'Richard', 'Thomas', 'Charles', 'Duncan', 'Malcolm'],
+                lastNames: ['Smith', 'Johnson', 'Brown', 'Taylor', 'Anderson', 'MacLeod', 'Campbell', 'Stewart', 'MacDonald', 'Fraser'],
+                evolutionPatterns: {
+                    shortening: (name) => name.substring(0, 3) + (Math.random() > 0.5 ? 'son' : 'wick'),
+                    voidification: (name) => name.substring(0, 2) + 'x-' + name.length,
+                    nexusForm: (name) => name.replace(/son$|ton$/g, '') + 'aris'
+                }
+            },
+            indian: {
+                firstNames: ['Rajesh', 'Suresh', 'Mahesh', 'Ramesh', 'Dinesh', 'Naresh', 'Rakesh', 'Mukesh', 'Arun', 'Vijay'],
+                lastNames: ['Sharma', 'Gupta', 'Singh', 'Kumar', 'Patel', 'Shah', 'Jain', 'Agarwal', 'Mittal', 'Bansal'],
+                evolutionPatterns: {
+                    shortening: (name) => name.substring(0, 3) + 'ar',
+                    voidification: (name) => name.replace(/[aeiou]/g, '') + 'ex',
+                    nexusForm: (name) => name + (Math.random() > 0.5 ? 'ian' : 'esh')
+                }
+            },
+            ancient: {
+                firstNames: ['Marcus', 'Julius', 'Gaius', 'Lucius', 'Alexander', 'Dimitri', 'Theron', 'Ankh', 'Khaemwaset', 'Ramses'],
+                lastNames: ['Aurelius', 'Maximus', 'Octavius', 'Antonius', 'Ptolemy', 'Alexandros', 'Thaddeus', 'Ankhef', 'Kheti', 'Seneb'],
+                evolutionPatterns: {
+                    shortening: (name) => name.substring(0, 4) + 'on',
+                    voidification: (name) => name.substring(0, 2) + 'x' + name.substring(name.length-1),
+                    nexusForm: (name) => name + (Math.random() > 0.5 ? 'ius' : 'eth')
+                }
+            },
+            semitic: {
+                firstNames: ['David', 'Michael', 'Gabriel', 'Daniel', 'Samuel', 'Aaron', 'Isaac', 'Jacob', 'Muhammad', 'Hassan'],
+                lastNames: ['Ben-David', 'Cohen', 'Levi', 'Al-Rashid', 'Ibn-Sina', 'Al-Farisi', 'Ben-Abraham', 'Al-Kindi', 'Ben-Yosef', 'Al-Mansur'],
+                evolutionPatterns: {
+                    shortening: (name) => name.replace(/Ben-|Al-|Ibn-/g, '') + 'el',
+                    voidification: (name) => name.replace(/[aeiou]/g, '').substring(0, 3) + 'x',
+                    nexusForm: (name) => name.replace(/Ben-|Al-|Ibn-/g, '') + 'ian'
+                }
+            },
+            germanic: {
+                firstNames: ['Heinrich', 'Wilhelm', 'Friedrich', 'Ludwig', 'Gustav', 'Klaus', 'Hans', 'Otto', 'Bruno', 'Konrad'],
+                lastNames: ['Mueller', 'Schmidt', 'Schneider', 'Fischer', 'Weber', 'Meyer', 'Wagner', 'Becker', 'Schulz', 'Hoffmann'],
+                evolutionPatterns: {
+                    shortening: (name) => name.substring(0, 4) + 'ren',
+                    voidification: (name) => name.replace(/[aeiou]/g, '').substring(0, 3) + 'x',
+                    nexusForm: (name) => name.replace(/er$|en$/g, '') + 'ion'
+                }
+            },
+            romance: {
+                firstNames: ['Antonio', 'Francesco', 'Giovanni', 'Marco', 'Andrea', 'Alessandro', 'Lorenzo', 'Matteo', 'Diego', 'Carlos'],
+                lastNames: ['Rossi', 'Ferrari', 'Esposito', 'Bianchi', 'Romano', 'Colombo', 'Garcia', 'Martinez', 'Lopez', 'Gonzalez'],
+                evolutionPatterns: {
+                    shortening: (name) => name.substring(0, 4) + 'ez',
+                    voidification: (name) => name.replace(/[aeiou]/g, '').substring(0, 3) + 'x',
+                    nexusForm: (name) => name.replace(/o$|ez$/g, '') + 'ari'
+                }
+            }
+        };
+
+        const nameParts = {
+            exodus: {
+                prefixes: ['Kai', 'Dar', 'Mer', 'Zer', 'Lux', 'Rex', 'Nyx', 'Vex'],
+                cores: ['ander', 'arian', 'orin', 'ilian', 'athan', 'elyn', 'aria', 'issa'],
+                suffixes: ['son', 'dane', 'wick', 'ford', 'vale', 'haven', 'mark', 'shire']
+            },
+            void: {
+                prefixes: ['Kx', 'Zr', 'Nx', 'Vx', 'Qr', 'Xt', 'Zk', 'Kz'],
+                cores: ['a', 'e', 'o', 'u', 'y', 'ax', 'ex', 'ox'],
+                suffixes: ['x', 'z', 'k', 'r', 'n', 'x-7', 'z-9', 'k-3']
+            },
+            nexus: {
+                prefixes: ['Thy', 'Qor', 'Zeph', 'Nyx', 'Kyr', 'Vel', 'Syl', 'Mor'],
+                cores: ['enth', 'arian', 'ellun', 'yxar', 'ithen', 'uvar', 'othen', 'arix'],
+                suffixes: ['is', 'on', 'ar', 'us', 'ia', 'yn', 'el', 'th']
+            },
+            current: {
+                prefixes: ['Xerion', 'Vorth', 'Stell', 'Nex', 'Zeph', 'Kyr', 'Thal', 'Qor'],
+                cores: ['a', 'e', 'i', 'o', 'ar', 'en', 'an', 'yr'],
+                suffixes: ['ne', 'x', 'is', 'on', 'us', 'ia', 'th', 'yn']
+            }
+        };
+
+        const planetSuffixes = ['Prime', 'Secundus', 'Major', 'Minor', 'Alpha', 'Beta', 'Kai', 'Nyx'];
+        const stationTypes = ['Station', 'Hub', 'Spire', 'Gate', 'Beacon', 'Outpost', 'Base', 'Nexus'];
+        const shipPrefixes = ['EXS', 'HSV', 'UES', 'FSS', 'CVS', 'ICS'];
+
+        function getRandomElement(array) {
+            return array[Math.floor(Math.random() * array.length)];
+        }
+
+        function evolveName(name, era, culturalInfluence) {
+            if (culturalInfluence === 'mixed' || !culturalRoots[culturalInfluence]) {
+                return name;
+            }
+            
+            const culture = culturalRoots[culturalInfluence];
+            const evolution = culture.evolutionPatterns;
+            
+            switch (era) {
+                case 'exodus':
+                    return Math.random() > 0.7 ? evolution.shortening(name) : name;
+                case 'void':
+                    return evolution.voidification(name);
+                case 'nexus':
+                    return evolution.nexusForm(name);
+                case 'current':
+                    const methods = Object.values(evolution);
+                    return getRandomElement(methods)(name);
+                default:
+                    return name;
+            }
+        }
+
+        function generateCulturalName(era, type, culturalInfluence) {
+            if (culturalInfluence === 'mixed') {
+                const cultures = Object.keys(culturalRoots);
+                culturalInfluence = getRandomElement(cultures);
+            }
+            
+            if (!culturalRoots[culturalInfluence]) {
+                return generateName(era, type);
+            }
+            
+            const culture = culturalRoots[culturalInfluence];
+            
+            if (type === 'fullname') {
+                const firstName = getRandomElement(culture.firstNames);
+                const lastName = getRandomElement(culture.lastNames);
+                const evolvedFirst = evolveName(firstName, era, culturalInfluence);
+                const evolvedLast = evolveName(lastName, era, culturalInfluence);
+                return `${evolvedFirst} ${evolvedLast}`;
+            }
+            
+            if (type === 'character') {
+                const name = Math.random() > 0.5 ? 
+                    getRandomElement(culture.firstNames) : 
+                    getRandomElement(culture.lastNames);
+                return evolveName(name, era, culturalInfluence);
+            }
+            
+            // For other types, use evolved cultural names as base
+            const baseName = getRandomElement([...culture.firstNames, ...culture.lastNames]);
+            const evolvedBase = evolveName(baseName, era, culturalInfluence);
+            
+            if (type === 'planet') {
+                return Math.random() > 0.3 ? evolvedBase + ' ' + getRandomElement(planetSuffixes) : evolvedBase;
+            }
+            
+            if (type === 'station') {
+                return evolvedBase + ' ' + getRandomElement(stationTypes);
+            }
+            
+            if (type === 'ship') {
+                return getRandomElement(shipPrefixes) + ' ' + evolvedBase;
+            }
+            
+            if (type === 'faction') {
+                const factionTypes = ['Hegemony', 'Syndicate', 'Consortium', 'Coalition', 'Vanguard', 'Brotherhood', 'Collective', 'Order'];
+                return evolvedBase + ' ' + getRandomElement(factionTypes);
+            }
+            
+            if (type === 'city') {
+                const cityTypes = ['City', 'Port', 'Haven', 'Spire', 'Vale', 'Heights', 'District', 'Quarter'];
+                return Math.random() > 0.5 ? evolvedBase + ' ' + getRandomElement(cityTypes) : evolvedBase;
+            }
+            
+            return evolvedBase;
+        }
+
+        function generateName(era, type, culturalInfluence = 'mixed') {
+            if (culturalInfluence !== 'mixed') {
+                return generateCulturalName(era, type, culturalInfluence);
+            }
+            
+            const parts = nameParts[era] || nameParts.current;
+            
+            if (type === 'planet') {
+                const base = getRandomElement(parts.prefixes) + getRandomElement(parts.cores) + getRandomElement(parts.suffixes);
+                return Math.random() > 0.3 ? base + ' ' + getRandomElement(planetSuffixes) : base;
+            }
+            
+            if (type === 'station') {
+                const base = getRandomElement(parts.prefixes) + getRandomElement(parts.cores) + getRandomElement(parts.suffixes);
+                return base + ' ' + getRandomElement(stationTypes);
+            }
+            
+            if (type === 'ship') {
+                const base = getRandomElement(parts.prefixes) + getRandomElement(parts.cores) + getRandomElement(parts.suffixes);
+                return getRandomElement(shipPrefixes) + ' ' + base;
+            }
+            
+            if (type === 'faction') {
+                const name = getRandomElement(parts.prefixes) + getRandomElement(parts.cores) + getRandomElement(parts.suffixes);
+                const factionTypes = ['Hegemony', 'Syndicate', 'Consortium', 'Coalition', 'Vanguard', 'Brotherhood', 'Collective', 'Order'];
+                return name + ' ' + getRandomElement(factionTypes);
+            }
+            
+            if (type === 'city') {
+                const name = getRandomElement(parts.prefixes) + getRandomElement(parts.cores) + getRandomElement(parts.suffixes);
+                const cityTypes = ['City', 'Port', 'Haven', 'Spire', 'Vale', 'Heights', 'District', 'Quarter'];
+                return Math.random() > 0.5 ? name + ' ' + getRandomElement(cityTypes) : name;
+            }
+            
+            if (type === 'fullname') {
+                const firstName = getRandomElement(parts.prefixes) + getRandomElement(parts.cores);
+                const lastName = getRandomElement(parts.prefixes) + getRandomElement(parts.suffixes);
+                return firstName + ' ' + lastName;
+            }
+            
+            // Default character name
+            return getRandomElement(parts.prefixes) + getRandomElement(parts.cores) + getRandomElement(parts.suffixes);
+        }
+
+        function generateNames() {
+            const type = document.getElementById('nameType').value;
+            const era = document.getElementById('nameEra').value;
+            const cultural = document.getElementById('culturalInfluence').value;
+            const container = document.getElementById('generatedNamesContainer');
+            
+            container.innerHTML = '';
+            
+            const eras = era === 'mixed' ? ['exodus', 'void', 'nexus', 'current'] : [era];
+            
+            for (let i = 0; i < 12; i++) {
+                const selectedEra = getRandomElement(eras);
+                const name = generateName(selectedEra, type, cultural);
+                const nameDiv = document.createElement('div');
+                nameDiv.className = 'generated-name';
+                nameDiv.textContent = name;
+                container.appendChild(nameDiv);
+            }
+        }
+
+        function generateSingle() {
+            const type = document.getElementById('nameType').value;
+            const era = document.getElementById('nameEra').value;
+            const cultural = document.getElementById('culturalInfluence').value;
+            const container = document.getElementById('generatedNamesContainer');
+            
+            const selectedEra = era === 'mixed' ? getRandomElement(['exodus', 'void', 'nexus', 'current']) : era;
+            const name = generateName(selectedEra, type, cultural);
+            
+            container.innerHTML = `<div class="generated-name" style="grid-column: 1 / -1; font-size: 1.2em;">${name}</div>`;
+        }
+
+        function generateFullNamesBatch() {
+            const era = document.getElementById('nameEra').value;
+            const cultural = document.getElementById('culturalInfluence').value;
+            const container = document.getElementById('generatedNamesContainer');
+            
+            container.innerHTML = '';
+            
+            const eras = era === 'mixed' ? ['exodus', 'void', 'nexus', 'current'] : [era];
+            
+            for (let i = 0; i < 20; i++) {
+                const selectedEra = getRandomElement(eras);
+                const name = generateName(selectedEra, 'fullname', cultural);
+                const nameDiv = document.createElement('div');
+                nameDiv.className = 'generated-name';
+                nameDiv.style.fontSize = '0.9em';
+                nameDiv.textContent = name;
+                container.appendChild(nameDiv);
+            }
+        }
+
+        // Generate initial names
+        generateNames();
+    </script>
+</body>
+</html>
