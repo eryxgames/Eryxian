@@ -3,24 +3,33 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>My GitHub Pages Site</title>
+    <title>Eryxian GitHub Utilities</title>
     <style>
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             max-width: 800px;
             margin: 0 auto;
             padding: 40px 20px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
             min-height: 100vh;
-            color: white;
+            color: #e0e0e0;
         }
         
         .container {
-            background: rgba(255, 255, 255, 0.1);
+            background: rgba(0, 0, 0, 0.3);
             backdrop-filter: blur(10px);
             border-radius: 20px;
             padding: 40px;
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .logo {
+            display: block;
+            max-width: 300px;
+            height: auto;
+            margin: 0 auto 20px auto;
+            filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.3));
         }
         
         h1 {
@@ -31,6 +40,7 @@
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
+            display: none; /* Hidden when logo is used */
         }
         
         .subtitle {
@@ -48,13 +58,13 @@
         }
         
         .page-card {
-            background: rgba(255, 255, 255, 0.15);
+            background: rgba(255, 255, 255, 0.05);
             border-radius: 15px;
             padding: 25px;
             text-decoration: none;
-            color: white;
+            color: #e0e0e0;
             transition: all 0.3s ease;
-            border: 1px solid rgba(255, 255, 255, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.1);
             position: relative;
             overflow: hidden;
         }
@@ -76,8 +86,9 @@
         
         .page-card:hover {
             transform: translateY(-5px);
-            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
-            background: rgba(255, 255, 255, 0.2);
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.4);
+            background: rgba(255, 255, 255, 0.1);
+            border-color: rgba(255, 255, 255, 0.2);
         }
         
         .page-title {
@@ -92,35 +103,37 @@
         }
         
         .add-pages {
-            background: rgba(255, 255, 255, 0.1);
+            background: rgba(0, 0, 0, 0.2);
             border-radius: 15px;
             padding: 25px;
             margin-top: 30px;
-            border: 2px dashed rgba(255, 255, 255, 0.3);
+            border: 2px dashed rgba(255, 255, 255, 0.2);
         }
         
         .github-link {
             display: inline-block;
             margin-top: 20px;
             padding: 12px 24px;
-            background: rgba(255, 255, 255, 0.2);
+            background: rgba(255, 255, 255, 0.1);
             border-radius: 25px;
             text-decoration: none;
-            color: white;
+            color: #e0e0e0;
             transition: all 0.3s ease;
-            border: 1px solid rgba(255, 255, 255, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.2);
         }
         
         .github-link:hover {
-            background: rgba(255, 255, 255, 0.3);
+            background: rgba(255, 255, 255, 0.2);
             transform: translateY(-2px);
+            color: white;
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>My Web Projects</h1>
-        <p class="subtitle">A collection of interactive web pages and experiments</p>
+        <img src="eryxian-dash-logo-sm.png" alt="Eryxian" class="logo">
+        <h1>My Eryxian Web Utilities</h1>
+        <p class="subtitle">Game Master Utilities and Interactive Tools (v0.0.1)</p>
         
         <div class="page-grid">
             <!-- Add your artifact pages here -->
@@ -129,8 +142,8 @@
                 <div class="page-description">Eryxian Universe name generator tool with cultural evolution patterns.</div>
             </a>
             
-            <a href="todo-app.html" class="page-card">
-                <div class="page-title">Todo Manager</div>
+            <a href="ttrpg-todo-html" class="page-card">
+                <div class="page-title">Todo Manager Sketch</div>
                 <div class="page-description">Organize your GM tasks with this interactive todo application</div>
             </a>
             
@@ -157,6 +170,9 @@
             <a href="https://github.com/eryxgames/eryxian" class="github-link" target="_blank">
                 View on GitHub →
             </a>
+            <a href="https://eryxian.com" class="github-link" target="_blank">
+                View eryxian.com →
+            </a>            
         </div>
     </div>
 </body>

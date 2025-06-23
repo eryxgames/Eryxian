@@ -1,0 +1,829 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Eryxian TTRPG Todo Manager</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+            min-height: 100vh;
+            background: linear-gradient(135deg, #0f172a 0%, #581c87 50%, #0f172a 100%);
+            color: white;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem 1rem;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        #logoContainer img {
+            max-height: 80px;
+            margin-bottom: 1rem;
+            filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.3));
+        }
+
+        .title {
+            font-size: 3rem;
+            font-weight: bold;
+            margin-bottom: 0.5rem;
+            background: linear-gradient(to right, #60a5fa, #a78bfa);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .subtitle {
+            color: #d1d5db;
+            margin-bottom: 0.25rem;
+        }
+
+        .save-info {
+            font-size: 0.875rem;
+            color: #9ca3af;
+        }
+
+        .add-section {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(8px);
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .section-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+        }
+
+        .form-grid {
+            display: grid;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr auto;
+            gap: 1rem;
+        }
+
+        .input, .textarea, .select {
+            padding: 0.75rem;
+            background: rgba(255, 255, 255, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: 8px;
+            color: white;
+            font-size: 1rem;
+        }
+
+        .input::placeholder, .textarea::placeholder {
+            color: #d1d5db;
+        }
+
+        .input:focus, .textarea:focus, .select:focus {
+            outline: none;
+            box-shadow: 0 0 0 2px #60a5fa;
+            border-color: transparent;
+        }
+
+        .textarea {
+            resize: none;
+            height: 5rem;
+        }
+
+        .select option {
+            background: #1f2937;
+            color: white;
+        }
+
+        .btn-primary {
+            background: #3b82f6;
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: background-color 0.2s;
+        }
+
+        .btn-primary:hover {
+            background: #2563eb;
+        }
+
+        .filters {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .filter-btn {
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            border: none;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .filter-btn.active {
+            background: #3b82f6;
+            color: white;
+        }
+
+        .filter-btn:not(.active) {
+            background: rgba(255, 255, 255, 0.2);
+            color: #d1d5db;
+        }
+
+        .filter-btn:not(.active):hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        .category-section {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(8px);
+            border-radius: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            margin-bottom: 1.5rem;
+        }
+
+        .category-header {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 1rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .category-icon {
+            font-size: 1.5rem;
+        }
+
+        .category-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+        }
+
+        .badge {
+            background: rgba(59, 130, 246, 0.3);
+            color: #93c5fd;
+            padding: 0.25rem 0.5rem;
+            border-radius: 9999px;
+            font-size: 0.875rem;
+        }
+
+        .todo-list {
+            padding: 1rem;
+        }
+
+        .todo-item {
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 8px;
+            padding: 1rem;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            margin-bottom: 0.75rem;
+        }
+
+        .todo-item.completed {
+            opacity: 0.6;
+        }
+
+        .todo-content {
+            display: flex;
+            align-items: flex-start;
+            gap: 0.75rem;
+        }
+
+        .checkbox {
+            width: 1.25rem;
+            height: 1.25rem;
+            border: 2px solid #9ca3af;
+            border-radius: 4px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-top: 0.25rem;
+            transition: all 0.2s;
+        }
+
+        .checkbox.checked {
+            background: #10b981;
+            border-color: #10b981;
+        }
+
+        .todo-main {
+            flex: 1;
+        }
+
+        .todo-title {
+            font-weight: 500;
+            margin-bottom: 0.25rem;
+        }
+
+        .todo-title.completed {
+            text-decoration: line-through;
+            color: #9ca3af;
+        }
+
+        .todo-description {
+            font-size: 0.875rem;
+            color: #d1d5db;
+            margin-bottom: 0.5rem;
+        }
+
+        .todo-meta {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .priority-badge {
+            padding: 0.25rem 0.5rem;
+            border-radius: 9999px;
+            font-size: 0.75rem;
+            font-weight: 500;
+        }
+
+        .priority-low { background: #f3f4f6; color: #6b7280; }
+        .priority-medium { background: #fef3c7; color: #d97706; }
+        .priority-high { background: #fee2e2; color: #dc2626; }
+        .priority-critical { background: #fecaca; color: #991b1b; }
+
+        .due-date {
+            font-size: 0.75rem;
+            color: #9ca3af;
+            display: flex;
+            align-items: center;
+            gap: 0.25rem;
+        }
+
+        .todo-actions {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .action-btn {
+            padding: 0.5rem;
+            background: none;
+            border: none;
+            color: #9ca3af;
+            cursor: pointer;
+            border-radius: 4px;
+            transition: color 0.2s;
+            font-size: 1rem;
+        }
+
+        .action-btn:hover {
+            color: #60a5fa;
+        }
+
+        .action-btn.delete:hover {
+            color: #f87171;
+        }
+
+        .edit-form {
+            background: white;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            padding: 1rem;
+            margin-bottom: 0.75rem;
+        }
+
+        .edit-form input, .edit-form textarea, .edit-form select {
+            width: 100%;
+            padding: 0.5rem;
+            border: 1px solid #d1d5db;
+            border-radius: 6px;
+            margin-bottom: 0.75rem;
+            color: #374151;
+        }
+
+        .edit-form textarea {
+            height: 5rem;
+            resize: none;
+        }
+
+        .edit-form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 0.75rem;
+            margin-bottom: 0.75rem;
+        }
+
+        .edit-actions {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .btn-save {
+            background: #3b82f6;
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            cursor: pointer;
+        }
+
+        .btn-cancel {
+            background: #d1d5db;
+            color: #374151;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            cursor: pointer;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 3rem;
+        }
+
+        .empty-icon {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+        }
+
+        .empty-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+
+        .empty-subtitle {
+            color: #9ca3af;
+        }
+
+        .no-tasks {
+            color: #9ca3af;
+            font-style: italic;
+            padding: 1rem;
+        }
+
+        @media (max-width: 768px) {
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+            
+            .edit-form-row {
+                grid-template-columns: 1fr;
+            }
+            
+            .title {
+                font-size: 2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <div id="logoContainer" style="display: none;">
+                <img id="logoImage" src="eryxian-dash-logo-sm.png" alt="Eryxian Logo" onerror="showTextTitle()" />
+            </div>
+            <div id="textTitle">
+                <h1 class="title">Eryxian TTRPG Todo Manager</h1>
+            </div>
+            <p class="subtitle">Organize your gamemaster tasks for epic sci-fi adventures</p>
+            <p class="save-info">✨ Your tasks are automatically saved in your browser</p>
+        </div>
+
+        <!-- Add New Todo -->
+        <div class="add-section">
+            <h2 class="section-title">Add New Task</h2>
+            <div class="form-grid">
+                <input type="text" id="newTitle" class="input" placeholder="What needs to be done for your campaign?" />
+                <textarea id="newDescription" class="textarea" placeholder="Add details, notes, or requirements..."></textarea>
+                <div class="form-row">
+                    <select id="newCategory" class="select">
+                        <option value="session">Session Prep</option>
+                        <option value="npcs">NPCs</option>
+                        <option value="worldbuilding">World Building</option>
+                        <option value="plot">Plot & Story</option>
+                        <option value="mechanics">Rules & Mechanics</option>
+                        <option value="other">Other</option>
+                    </select>
+                    <select id="newPriority" class="select">
+                        <option value="low">Low</option>
+                        <option value="medium" selected>Medium</option>
+                        <option value="high">High</option>
+                        <option value="critical">Critical</option>
+                    </select>
+                    <input type="date" id="newDueDate" class="input" />
+                    <button onclick="addTodo()" class="btn-primary">
+                        ➕ Add Task
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Filters -->
+        <div class="filters" id="filters">
+            <!-- Filters will be populated by JavaScript -->
+        </div>
+
+        <!-- Todo Lists -->
+        <div id="todoContainer">
+            <!-- Todo categories will be populated by JavaScript -->
+        </div>
+    </div>
+
+    <script>
+        // Global state
+        let todos = [];
+        let currentFilter = 'all';
+        let editingId = null;
+
+        // Icon mapping
+        const icons = {
+            'plus': '➕',
+            'check': '✅',
+            'calendar': '📅',
+            'users': '👥',
+            'map': '🗺️',
+            'scroll': '📜',
+            'settings': '⚙️',
+            'zap': '⚡',
+            'edit-3': '✏️',
+            'trash-2': '🗑️'
+        };
+
+        // Get icon function
+        function getIcon(iconName) {
+            return icons[iconName] || '•';
+        }
+
+        // Logo handling functions
+        function checkForLogo() {
+            const img = new Image();
+            img.onload = function() {
+                document.getElementById('logoContainer').style.display = 'block';
+                document.getElementById('textTitle').style.display = 'none';
+            };
+            img.onerror = function() {
+                showTextTitle();
+            };
+            img.src = 'eryxian-dash-logo-sm.png';
+        }
+
+        function showTextTitle() {
+            document.getElementById('logoContainer').style.display = 'none';
+            document.getElementById('textTitle').style.display = 'block';
+        }
+
+        // Categories configuration
+        const categories = {
+            session: { name: 'Session Prep', icon: 'calendar', color: 'bg-blue-500' },
+            npcs: { name: 'NPCs', icon: 'users', color: 'bg-green-500' },
+            worldbuilding: { name: 'World Building', icon: 'map', color: 'bg-purple-500' },
+            plot: { name: 'Plot & Story', icon: 'scroll', color: 'bg-orange-500' },
+            mechanics: { name: 'Rules & Mechanics', icon: 'settings', color: 'bg-gray-500' },
+            other: { name: 'Other', icon: 'zap', color: 'bg-indigo-500' }
+        };
+
+        const priorities = {
+            low: { name: 'Low', className: 'priority-low' },
+            medium: { name: 'Medium', className: 'priority-medium' },
+            high: { name: 'High', className: 'priority-high' },
+            critical: { name: 'Critical', className: 'priority-critical' }
+        };
+
+        // Get default demo todos
+        function getDefaultTodos() {
+            return [
+                {
+                    id: 1,
+                    title: "Design alien species for Eryxian sector 7",
+                    description: "Create 2-3 unique alien species with distinct cultures and motivations",
+                    category: "worldbuilding",
+                    priority: "high",
+                    completed: false,
+                    dueDate: "2025-06-25"
+                },
+                {
+                    id: 2,
+                    title: "Prepare NPC stat blocks for space station encounter",
+                    description: "Captain Zara, Engineer Klix, and Security Chief Vorne",
+                    category: "npcs",
+                    priority: "medium",
+                    completed: false,
+                    dueDate: "2025-06-24"
+                },
+                {
+                    id: 3,
+                    title: "Create hyperspace jump mechanics",
+                    description: "Define rules for faster-than-light travel in the Eryxian universe",
+                    category: "mechanics",
+                    priority: "low",
+                    completed: false,
+                    dueDate: ""
+                }
+            ];
+        }
+
+        // Load todos from localStorage
+        function loadTodos() {
+            const saved = localStorage.getItem('eryxian-todos');
+            if (saved) {
+                try {
+                    todos = JSON.parse(saved);
+                } catch (e) {
+                    console.error('Error loading saved todos:', e);
+                    todos = getDefaultTodos();
+                }
+            } else {
+                todos = getDefaultTodos();
+            }
+        }
+
+        // Save todos to localStorage
+        function saveTodos() {
+            localStorage.setItem('eryxian-todos', JSON.stringify(todos));
+        }
+
+        // Add new todo
+        function addTodo() {
+            const title = document.getElementById('newTitle').value.trim();
+            if (!title) return;
+
+            const todo = {
+                id: Date.now(),
+                title: title,
+                description: document.getElementById('newDescription').value,
+                category: document.getElementById('newCategory').value,
+                priority: document.getElementById('newPriority').value,
+                dueDate: document.getElementById('newDueDate').value,
+                completed: false
+            };
+
+            todos.push(todo);
+            saveTodos();
+            
+            // Clear form
+            document.getElementById('newTitle').value = '';
+            document.getElementById('newDescription').value = '';
+            document.getElementById('newCategory').value = 'session';
+            document.getElementById('newPriority').value = 'medium';
+            document.getElementById('newDueDate').value = '';
+            
+            render();
+        }
+
+        // Toggle todo completion
+        function toggleTodo(id) {
+            const todo = todos.find(t => t.id === id);
+            if (todo) {
+                todo.completed = !todo.completed;
+                saveTodos();
+                render();
+            }
+        }
+
+        // Delete todo
+        function deleteTodo(id) {
+            todos = todos.filter(t => t.id !== id);
+            saveTodos();
+            render();
+        }
+
+        // Start editing
+        function startEdit(id) {
+            editingId = id;
+            render();
+        }
+
+        // Cancel editing
+        function cancelEdit() {
+            editingId = null;
+            render();
+        }
+
+        // Save edited todo
+        function saveEdit(id) {
+            const title = document.getElementById(`edit-title-${id}`).value;
+            const description = document.getElementById(`edit-description-${id}`).value;
+            const category = document.getElementById(`edit-category-${id}`).value;
+            const priority = document.getElementById(`edit-priority-${id}`).value;
+            const dueDate = document.getElementById(`edit-duedate-${id}`).value;
+
+            const todo = todos.find(t => t.id === id);
+            if (todo) {
+                todo.title = title;
+                todo.description = description;
+                todo.category = category;
+                todo.priority = priority;
+                todo.dueDate = dueDate;
+                editingId = null;
+                saveTodos();
+                render();
+            }
+        }
+
+        // Set filter
+        function setFilter(filter) {
+            currentFilter = filter;
+            render();
+        }
+
+        // Get filtered todos
+        function getFilteredTodos() {
+            return todos.filter(todo => {
+                if (currentFilter === 'all') return true;
+                if (currentFilter === 'completed') return todo.completed;
+                if (currentFilter === 'pending') return !todo.completed;
+                return todo.category === currentFilter;
+            });
+        }
+
+        // Format date
+        function formatDate(dateString) {
+            if (!dateString) return '';
+            const date = new Date(dateString);
+            return date.toLocaleDateString();
+        }
+
+        // Render filters
+        function renderFilters() {
+            const filtersContainer = document.getElementById('filters');
+            
+            let html = `
+                <button class="filter-btn ${currentFilter === 'all' ? 'active' : ''}" onclick="setFilter('all')">
+                    All Tasks (${todos.length})
+                </button>
+                <button class="filter-btn ${currentFilter === 'pending' ? 'active' : ''}" onclick="setFilter('pending')">
+                    Pending (${todos.filter(t => !t.completed).length})
+                </button>
+                <button class="filter-btn ${currentFilter === 'completed' ? 'active' : ''}" onclick="setFilter('completed')">
+                    Completed (${todos.filter(t => t.completed).length})
+                </button>
+            `;
+
+            Object.entries(categories).forEach(([key, cat]) => {
+                const count = todos.filter(t => t.category === key).length;
+                html += `
+                    <button class="filter-btn ${currentFilter === key ? 'active' : ''}" onclick="setFilter('${key}')">
+                        ${getIcon(cat.icon)} ${cat.name} (${count})
+                    </button>
+                `;
+            });
+
+            filtersContainer.innerHTML = html;
+        }
+
+        // Render todos
+        function renderTodos() {
+            const container = document.getElementById('todoContainer');
+            const filteredTodos = getFilteredTodos();
+            
+            if (filteredTodos.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-icon">🎲</div>
+                        <h3 class="empty-title">No tasks found</h3>
+                        <p class="empty-subtitle">Ready to plan your next epic Eryxian adventure?</p>
+                    </div>
+                `;
+                return;
+            }
+
+            let html = '';
+
+            Object.entries(categories).forEach(([catKey, category]) => {
+                const categoryTodos = filteredTodos.filter(t => t.category === catKey);
+                if (categoryTodos.length === 0 && currentFilter !== 'all' && currentFilter !== catKey) return;
+
+                html += `
+                    <div class="category-section">
+                        <div class="category-header">
+                            <span class="category-icon">${getIcon(category.icon)}</span>
+                            <h3 class="category-title">${category.name}</h3>
+                            <span class="badge">${categoryTodos.length}</span>
+                        </div>
+                        <div class="todo-list">
+                `;
+
+                if (categoryTodos.length === 0) {
+                    html += '<p class="no-tasks">No tasks in this category yet</p>';
+                } else {
+                    categoryTodos.forEach(todo => {
+                        if (editingId === todo.id) {
+                            html += `
+                                <div class="edit-form">
+                                    <input type="text" id="edit-title-${todo.id}" value="${todo.title}" placeholder="Task title..." />
+                                    <textarea id="edit-description-${todo.id}" placeholder="Description...">${todo.description}</textarea>
+                                    <div class="edit-form-row">
+                                        <select id="edit-category-${todo.id}">
+                                            ${Object.entries(categories).map(([key, cat]) => 
+                                                `<option value="${key}" ${todo.category === key ? 'selected' : ''}>${cat.name}</option>`
+                                            ).join('')}
+                                        </select>
+                                        <select id="edit-priority-${todo.id}">
+                                            ${Object.entries(priorities).map(([key, priority]) => 
+                                                `<option value="${key}" ${todo.priority === key ? 'selected' : ''}>${priority.name}</option>`
+                                            ).join('')}
+                                        </select>
+                                        <input type="date" id="edit-duedate-${todo.id}" value="${todo.dueDate}" />
+                                    </div>
+                                    <div class="edit-actions">
+                                        <button class="btn-save" onclick="saveEdit(${todo.id})">Save</button>
+                                        <button class="btn-cancel" onclick="cancelEdit()">Cancel</button>
+                                    </div>
+                                </div>
+                            `;
+                        } else {
+                            html += `
+                                <div class="todo-item ${todo.completed ? 'completed' : ''}">
+                                    <div class="todo-content">
+                                        <div class="checkbox ${todo.completed ? 'checked' : ''}" onclick="toggleTodo(${todo.id})">
+                                            ${todo.completed ? getIcon('check') : ''}
+                                        </div>
+                                        <div class="todo-main">
+                                            <h4 class="todo-title ${todo.completed ? 'completed' : ''}">${todo.title}</h4>
+                                            ${todo.description ? `<p class="todo-description">${todo.description}</p>` : ''}
+                                            <div class="todo-meta">
+                                                <span class="priority-badge ${priorities[todo.priority].className}">
+                                                    ${priorities[todo.priority].name}
+                                                </span>
+                                                ${todo.dueDate ? `
+                                                    <span class="due-date">
+                                                        ${getIcon('calendar')} ${formatDate(todo.dueDate)}
+                                                    </span>
+                                                ` : ''}
+                                            </div>
+                                        </div>
+                                        <div class="todo-actions">
+                                            <button class="action-btn" onclick="startEdit(${todo.id})">
+                                                ${getIcon('edit-3')}
+                                            </button>
+                                            <button class="action-btn delete" onclick="deleteTodo(${todo.id})">
+                                                ${getIcon('trash-2')}
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            `;
+                        }
+                    });
+                }
+
+                html += `
+                        </div>
+                    </div>
+                `;
+            });
+
+            container.innerHTML = html;
+        }
+
+        // Main render function
+        function render() {
+            renderFilters();
+            renderTodos();
+        }
+
+        // Allow Enter key to add todo
+        document.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter' && e.target.id === 'newTitle') {
+                addTodo();
+            }
+        });
+
+        // Initialize app when page loads
+        document.addEventListener('DOMContentLoaded', function() {
+            checkForLogo();
+            loadTodos();
+            render();
+        });
+
+        // Fallback initialization
+        if (document.readyState !== 'loading') {
+            checkForLogo();
+            loadTodos();
+            render();
+        }
+    </script>
+</body>
+</html>
