@@ -33,7 +33,14 @@
         .value-display { color: #a78bfa; font-family: 'Courier New', monospace; font-size: 0.8rem; font-weight: bold; }
         .generate-btn { background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%); }
         .generate-btn:hover { background: linear-gradient(135deg, #5b21b6 0%, #7c3aed 100%); }
+        .export-btn { background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%); }
+        .export-btn:hover { background: linear-gradient(135deg, #15803d 0%, #14532d 100%); }
         .compact-section { background: #1e293b; border-radius: 0.5rem; padding: 0.75rem; margin-bottom: 0.75rem; }
+        @media print {
+            body { background-color: white !important; color: black !important; }
+            .control-panel, .compact-section { background: white !important; border: 1px solid #ccc !important; }
+            canvas { border: 1px solid #000 !important; }
+        }
     </style>
 </head>
 <body>
@@ -95,11 +102,18 @@
                     </div>
 
                     <div class="control-panel p-4 rounded-lg">
-                        <h3 class="text-lg font-bold text-white mb-3">Layers</h3>
+                        <h3 class="text-lg font-bold text-white mb-3">Display Options</h3>
                         <div class="layer-toggle">
-                            <span>Terrain</span>
+                            <span>Black & White Mode</span>
                             <label class="toggle-switch">
-                                <input type="checkbox" id="layer-terrain" checked>
+                                <input type="checkbox" id="bw-mode">
+                                <span class="slider-toggle"></span>
+                            </label>
+                        </div>
+                        <div class="layer-toggle">
+                            <span>Show Grid</span>
+                            <label class="toggle-switch">
+                                <input type="checkbox" id="show-grid">
                                 <span class="slider-toggle"></span>
                             </label>
                         </div>
@@ -110,13 +124,7 @@
                                 <span class="slider-toggle"></span>
                             </label>
                         </div>
-                        <div class="layer-toggle">
-                            <span>Roads</span>
-                            <label class="toggle-switch">
-                                <input type="checkbox" id="layer-roads">
-                                <span class="slider-toggle"></span>
-                            </label>
-                        </div>
+                        <button id="export-map" class="w-full export-btn text-white font-bold py-2 px-4 rounded-lg mt-3">Export Map</button>
                     </div>
                 </div>
 
@@ -143,17 +151,22 @@
                                 <option value="random">Random</option>
                                 <option value="poisson">Poisson Disc</option>
                                 <option value="clusters">Clusters</option>
-                                <option value="voronoi">Voronoi</option>
+                                <option value="grid">Grid</option>
                             </select>
                         </div>
                         <div id="poi-params" class="space-y-2"></div>
                         <button id="poi-generate" class="w-full generate-btn text-white font-bold py-2 px-4 rounded-lg mt-3">Generate POIs</button>
+                        <button id="poi-export" class="w-full export-btn text-white font-bold py-2 px-4 rounded-lg mt-2">Export POI List</button>
                     </div>
                 </div>
                 <div class="w-full lg:w-2/3">
                     <div class="compact-section">
                         <canvas id="poi-canvas" class="w-full aspect-square max-w-lg mx-auto"></canvas>
                         <div id="poi-legend" class="mt-3 grid grid-cols-3 md:grid-cols-5 gap-2 text-xs"></div>
+                    </div>
+                    <div id="poi-list" class="compact-section">
+                        <h3 class="font-semibold text-white mb-2">Generated POIs</h3>
+                        <div id="poi-details" class="text-sm text-gray-300 max-h-40 overflow-y-auto"></div>
                     </div>
                 </div>
             </div>
@@ -166,6 +179,10 @@
                         <div class="param-group">
                             <label for="star-count">Star Count: <span id="star-count-value" class="value-display">150</span></label>
                             <input type="range" id="star-count" min="50" max="500" value="150">
+                        </div>
+                        <div class="param-group">
+                            <label for="connection-chance">Connections: <span id="connection-chance-value" class="value-display">15</span>%</label>
+                            <input type="range" id="connection-chance" min="0" max="50" value="15">
                         </div>
                         <button id="starmap-generate" class="w-full generate-btn text-white font-bold py-2 px-4 rounded-lg mt-3">Generate Stars</button>
                     </div>
@@ -183,12 +200,31 @@
                     <div class="control-panel p-4 rounded-lg">
                         <h2 class="text-lg font-bold text-white mb-3">Labyrinth Controls</h2>
                         <div class="param-group">
+                            <label for="lab-algorithm">Algorithm</label>
+                            <select id="lab-algorithm">
+                                <option value="recursive">Recursive Backtracking</option>
+                                <option value="prim">Prim's Algorithm</option>
+                                <option value="cellular">Cellular Caves</option>
+                            </select>
+                        </div>
+                        <div class="param-group">
+                            <label for="lab-grid">Grid Type</label>
+                            <select id="lab-grid">
+                                <option value="square">Square</option>
+                                <option value="hex">Hexagonal</option>
+                            </select>
+                        </div>
+                        <div class="param-group">
                             <label for="lab-size">Size: <span id="lab-size-value" class="value-display">25</span></label>
                             <input type="range" id="lab-size" min="10" max="40" value="25">
                         </div>
                         <div class="param-group">
                             <label for="lab-pois">POIs: <span id="lab-pois-value" class="value-display">5</span></label>
                             <input type="range" id="lab-pois" min="0" max="15" value="5">
+                        </div>
+                        <div class="param-group">
+                            <label for="lab-rooms">Special Rooms: <span id="lab-rooms-value" class="value-display">3</span></label>
+                            <input type="range" id="lab-rooms" min="0" max="8" value="3">
                         </div>
                         <button id="lab-generate" class="w-full generate-btn text-white font-bold py-2 px-4 rounded-lg mt-3">Generate Maze</button>
                     </div>
@@ -197,6 +233,10 @@
                     <div class="compact-section">
                         <canvas id="lab-canvas" class="w-full aspect-square max-w-lg mx-auto"></canvas>
                         <div id="lab-legend" class="mt-3 grid grid-cols-3 md:grid-cols-5 gap-2 text-xs"></div>
+                    </div>
+                    <div id="lab-details" class="compact-section">
+                        <h3 class="font-semibold text-white mb-2">Dungeon Details</h3>
+                        <div id="lab-room-list" class="text-sm text-gray-300 max-h-40 overflow-y-auto"></div>
                     </div>
                 </div>
             </div>
@@ -208,72 +248,140 @@
         let currentTab = 'terrain';
         let currentTemplate = 'custom';
         let canvasSize = 512;
+        let currentTerrain = null;
+        let currentPOIs = [];
+        let currentMaze = null;
         
-        // Shared POI types
+        // POI types with more variety
         const POI_TYPES = {
-            settlement: { name: 'Settlement', color: '#3b82f6', shape: 'square' },
-            resource: { name: 'Resource', color: '#22c55e', shape: 'diamond' },
-            danger: { name: 'Danger', color: '#ef4444', shape: 'triangle' },
-            landmark: { name: 'Landmark', color: '#eab308', shape: 'star' },
-            quest: { name: 'Quest', color: '#a855f7', shape: 'pentagon' }
+            settlement: { name: 'Settlement', color: '#3b82f6', shape: 'square', description: 'Towns, villages, outposts' },
+            resource: { name: 'Resource', color: '#22c55e', shape: 'diamond', description: 'Mines, quarries, lumber camps' },
+            danger: { name: 'Danger', color: '#ef4444', shape: 'triangle', description: 'Monster lairs, hazards, traps' },
+            landmark: { name: 'Landmark', color: '#eab308', shape: 'star', description: 'Notable geographical features' },
+            quest: { name: 'Quest', color: '#a855f7', shape: 'pentagon', description: 'Adventure hooks, mysteries' },
+            temple: { name: 'Temple', color: '#f97316', shape: 'cross', description: 'Religious sites, shrines' },
+            ruins: { name: 'Ruins', color: '#6b7280', shape: 'broken-square', description: 'Ancient structures, dungeons' }
         };
 
-        // World templates
+        // World templates with B&W variants
         const WORLD_TEMPLATES = {
             custom: {
                 name: "Custom World",
                 biomes: ['water', 'plains', 'forest', 'mountains'],
-                colors: { water: '#1e40af', plains: '#22c55e', forest: '#15803d', mountains: '#78716c' }
+                colors: { water: '#1e40af', plains: '#22c55e', forest: '#15803d', mountains: '#78716c' },
+                bwColors: { water: '#000000', plains: '#cccccc', forest: '#666666', mountains: '#333333' }
             },
             eryxia: {
                 name: "Eryxia",
                 biomes: ['oceanic_depths', 'hyperjungle', 'scorched_plains', 'aerial_zones'],
-                colors: { oceanic_depths: '#1e3a8a', hyperjungle: '#15803d', scorched_plains: '#dc2626', aerial_zones: '#0ea5e9' }
+                colors: { oceanic_depths: '#1e3a8a', hyperjungle: '#15803d', scorched_plains: '#dc2626', aerial_zones: '#0ea5e9' },
+                bwColors: { oceanic_depths: '#000000', hyperjungle: '#444444', scorched_plains: '#888888', aerial_zones: '#cccccc' }
             },
             gordian: {
                 name: "Gordian Moon",
                 biomes: ['methane_seas', 'crystal_cities', 'geothermal_vents', 'polar_ice'],
-                colors: { methane_seas: '#374151', crystal_cities: '#3b82f6', geothermal_vents: '#dc2626', polar_ice: '#f3f4f6' }
+                colors: { methane_seas: '#374151', crystal_cities: '#3b82f6', geothermal_vents: '#dc2626', polar_ice: '#f3f4f6' },
+                bwColors: { methane_seas: '#000000', crystal_cities: '#666666', geothermal_vents: '#333333', polar_ice: '#ffffff' }
             },
             ionthara: {
                 name: "Ionthara",
                 biomes: ['surface_platforms', 'mid_zones', 'abyssal_depths', 'pressure_rifts'],
-                colors: { surface_platforms: '#0ea5e9', mid_zones: '#1d4ed8', abyssal_depths: '#1e1b4b', pressure_rifts: '#7c3aed' }
+                colors: { surface_platforms: '#0ea5e9', mid_zones: '#1d4ed8', abyssal_depths: '#1e1b4b', pressure_rifts: '#7c3aed' },
+                bwColors: { surface_platforms: '#cccccc', mid_zones: '#666666', abyssal_depths: '#000000', pressure_rifts: '#333333' }
             }
         };
 
         // Utility functions
-        function seededRandom(seed) {
-            let hash = 0;
-            if (seed.length === 0) return hash;
-            for (let i = 0; i < seed.length; i++) {
-                const char = seed.charCodeAt(i);
-                hash = ((hash << 5) - hash) + char;
-                hash = hash & hash;
-            }
-            const x = Math.sin(hash) * 10000;
-            return x - Math.floor(x);
-        }
-
-        // Simple noise function
-        function noise(x, y) {
-            const n = Math.sin(x * 12.9898 + y * 78.233) * 43758.5453;
+        function noise(x, y, seed = 0) {
+            const n = Math.sin((x + seed) * 12.9898 + y * 78.233) * 43758.5453;
             return (n - Math.floor(n));
         }
 
-        // Generate height using Perlin-like noise
-        function generateHeight(x, y, scale, octaves) {
+        function generateHeight(x, y, scale, octaves, persistence = 0.5) {
             let height = 0;
             let amplitude = 1;
             let frequency = scale;
+            let maxValue = 0;
             
             for (let i = 0; i < octaves; i++) {
                 height += noise(x * frequency, y * frequency) * amplitude;
-                amplitude *= 0.5;
+                maxValue += amplitude;
+                amplitude *= persistence;
                 frequency *= 2;
             }
             
-            return height / 2;
+            return height / maxValue;
+        }
+
+        // Poisson disc sampling
+        function poissonDisc(width, height, radius, maxAttempts = 30) {
+            const cellSize = radius / Math.sqrt(2);
+            const gridWidth = Math.ceil(width / cellSize);
+            const gridHeight = Math.ceil(height / cellSize);
+            const grid = Array(gridWidth * gridHeight).fill(null);
+            const points = [];
+            const activeList = [];
+
+            function addPoint(x, y) {
+                const point = { x, y };
+                const gridX = Math.floor(x / cellSize);
+                const gridY = Math.floor(y / cellSize);
+                grid[gridY * gridWidth + gridX] = point;
+                points.push(point);
+                activeList.push(point);
+                return point;
+            }
+
+            function isValidPoint(x, y) {
+                if (x < 0 || x >= width || y < 0 || y >= height) return false;
+                
+                const gridX = Math.floor(x / cellSize);
+                const gridY = Math.floor(y / cellSize);
+                
+                for (let dy = -1; dy <= 1; dy++) {
+                    for (let dx = -1; dx <= 1; dx++) {
+                        const checkX = gridX + dx;
+                        const checkY = gridY + dy;
+                        if (checkX >= 0 && checkX < gridWidth && checkY >= 0 && checkY < gridHeight) {
+                            const existing = grid[checkY * gridWidth + checkX];
+                            if (existing) {
+                                const dist = Math.sqrt((x - existing.x) ** 2 + (y - existing.y) ** 2);
+                                if (dist < radius) return false;
+                            }
+                        }
+                    }
+                }
+                return true;
+            }
+
+            const firstX = Math.random() * width;
+            const firstY = Math.random() * height;
+            addPoint(firstX, firstY);
+
+            while (activeList.length > 0) {
+                const randomIndex = Math.floor(Math.random() * activeList.length);
+                const point = activeList[randomIndex];
+                let found = false;
+
+                for (let i = 0; i < maxAttempts; i++) {
+                    const angle = Math.random() * 2 * Math.PI;
+                    const distance = radius + Math.random() * radius;
+                    const newX = point.x + Math.cos(angle) * distance;
+                    const newY = point.y + Math.sin(angle) * distance;
+
+                    if (isValidPoint(newX, newY)) {
+                        addPoint(newX, newY);
+                        found = true;
+                        break;
+                    }
+                }
+
+                if (!found) {
+                    activeList.splice(randomIndex, 1);
+                }
+            }
+
+            return points;
         }
 
         // Initialize application
@@ -283,15 +391,14 @@
             setupPOIGenerator();
             setupStarmapGenerator();
             setupLabyrinthGenerator();
+            setupEventListeners();
             
-            // Initialize terrain tab
             generateTerrain();
         });
 
         function setupTabs() {
             document.getElementById('tabs').addEventListener('click', function(e) {
                 if (e.target.classList.contains('tab')) {
-                    // Update active tab
                     document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
                     document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
                     
@@ -302,7 +409,40 @@
             });
         }
 
-        // Terrain Generator
+        function setupEventListeners() {
+            // Black/white mode toggle
+            document.getElementById('bw-mode').addEventListener('change', function() {
+                if (currentTab === 'terrain' && currentTerrain) {
+                    drawTerrain(document.getElementById('terrain-canvas').getContext('2d'), currentTerrain);
+                    if (document.getElementById('layer-pois').checked) {
+                        drawPOIs(document.getElementById('terrain-canvas').getContext('2d'), currentPOIs);
+                    }
+                    updateTerrainLegend();
+                }
+            });
+
+            // Export functionality
+            document.getElementById('export-map').addEventListener('click', function() {
+                const canvas = document.getElementById('terrain-canvas');
+                const link = document.createElement('a');
+                link.download = `terrain_map_${Date.now()}.png`;
+                link.href = canvas.toDataURL();
+                link.click();
+            });
+
+            document.getElementById('poi-export').addEventListener('click', function() {
+                const poiText = currentPOIs.map((poi, i) => 
+                    `${i+1}. ${poi.name} - ${POI_TYPES[poi.type]?.name || poi.type} at (${Math.round(poi.x)}, ${Math.round(poi.y)})`
+                ).join('\n');
+                
+                const blob = new Blob([poiText], { type: 'text/plain' });
+                const link = document.createElement('a');
+                link.download = `poi_list_${Date.now()}.txt`;
+                link.href = URL.createObjectURL(blob);
+                link.click();
+            });
+        }
+
         function setupTerrainGenerator() {
             const canvas = document.getElementById('terrain-canvas');
             const ctx = canvas.getContext('2d');
@@ -316,219 +456,65 @@
 
             const algorithms = {
                 perlin: {
-                    name: "Perlin Noise",
-                    description: "Creates natural-looking terrain with rolling hills and organic shapes",
+                    description: "Creates natural-looking terrain with rolling hills and organic shapes. Great for realistic landscapes.",
                     params: `
                         <div class="param-group">
-                            <label for="perlin-scale">Scale: <span id="perlin-scale-value" class="value-display">0.01</span></label>
-                            <input type="range" id="perlin-scale" min="0.005" max="0.05" step="0.005" value="0.01">
+                            <label for="perlin-scale">Scale: <span id="perlin-scale-value" class="value-display">0.02</span></label>
+                            <input type="range" id="perlin-scale" min="0.005" max="0.1" step="0.005" value="0.02">
                         </div>
                         <div class="param-group">
                             <label for="perlin-octaves">Octaves: <span id="perlin-octaves-value" class="value-display">4</span></label>
                             <input type="range" id="perlin-octaves" min="1" max="8" value="4">
                         </div>
-                    `,
-                    generate: function() {
-                        const scale = parseFloat(document.getElementById('perlin-scale').value);
-                        const octaves = parseInt(document.getElementById('perlin-octaves').value);
-                        const heightMap = [];
-                        
-                        for (let y = 0; y < canvasSize; y++) {
-                            heightMap[y] = [];
-                            for (let x = 0; x < canvasSize; x++) {
-                                heightMap[y][x] = generateHeight(x, y, scale, octaves);
-                            }
-                        }
-                        return heightMap;
-                    }
+                        <div class="param-group">
+                            <label for="perlin-persistence">Persistence: <span id="perlin-persistence-value" class="value-display">0.5</span></label>
+                            <input type="range" id="perlin-persistence" min="0.1" max="1.0" step="0.1" value="0.5">
+                        </div>
+                    `
                 },
                 cellular: {
-                    name: "Cellular Automata",
-                    description: "Creates cave-like structures and organic formations",
+                    description: "Creates cave-like structures and organic formations. Perfect for underground areas and natural caverns.",
                     params: `
                         <div class="param-group">
-                            <label for="cellular-density">Density: <span id="cellular-density-value" class="value-display">45</span>%</label>
+                            <label for="cellular-density">Initial Density: <span id="cellular-density-value" class="value-display">45</span>%</label>
                             <input type="range" id="cellular-density" min="20" max="70" value="45">
                         </div>
                         <div class="param-group">
                             <label for="cellular-iterations">Iterations: <span id="cellular-iterations-value" class="value-display">5</span></label>
                             <input type="range" id="cellular-iterations" min="1" max="10" value="5">
                         </div>
-                    `,
-                    generate: function() {
-                        const density = parseFloat(document.getElementById('cellular-density').value) / 100;
-                        const iterations = parseInt(document.getElementById('cellular-iterations').value);
-                        let map = [];
-                        
-                        // Initialize random map
-                        for (let y = 0; y < canvasSize; y++) {
-                            map[y] = [];
-                            for (let x = 0; x < canvasSize; x++) {
-                                map[y][x] = Math.random() < density ? 1 : 0;
-                            }
-                        }
-                        
-                        // Apply cellular automata rules
-                        for (let iter = 0; iter < iterations; iter++) {
-                            const newMap = [];
-                            for (let y = 0; y < canvasSize; y++) {
-                                newMap[y] = [];
-                                for (let x = 0; x < canvasSize; x++) {
-                                    let neighbors = 0;
-                                    for (let dy = -1; dy <= 1; dy++) {
-                                        for (let dx = -1; dx <= 1; dx++) {
-                                            const ny = y + dy;
-                                            const nx = x + dx;
-                                            if (ny >= 0 && ny < canvasSize && nx >= 0 && nx < canvasSize) {
-                                                neighbors += map[ny][nx];
-                                            } else {
-                                                neighbors += 1; // Treat boundaries as walls
-                                            }
-                                        }
-                                    }
-                                    newMap[y][x] = neighbors >= 5 ? 1 : 0;
-                                }
-                            }
-                            map = newMap;
-                        }
-                        
-                        return map;
-                    }
+                    `
                 },
                 "diamond-square": {
-                    name: "Diamond Square",
-                    description: "Creates fractal terrain with mountain-like features",
+                    description: "Creates fractal terrain with mountain-like features. Excellent for generating realistic heightmaps.",
                     params: `
                         <div class="param-group">
-                            <label for="ds-roughness">Roughness: <span id="ds-roughness-value" class="value-display">0.5</span></label>
-                            <input type="range" id="ds-roughness" min="0.1" max="2.0" step="0.1" value="0.5">
+                            <label for="ds-roughness">Roughness: <span id="ds-roughness-value" class="value-display">0.7</span></label>
+                            <input type="range" id="ds-roughness" min="0.1" max="2.0" step="0.1" value="0.7">
                         </div>
-                    `,
-                    generate: function() {
-                        const roughness = parseFloat(document.getElementById('ds-roughness').value);
-                        const size = 256; // Use power of 2 for diamond-square
-                        const map = Array(size + 1).fill().map(() => Array(size + 1).fill(0));
-                        
-                        // Initialize corners
-                        map[0][0] = Math.random();
-                        map[0][size] = Math.random();
-                        map[size][0] = Math.random();
-                        map[size][size] = Math.random();
-                        
-                        let step = size;
-                        while (step > 1) {
-                            const half = step / 2;
-                            
-                            // Diamond step
-                            for (let y = half; y < size; y += step) {
-                                for (let x = half; x < size; x += step) {
-                                    const avg = (map[y - half][x - half] + map[y - half][x + half] +
-                                                map[y + half][x - half] + map[y + half][x + half]) / 4;
-                                    map[y][x] = avg + (Math.random() - 0.5) * roughness;
-                                }
-                            }
-                            
-                            // Square step
-                            for (let y = 0; y <= size; y += half) {
-                                for (let x = (y + half) % step; x <= size; x += step) {
-                                    let sum = 0, count = 0;
-                                    if (y - half >= 0) { sum += map[y - half][x]; count++; }
-                                    if (y + half <= size) { sum += map[y + half][x]; count++; }
-                                    if (x - half >= 0) { sum += map[y][x - half]; count++; }
-                                    if (x + half <= size) { sum += map[y][x + half]; count++; }
-                                    
-                                    if (count > 0) {
-                                        map[y][x] = sum / count + (Math.random() - 0.5) * roughness;
-                                    }
-                                }
-                            }
-                            
-                            step /= 2;
-                            roughness *= 0.5;
-                        }
-                        
-                        // Scale to canvas size
-                        const scaledMap = [];
-                        for (let y = 0; y < canvasSize; y++) {
-                            scaledMap[y] = [];
-                            for (let x = 0; x < canvasSize; x++) {
-                                const sx = Math.floor(x * size / canvasSize);
-                                const sy = Math.floor(y * size / canvasSize);
-                                scaledMap[y][x] = Math.max(0, Math.min(1, map[sy][sx]));
-                            }
-                        }
-                        
-                        return scaledMap;
-                    }
+                    `
                 },
                 ridged: {
-                    name: "Ridged Noise",
-                    description: "Creates sharp ridges and dramatic mountain features",
+                    description: "Creates sharp ridges and dramatic mountain features. Perfect for alien landscapes.",
                     params: `
                         <div class="param-group">
                             <label for="ridged-scale">Scale: <span id="ridged-scale-value" class="value-display">0.02</span></label>
-                            <input type="range" id="ridged-scale" min="0.01" max="0.05" step="0.005" value="0.02">
+                            <input type="range" id="ridged-scale" min="0.01" max="0.1" step="0.005" value="0.02">
                         </div>
-                    `,
-                    generate: function() {
-                        const scale = parseFloat(document.getElementById('ridged-scale').value);
-                        const heightMap = [];
-                        
-                        for (let y = 0; y < canvasSize; y++) {
-                            heightMap[y] = [];
-                            for (let x = 0; x < canvasSize; x++) {
-                                let height = Math.abs(noise(x * scale, y * scale));
-                                height = 1 - height; // Invert for ridges
-                                height = height * height; // Square for sharpness
-                                heightMap[y][x] = height;
-                            }
-                        }
-                        return heightMap;
-                    }
+                        <div class="param-group">
+                            <label for="ridged-sharpness">Sharpness: <span id="ridged-sharpness-value" class="value-display">2</span></label>
+                            <input type="range" id="ridged-sharpness" min="1" max="4" step="0.5" value="2">
+                        </div>
+                    `
                 },
                 voronoi: {
-                    name: "Voronoi Regions",
-                    description: "Creates distinct territorial regions",
+                    description: "Creates distinct territorial regions with clear boundaries. Ideal for political maps.",
                     params: `
                         <div class="param-group">
-                            <label for="voronoi-seeds">Seeds: <span id="voronoi-seeds-value" class="value-display">20</span></label>
+                            <label for="voronoi-seeds">Regions: <span id="voronoi-seeds-value" class="value-display">20</span></label>
                             <input type="range" id="voronoi-seeds" min="5" max="50" value="20">
                         </div>
-                    `,
-                    generate: function() {
-                        const numSeeds = parseInt(document.getElementById('voronoi-seeds').value);
-                        const seeds = [];
-                        
-                        // Generate random seed points
-                        for (let i = 0; i < numSeeds; i++) {
-                            seeds.push({
-                                x: Math.random() * canvasSize,
-                                y: Math.random() * canvasSize,
-                                height: Math.random()
-                            });
-                        }
-                        
-                        const heightMap = [];
-                        for (let y = 0; y < canvasSize; y++) {
-                            heightMap[y] = [];
-                            for (let x = 0; x < canvasSize; x++) {
-                                let closestDist = Infinity;
-                                let closestHeight = 0;
-                                
-                                for (const seed of seeds) {
-                                    const dist = Math.sqrt((x - seed.x) ** 2 + (y - seed.y) ** 2);
-                                    if (dist < closestDist) {
-                                        closestDist = dist;
-                                        closestHeight = seed.height;
-                                    }
-                                }
-                                
-                                heightMap[y][x] = closestHeight;
-                            }
-                        }
-                        
-                        return heightMap;
-                    }
+                    `
                 }
             };
 
@@ -538,7 +524,6 @@
                 paramsContainer.innerHTML = algo.params;
                 infoContainer.textContent = algo.description;
                 
-                // Add event listeners for parameter updates
                 paramsContainer.querySelectorAll('input[type="range"]').forEach(slider => {
                     const valueSpan = document.getElementById(slider.id + '-value');
                     if (valueSpan) {
@@ -556,6 +541,10 @@
                     document.querySelectorAll('.template-card').forEach(c => c.classList.remove('selected'));
                     card.classList.add('selected');
                     currentTemplate = card.dataset.template;
+                    if (currentTerrain) {
+                        drawTerrain(ctx, currentTerrain);
+                        updateTerrainLegend();
+                    }
                 }
             });
 
@@ -568,39 +557,27 @@
         function generateTerrain() {
             const canvas = document.getElementById('terrain-canvas');
             const ctx = canvas.getContext('2d');
-            const algorithmSelect = document.getElementById('terrain-algorithm');
-            const selectedAlgo = algorithmSelect.value;
+            const selectedAlgo = document.getElementById('terrain-algorithm').value;
             
-            // Get algorithm
-            const algorithms = {
-                perlin: document.querySelector('[data-tab="terrain"]').algorithms?.perlin,
-                cellular: document.querySelector('[data-tab="terrain"]').algorithms?.cellular,
-                "diamond-square": document.querySelector('[data-tab="terrain"]').algorithms?.["diamond-square"],
-                ridged: document.querySelector('[data-tab="terrain"]').algorithms?.ridged,
-                voronoi: document.querySelector('[data-tab="terrain"]').algorithms?.voronoi
-            };
-
-            // Clear canvas
             ctx.clearRect(0, 0, canvas.width, canvas.height);
             
-            // Generate terrain based on selected algorithm
-            let heightMap;
             if (selectedAlgo === 'perlin') {
-                const scale = parseFloat(document.getElementById('perlin-scale')?.value || 0.01);
-                const octaves = parseInt(document.getElementById('perlin-octaves')?.value || 4);
-                heightMap = [];
+                const scale = parseFloat(document.getElementById('perlin-scale').value);
+                const octaves = parseInt(document.getElementById('perlin-octaves').value);
+                const persistence = parseFloat(document.getElementById('perlin-persistence').value);
+                currentTerrain = [];
+                
                 for (let y = 0; y < canvasSize; y++) {
-                    heightMap[y] = [];
+                    currentTerrain[y] = [];
                     for (let x = 0; x < canvasSize; x++) {
-                        heightMap[y][x] = generateHeight(x, y, scale, octaves);
+                        currentTerrain[y][x] = generateHeight(x, y, scale, octaves, persistence);
                     }
                 }
             } else if (selectedAlgo === 'cellular') {
-                const density = parseFloat(document.getElementById('cellular-density')?.value || 45) / 100;
-                const iterations = parseInt(document.getElementById('cellular-iterations')?.value || 5);
+                const density = parseFloat(document.getElementById('cellular-density').value) / 100;
+                const iterations = parseInt(document.getElementById('cellular-iterations').value);
                 let map = [];
                 
-                // Initialize
                 for (let y = 0; y < canvasSize; y++) {
                     map[y] = [];
                     for (let x = 0; x < canvasSize; x++) {
@@ -608,7 +585,6 @@
                     }
                 }
                 
-                // Apply cellular automata
                 for (let iter = 0; iter < iterations; iter++) {
                     const newMap = [];
                     for (let y = 0; y < canvasSize; y++) {
@@ -617,6 +593,7 @@
                             let neighbors = 0;
                             for (let dy = -1; dy <= 1; dy++) {
                                 for (let dx = -1; dx <= 1; dx++) {
+                                    if (dx === 0 && dy === 0) continue;
                                     const ny = y + dy;
                                     const nx = x + dx;
                                     if (ny >= 0 && ny < canvasSize && nx >= 0 && nx < canvasSize) {
@@ -626,30 +603,126 @@
                                     }
                                 }
                             }
-                            newMap[y][x] = neighbors >= 5 ? 1 : 0;
+                            newMap[y][x] = neighbors >= 4 ? 1 : 0;
                         }
                     }
                     map = newMap;
                 }
-                heightMap = map;
-            } else {
-                // Default simple noise
-                heightMap = [];
+                currentTerrain = map;
+            } else if (selectedAlgo === 'diamond-square') {
+                const roughness = parseFloat(document.getElementById('ds-roughness').value);
+                const size = 256;
+                const map = Array(size + 1).fill().map(() => Array(size + 1).fill(0));
+                
+                map[0][0] = Math.random();
+                map[0][size] = Math.random();
+                map[size][0] = Math.random();
+                map[size][size] = Math.random();
+                
+                let step = size;
+                let scale = roughness;
+                
+                while (step > 1) {
+                    const half = step / 2;
+                    
+                    for (let y = half; y < size; y += step) {
+                        for (let x = half; x < size; x += step) {
+                            const avg = (map[y - half][x - half] + map[y - half][x + half] +
+                                        map[y + half][x - half] + map[y + half][x + half]) / 4;
+                            map[y][x] = avg + (Math.random() - 0.5) * scale;
+                        }
+                    }
+                    
+                    for (let y = 0; y <= size; y += half) {
+                        for (let x = (y + half) % step; x <= size; x += step) {
+                            let sum = 0, count = 0;
+                            if (y - half >= 0) { sum += map[y - half][x]; count++; }
+                            if (y + half <= size) { sum += map[y + half][x]; count++; }
+                            if (x - half >= 0) { sum += map[y][x - half]; count++; }
+                            if (x + half <= size) { sum += map[y][x + half]; count++; }
+                            
+                            if (count > 0) {
+                                map[y][x] = sum / count + (Math.random() - 0.5) * scale;
+                            }
+                        }
+                    }
+                    
+                    step /= 2;
+                    scale *= 0.5;
+                }
+                
+                let min = Infinity, max = -Infinity;
+                for (let y = 0; y <= size; y++) {
+                    for (let x = 0; x <= size; x++) {
+                        min = Math.min(min, map[y][x]);
+                        max = Math.max(max, map[y][x]);
+                    }
+                }
+                
+                currentTerrain = [];
                 for (let y = 0; y < canvasSize; y++) {
-                    heightMap[y] = [];
+                    currentTerrain[y] = [];
                     for (let x = 0; x < canvasSize; x++) {
-                        heightMap[y][x] = Math.random();
+                        const sx = Math.floor(x * size / canvasSize);
+                        const sy = Math.floor(y * size / canvasSize);
+                        currentTerrain[y][x] = (map[sy][sx] - min) / (max - min);
+                    }
+                }
+            } else if (selectedAlgo === 'ridged') {
+                const scale = parseFloat(document.getElementById('ridged-scale').value);
+                const sharpness = parseFloat(document.getElementById('ridged-sharpness').value);
+                currentTerrain = [];
+                
+                for (let y = 0; y < canvasSize; y++) {
+                    currentTerrain[y] = [];
+                    for (let x = 0; x < canvasSize; x++) {
+                        let height = Math.abs(noise(x * scale, y * scale));
+                        height = 1 - height;
+                        height = Math.pow(height, sharpness);
+                        currentTerrain[y][x] = height;
+                    }
+                }
+            } else if (selectedAlgo === 'voronoi') {
+                const numSeeds = parseInt(document.getElementById('voronoi-seeds').value);
+                const seeds = [];
+                
+                for (let i = 0; i < numSeeds; i++) {
+                    seeds.push({
+                        x: Math.random() * canvasSize,
+                        y: Math.random() * canvasSize,
+                        height: Math.random()
+                    });
+                }
+                
+                currentTerrain = [];
+                for (let y = 0; y < canvasSize; y++) {
+                    currentTerrain[y] = [];
+                    for (let x = 0; x < canvasSize; x++) {
+                        let closestDist = Infinity;
+                        let closestHeight = 0;
+                        
+                        for (const seed of seeds) {
+                            const dist = Math.sqrt((x - seed.x) ** 2 + (y - seed.y) ** 2);
+                            if (dist < closestDist) {
+                                closestDist = dist;
+                                closestHeight = seed.height;
+                            }
+                        }
+                        
+                        currentTerrain[y][x] = closestHeight;
                     }
                 }
             }
             
-            // Draw terrain
-            drawTerrain(ctx, heightMap);
+            drawTerrain(ctx, currentTerrain);
             
-            // Generate and draw POIs if enabled
             if (document.getElementById('layer-pois').checked) {
-                const pois = generateTerrainPOIs(heightMap);
-                drawPOIs(ctx, pois);
+                currentPOIs = generateTerrainPOIs(currentTerrain);
+                drawPOIs(ctx, currentPOIs);
+            }
+            
+            if (document.getElementById('show-grid').checked) {
+                drawGrid(ctx);
             }
             
             updateTerrainLegend();
@@ -658,7 +731,8 @@
         function drawTerrain(ctx, heightMap) {
             const imageData = ctx.createImageData(canvasSize, canvasSize);
             const template = WORLD_TEMPLATES[currentTemplate];
-            const colors = template.colors;
+            const isBlackWhite = document.getElementById('bw-mode').checked;
+            const colors = isBlackWhite ? template.bwColors : template.colors;
             const colorKeys = Object.keys(colors);
             
             for (let y = 0; y < canvasSize; y++) {
@@ -666,12 +740,10 @@
                     const height = heightMap[y] ? heightMap[y][x] || 0 : 0;
                     const normalizedHeight = Math.max(0, Math.min(1, height));
                     
-                    // Map height to biome
                     const biomeIndex = Math.floor(normalizedHeight * colorKeys.length);
                     const colorKey = colorKeys[Math.min(biomeIndex, colorKeys.length - 1)];
                     const color = colors[colorKey];
                     
-                    // Convert hex to RGB
                     const r = parseInt(color.slice(1, 3), 16);
                     const g = parseInt(color.slice(3, 5), 16);
                     const b = parseInt(color.slice(5, 7), 16);
@@ -687,27 +759,64 @@
             ctx.putImageData(imageData, 0, 0);
         }
 
+        function drawGrid(ctx) {
+            ctx.strokeStyle = document.getElementById('bw-mode').checked ? '#333333' : '#ffffff33';
+            ctx.lineWidth = 1;
+            
+            const gridSize = 32;
+            for (let i = 0; i <= canvasSize; i += gridSize) {
+                ctx.beginPath();
+                ctx.moveTo(i, 0);
+                ctx.lineTo(i, canvasSize);
+                ctx.stroke();
+                
+                ctx.beginPath();
+                ctx.moveTo(0, i);
+                ctx.lineTo(canvasSize, i);
+                ctx.stroke();
+            }
+        }
+
         function generateTerrainPOIs(heightMap) {
             const pois = [];
             const poiKeys = Object.keys(POI_TYPES);
-            const numPOIs = 30;
+            const numPOIs = 25;
             
             for (let i = 0; i < numPOIs; i++) {
                 const x = Math.floor(Math.random() * canvasSize);
                 const y = Math.floor(Math.random() * canvasSize);
                 const height = heightMap[y] ? heightMap[y][x] || 0 : 0;
                 
-                // Only place POIs on land (height > 0.3)
-                if (height > 0.3) {
-                    pois.push({
-                        x: x,
-                        y: y,
-                        type: poiKeys[Math.floor(Math.random() * poiKeys.length)]
-                    });
-                }
+                let poiType;
+                if (height < 0.2) poiType = 'danger';
+                else if (height < 0.4) poiType = 'settlement';
+                else if (height < 0.7) poiType = 'resource';
+                else poiType = poiKeys[Math.floor(Math.random() * poiKeys.length)];
+                
+                pois.push({
+                    x: x,
+                    y: y,
+                    type: poiType,
+                    name: generatePOIName(poiType)
+                });
             }
             
             return pois;
+        }
+
+        function generatePOIName(type) {
+            const names = {
+                settlement: ['Silverbrook', 'Ironhold', 'Westmarch', 'Thornwall', 'Goldwater'],
+                resource: ['Crystal Mine', 'Iron Quarry', 'Timber Mill', 'Stone Pit', 'Copper Vein'],
+                danger: ['Spider Nest', 'Orc Camp', 'Cursed Grove', 'Bone Yard', 'Shadow Pit'],
+                landmark: ['Ancient Tree', 'Stone Circle', 'Sky Peak', 'Echo Falls', 'Wind Spire'],
+                quest: ['Lost Temple', 'Hidden Cache', 'Mystic Portal', 'Ancient Ruin', 'Sacred Grove'],
+                temple: ['Sun Shrine', 'Moon Temple', 'Earth Altar', 'Fire Sanctum', 'Wind Chapel'],
+                ruins: ['Old Tower', 'Broken Keep', 'Fallen City', 'Lost Citadel', 'Dead Fortress']
+            };
+            
+            const typeNames = names[type] || ['Unknown Location'];
+            return typeNames[Math.floor(Math.random() * typeNames.length)];
         }
 
         function drawPOIs(ctx, pois) {
@@ -715,11 +824,12 @@
                 const type = POI_TYPES[poi.type];
                 if (!type) return;
                 
-                ctx.fillStyle = type.color;
-                ctx.strokeStyle = '#ffffff';
-                ctx.lineWidth = 1;
+                const isBlackWhite = document.getElementById('bw-mode').checked;
+                ctx.fillStyle = isBlackWhite ? '#000000' : type.color;
+                ctx.strokeStyle = isBlackWhite ? '#000000' : '#ffffff';
+                ctx.lineWidth = 2;
                 
-                const size = 4;
+                const size = 6;
                 
                 switch (type.shape) {
                     case 'square':
@@ -750,6 +860,24 @@
                         break;
                     case 'pentagon':
                         drawPolygon(ctx, poi.x, poi.y, 5, size/2);
+                        break;
+                    case 'cross':
+                        ctx.beginPath();
+                        ctx.moveTo(poi.x - size/4, poi.y - size/2);
+                        ctx.lineTo(poi.x + size/4, poi.y - size/2);
+                        ctx.lineTo(poi.x + size/4, poi.y - size/4);
+                        ctx.lineTo(poi.x + size/2, poi.y - size/4);
+                        ctx.lineTo(poi.x + size/2, poi.y + size/4);
+                        ctx.lineTo(poi.x + size/4, poi.y + size/4);
+                        ctx.lineTo(poi.x + size/4, poi.y + size/2);
+                        ctx.lineTo(poi.x - size/4, poi.y + size/2);
+                        ctx.lineTo(poi.x - size/4, poi.y + size/4);
+                        ctx.lineTo(poi.x - size/2, poi.y + size/4);
+                        ctx.lineTo(poi.x - size/2, poi.y - size/4);
+                        ctx.lineTo(poi.x - size/4, poi.y - size/4);
+                        ctx.closePath();
+                        ctx.fill();
+                        ctx.stroke();
                         break;
                     default:
                         ctx.beginPath();
@@ -797,12 +925,14 @@
         function updateTerrainLegend() {
             const legend = document.getElementById('terrain-legend');
             const template = WORLD_TEMPLATES[currentTemplate];
+            const isBlackWhite = document.getElementById('bw-mode').checked;
+            const colors = isBlackWhite ? template.bwColors : template.colors;
             legend.innerHTML = '';
             
-            Object.entries(template.colors).forEach(([biome, color]) => {
+            Object.entries(colors).forEach(([biome, color]) => {
                 legend.innerHTML += `
                     <div class="flex items-center gap-1">
-                        <div style="width: 10px; height: 10px; background-color: ${color}; border-radius: 2px;"></div>
+                        <div style="width: 12px; height: 12px; background-color: ${color}; border: 1px solid #ccc; border-radius: 2px;"></div>
                         <span>${biome.replace('_', ' ')}</span>
                     </div>
                 `;
@@ -810,9 +940,10 @@
             
             if (document.getElementById('layer-pois').checked) {
                 Object.values(POI_TYPES).forEach(type => {
+                    const displayColor = isBlackWhite ? '#000000' : type.color;
                     legend.innerHTML += `
                         <div class="flex items-center gap-1">
-                            <div style="width: 10px; height: 10px; background-color: ${type.color}; border-radius: 2px;"></div>
+                            <div style="width: 12px; height: 12px; background-color: ${displayColor}; border: 1px solid #ccc; border-radius: 2px;"></div>
                             <span>${type.name}</span>
                         </div>
                     `;
@@ -820,43 +951,183 @@
             }
         }
 
-        // POI Generator (simplified)
+        // POI Generator Setup
         function setupPOIGenerator() {
             const canvas = document.getElementById('poi-canvas');
             const ctx = canvas.getContext('2d');
+            const algorithmSelect = document.getElementById('poi-algorithm');
+            const paramsContainer = document.getElementById('poi-params');
+            
             canvas.width = canvasSize;
             canvas.height = canvasSize;
+            
+            const algorithms = {
+                random: {
+                    params: `
+                        <div class="param-group">
+                            <label for="random-count">Count: <span id="random-count-value" class="value-display">50</span></label>
+                            <input type="range" id="random-count" min="10" max="200" value="50">
+                        </div>
+                    `
+                },
+                poisson: {
+                    params: `
+                        <div class="param-group">
+                            <label for="poisson-radius">Min Distance: <span id="poisson-radius-value" class="value-display">30</span></label>
+                            <input type="range" id="poisson-radius" min="10" max="80" value="30">
+                        </div>
+                    `
+                },
+                clusters: {
+                    params: `
+                        <div class="param-group">
+                            <label for="cluster-centers">Centers: <span id="cluster-centers-value" class="value-display">8</span></label>
+                            <input type="range" id="cluster-centers" min="3" max="20" value="8">
+                        </div>
+                        <div class="param-group">
+                            <label for="cluster-radius">Cluster Size: <span id="cluster-radius-value" class="value-display">60</span></label>
+                            <input type="range" id="cluster-radius" min="20" max="120" value="60">
+                        </div>
+                        <div class="param-group">
+                            <label for="cluster-density">Points per Cluster: <span id="cluster-density-value" class="value-display">8</span></label>
+                            <input type="range" id="cluster-density" min="3" max="20" value="8">
+                        </div>
+                    `
+                },
+                grid: {
+                    params: `
+                        <div class="param-group">
+                            <label for="grid-spacing">Spacing: <span id="grid-spacing-value" class="value-display">64</span></label>
+                            <input type="range" id="grid-spacing" min="32" max="128" value="64">
+                        </div>
+                        <div class="param-group">
+                            <label for="grid-jitter">Jitter: <span id="grid-jitter-value" class="value-display">20</span></label>
+                            <input type="range" id="grid-jitter" min="0" max="50" value="20">
+                        </div>
+                    `
+                }
+            };
+
+            function updatePOIParams() {
+                const selectedAlgo = algorithmSelect.value;
+                const algo = algorithms[selectedAlgo];
+                paramsContainer.innerHTML = algo.params;
+                
+                paramsContainer.querySelectorAll('input[type="range"]').forEach(slider => {
+                    const valueSpan = document.getElementById(slider.id + '-value');
+                    if (valueSpan) {
+                        slider.addEventListener('input', function() {
+                            valueSpan.textContent = slider.value;
+                        });
+                    }
+                });
+            }
+
+            algorithmSelect.addEventListener('change', updatePOIParams);
+            updatePOIParams();
             
             document.getElementById('poi-generate').addEventListener('click', function() {
                 ctx.clearRect(0, 0, canvas.width, canvas.height);
                 
-                const algorithm = document.getElementById('poi-algorithm').value;
+                const algorithm = algorithmSelect.value;
                 let points = [];
                 
                 if (algorithm === 'random') {
-                    for (let i = 0; i < 100; i++) {
+                    const count = parseInt(document.getElementById('random-count').value);
+                    for (let i = 0; i < count; i++) {
+                        const type = Object.keys(POI_TYPES)[Math.floor(Math.random() * Object.keys(POI_TYPES).length)];
                         points.push({
                             x: Math.random() * canvasSize,
                             y: Math.random() * canvasSize,
-                            type: Object.keys(POI_TYPES)[Math.floor(Math.random() * Object.keys(POI_TYPES).length)]
+                            type: type,
+                            name: generatePOIName(type)
                         });
                     }
-                } else {
-                    // Simplified other algorithms
-                    for (let i = 0; i < 50; i++) {
-                        points.push({
-                            x: Math.random() * canvasSize,
-                            y: Math.random() * canvasSize,
-                            type: Object.keys(POI_TYPES)[Math.floor(Math.random() * Object.keys(POI_TYPES).length)]
-                        });
+                } else if (algorithm === 'poisson') {
+                    const radius = parseInt(document.getElementById('poisson-radius').value);
+                    points = poissonDisc(canvasSize, canvasSize, radius);
+                    points.forEach(point => {
+                        point.type = Object.keys(POI_TYPES)[Math.floor(Math.random() * Object.keys(POI_TYPES).length)];
+                        point.name = generatePOIName(point.type);
+                    });
+                } else if (algorithm === 'clusters') {
+                    const centers = parseInt(document.getElementById('cluster-centers').value);
+                    const radius = parseInt(document.getElementById('cluster-radius').value);
+                    const density = parseInt(document.getElementById('cluster-density').value);
+                    
+                    for (let c = 0; c < centers; c++) {
+                        const centerX = Math.random() * canvasSize;
+                        const centerY = Math.random() * canvasSize;
+                        const clusterType = Object.keys(POI_TYPES)[Math.floor(Math.random() * Object.keys(POI_TYPES).length)];
+                        
+                        for (let p = 0; p < density; p++) {
+                            const angle = Math.random() * 2 * Math.PI;
+                            const distance = Math.random() * radius;
+                            const x = centerX + Math.cos(angle) * distance;
+                            const y = centerY + Math.sin(angle) * distance;
+                            
+                            if (x >= 0 && x < canvasSize && y >= 0 && y < canvasSize) {
+                                points.push({
+                                    x: x,
+                                    y: y,
+                                    type: clusterType,
+                                    name: generatePOIName(clusterType)
+                                });
+                            }
+                        }
+                    }
+                } else if (algorithm === 'grid') {
+                    const spacing = parseInt(document.getElementById('grid-spacing').value);
+                    const jitter = parseInt(document.getElementById('grid-jitter').value);
+                    
+                    for (let y = spacing/2; y < canvasSize; y += spacing) {
+                        for (let x = spacing/2; x < canvasSize; x += spacing) {
+                            const jitterX = (Math.random() - 0.5) * jitter;
+                            const jitterY = (Math.random() - 0.5) * jitter;
+                            const type = Object.keys(POI_TYPES)[Math.floor(Math.random() * Object.keys(POI_TYPES).length)];
+                            
+                            points.push({
+                                x: x + jitterX,
+                                y: y + jitterY,
+                                type: type,
+                                name: generatePOIName(type)
+                            });
+                        }
                     }
                 }
                 
+                currentPOIs = points;
                 drawPOIs(ctx, points);
+                updatePOIList(points);
+                updatePOILegend();
             });
         }
 
-        // Starmap Generator (simplified)
+        function updatePOIList(pois) {
+            const container = document.getElementById('poi-details');
+            container.innerHTML = pois.map((poi, i) => 
+                `<div class="mb-1">
+                    <strong>${i+1}. ${poi.name}</strong><br>
+                    <small class="text-gray-400">${POI_TYPES[poi.type]?.name || poi.type} at (${Math.round(poi.x)}, ${Math.round(poi.y)})</small>
+                </div>`
+            ).join('');
+        }
+
+        function updatePOILegend() {
+            const legend = document.getElementById('poi-legend');
+            legend.innerHTML = '';
+            
+            Object.values(POI_TYPES).forEach(type => {
+                legend.innerHTML += `
+                    <div class="flex items-center gap-1">
+                        <div style="width: 12px; height: 12px; background-color: ${type.color}; border: 1px solid #ccc; border-radius: 2px;"></div>
+                        <span>${type.name}</span>
+                    </div>
+                `;
+            });
+        }
+
+        // Starmap Generator Setup
         function setupStarmapGenerator() {
             const canvas = document.getElementById('starmap-canvas');
             const ctx = canvas.getContext('2d');
@@ -867,36 +1138,68 @@
                 document.getElementById('star-count-value').textContent = this.value;
             });
             
+            document.getElementById('connection-chance').addEventListener('input', function() {
+                document.getElementById('connection-chance-value').textContent = this.value;
+            });
+            
             document.getElementById('starmap-generate').addEventListener('click', function() {
                 ctx.clearRect(0, 0, canvas.width, canvas.height);
                 ctx.fillStyle = '#000011';
                 ctx.fillRect(0, 0, canvas.width, canvas.height);
                 
                 const count = parseInt(document.getElementById('star-count').value);
+                const connectionChance = parseInt(document.getElementById('connection-chance').value) / 100;
+                const stars = [];
                 
                 for (let i = 0; i < count; i++) {
-                    const x = Math.random() * canvasSize;
-                    const y = Math.random() * canvasSize;
-                    const radius = Math.random() * 2 + 0.5;
-                    const brightness = Math.random() * 0.8 + 0.2;
+                    stars.push({
+                        x: Math.random() * canvasSize,
+                        y: Math.random() * canvasSize,
+                        radius: Math.random() * 3 + 0.5,
+                        brightness: Math.random() * 0.8 + 0.2,
+                        type: Math.random() > 0.8 ? 'special' : 'normal'
+                    });
+                }
+                
+                // Draw connections
+                ctx.strokeStyle = 'rgba(100, 150, 255, 0.3)';
+                ctx.lineWidth = 1;
+                
+                for (let i = 0; i < stars.length; i++) {
+                    for (let j = i + 1; j < stars.length; j++) {
+                        const dist = Math.sqrt((stars[i].x - stars[j].x) ** 2 + (stars[i].y - stars[j].y) ** 2);
+                        if (dist < 100 && Math.random() < connectionChance) {
+                            ctx.beginPath();
+                            ctx.moveTo(stars[i].x, stars[i].y);
+                            ctx.lineTo(stars[j].x, stars[j].y);
+                            ctx.stroke();
+                        }
+                    }
+                }
+                
+                // Draw stars
+                stars.forEach(star => {
+                    if (star.type === 'special') {
+                        ctx.fillStyle = `rgba(255, 200, 100, ${star.brightness})`;
+                    } else {
+                        ctx.fillStyle = `rgba(255, 255, 255, ${star.brightness})`;
+                    }
                     
-                    ctx.fillStyle = `rgba(255, 255, 255, ${brightness})`;
                     ctx.beginPath();
-                    ctx.arc(x, y, radius, 0, Math.PI * 2);
+                    ctx.arc(star.x, star.y, star.radius, 0, Math.PI * 2);
                     ctx.fill();
                     
-                    // Add glow
-                    ctx.shadowColor = 'white';
-                    ctx.shadowBlur = radius * 2;
+                    ctx.shadowColor = star.type === 'special' ? '#ffcc66' : 'white';
+                    ctx.shadowBlur = star.radius * 3;
                     ctx.beginPath();
-                    ctx.arc(x, y, radius * 0.5, 0, Math.PI * 2);
+                    ctx.arc(star.x, star.y, star.radius * 0.5, 0, Math.PI * 2);
                     ctx.fill();
                     ctx.shadowBlur = 0;
-                }
+                });
             });
         }
 
-        // Labyrinth Generator (simplified)
+        // Labyrinth Generator Setup
         function setupLabyrinthGenerator() {
             const canvas = document.getElementById('lab-canvas');
             const ctx = canvas.getContext('2d');
@@ -911,35 +1214,434 @@
                 document.getElementById('lab-pois-value').textContent = this.value;
             });
             
-            document.getElementById('lab-generate').addEventListener('click', function() {
-                ctx.clearRect(0, 0, canvas.width, canvas.height);
+            document.getElementById('lab-rooms').addEventListener('input', function() {
+                document.getElementById('lab-rooms-value').textContent = this.value;
+            });
+            
+            document.getElementById('lab-generate').addEventListener('click', generateLabyrinth);
+        }
+
+        function generateLabyrinth() {
+            const canvas = document.getElementById('lab-canvas');
+            const ctx = canvas.getContext('2d');
+            const algorithm = document.getElementById('lab-algorithm').value;
+            const gridType = document.getElementById('lab-grid').value;
+            const size = parseInt(document.getElementById('lab-size').value);
+            const numPOIs = parseInt(document.getElementById('lab-pois').value);
+            const numRooms = parseInt(document.getElementById('lab-rooms').value);
+            
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            let maze;
+            if (algorithm === 'recursive') {
+                maze = generateRecursiveBacktrackingMaze(size);
+            } else if (algorithm === 'prim') {
+                maze = generatePrimMaze(size);
+            } else {
+                maze = generateCellularCaves(size);
+            }
+            
+            currentMaze = maze;
+            
+            if (gridType === 'hex') {
+                drawHexMaze(ctx, maze, size);
+            } else {
+                drawSquareMaze(ctx, maze, size);
+            }
+            
+            const rooms = generateSpecialRooms(maze, size, numRooms);
+            const pois = generateMazePOIs(maze, size, numPOIs);
+            
+            drawMazeFeatures(ctx, rooms, pois, size);
+            updateMazeDetails(rooms, pois);
+            updateMazeLegend();
+        }
+
+        function generateRecursiveBacktrackingMaze(size) {
+            const maze = Array(size).fill().map(() => Array(size).fill(15));
+            const stack = [];
+            const visited = Array(size).fill().map(() => Array(size).fill(false));
+            
+            const directions = [[0, -1, 1], [1, 0, 2], [0, 1, 4], [-1, 0, 8]];
+            
+            let currentX = Math.floor(Math.random() * size);
+            let currentY = Math.floor(Math.random() * size);
+            visited[currentY][currentX] = true;
+            
+            while (true) {
+                const neighbors = [];
                 
-                const size = parseInt(document.getElementById('lab-size').value);
-                const cellSize = canvasSize / size;
+                directions.forEach(([dx, dy, wall]) => {
+                    const nx = currentX + dx * 2;
+                    const ny = currentY + dy * 2;
+                    if (nx >= 0 && nx < size && ny >= 0 && ny < size && !visited[ny][nx]) {
+                        neighbors.push([nx, ny, dx, dy, wall]);
+                    }
+                });
                 
-                // Draw simple maze
-                ctx.strokeStyle = '#ffffff';
-                ctx.lineWidth = 2;
+                if (neighbors.length > 0) {
+                    const [nx, ny, dx, dy, wall] = neighbors[Math.floor(Math.random() * neighbors.length)];
+                    
+                    maze[currentY][currentX] &= ~wall;
+                    maze[currentY + dy][currentX + dx] &= ~15;
+                    maze[ny][nx] &= ~(wall === 1 ? 4 : wall === 2 ? 8 : wall === 4 ? 1 : 2);
+                    
+                    visited[ny][nx] = true;
+                    stack.push([currentX, currentY]);
+                    currentX = nx;
+                    currentY = ny;
+                } else if (stack.length > 0) {
+                    [currentX, currentY] = stack.pop();
+                } else {
+                    break;
+                }
+            }
+            
+            return maze;
+        }
+
+        function generatePrimMaze(size) {
+            const maze = Array(size).fill().map(() => Array(size).fill(15));
+            const inMaze = Array(size).fill().map(() => Array(size).fill(false));
+            const walls = [];
+            
+            function addWalls(x, y) {
+                const directions = [[0, -1], [1, 0], [0, 1], [-1, 0]];
+                directions.forEach(([dx, dy]) => {
+                    const nx = x + dx;
+                    const ny = y + dy;
+                    if (nx >= 0 && nx < size && ny >= 0 && ny < size && !inMaze[ny][nx]) {
+                        walls.push([x, y, nx, ny]);
+                    }
+                });
+            }
+            
+            const startX = Math.floor(Math.random() * size);
+            const startY = Math.floor(Math.random() * size);
+            inMaze[startY][startX] = true;
+            maze[startY][startX] = 0;
+            addWalls(startX, startY);
+            
+            while (walls.length > 0) {
+                const wallIndex = Math.floor(Math.random() * walls.length);
+                const [x1, y1, x2, y2] = walls[wallIndex];
+                walls.splice(wallIndex, 1);
                 
+                if (!inMaze[y2][x2]) {
+                    inMaze[y2][x2] = true;
+                    maze[y2][x2] = 0;
+                    
+                    const dx = x2 - x1;
+                    const dy = y2 - y1;
+                    if (dx === 1) { maze[y1][x1] &= ~2; maze[y2][x2] &= ~8; }
+                    else if (dx === -1) { maze[y1][x1] &= ~8; maze[y2][x2] &= ~2; }
+                    else if (dy === 1) { maze[y1][x1] &= ~4; maze[y2][x2] &= ~1; }
+                    else if (dy === -1) { maze[y1][x1] &= ~1; maze[y2][x2] &= ~4; }
+                    
+                    addWalls(x2, y2);
+                }
+            }
+            
+            return maze;
+        }
+
+        function generateCellularCaves(size) {
+            let maze = Array(size).fill().map(() => Array(size).fill(Math.random() < 0.45 ? 1 : 0));
+            
+            for (let i = 0; i < 5; i++) {
+                const newMaze = Array(size).fill().map(() => Array(size).fill(0));
                 for (let y = 0; y < size; y++) {
                     for (let x = 0; x < size; x++) {
-                        const px = x * cellSize;
-                        const py = y * cellSize;
-                        
-                        // Randomly remove walls to create paths
-                        if (Math.random() > 0.3) {
-                            ctx.strokeRect(px, py, cellSize, cellSize);
+                        let neighbors = 0;
+                        for (let dy = -1; dy <= 1; dy++) {
+                            for (let dx = -1; dx <= 1; dx++) {
+                                const ny = y + dy;
+                                const nx = x + dx;
+                                if (ny < 0 || ny >= size || nx < 0 || nx >= size || (dx === 0 && dy === 0)) {
+                                    neighbors++;
+                                } else {
+                                    neighbors += maze[ny][nx];
+                                }
+                            }
+                        }
+                        newMaze[y][x] = neighbors >= 5 ? 1 : 0;
+                    }
+                }
+                maze = newMaze;
+            }
+            
+            return maze;
+        }
+
+        function drawSquareMaze(ctx, maze, size) {
+            const cellSize = canvasSize / size;
+            
+            ctx.fillStyle = '#1a1a1a';
+            ctx.fillRect(0, 0, canvasSize, canvasSize);
+            
+            ctx.strokeStyle = '#ffffff';
+            ctx.lineWidth = 2;
+            
+            for (let y = 0; y < size; y++) {
+                for (let x = 0; x < size; x++) {
+                    const px = x * cellSize;
+                    const py = y * cellSize;
+                    const walls = maze[y][x];
+                    
+                    if (typeof walls === 'number') {
+                        if (walls & 1) {
+                            ctx.beginPath();
+                            ctx.moveTo(px, py);
+                            ctx.lineTo(px + cellSize, py);
+                            ctx.stroke();
+                        }
+                        if (walls & 2) {
+                            ctx.beginPath();
+                            ctx.moveTo(px + cellSize, py);
+                            ctx.lineTo(px + cellSize, py + cellSize);
+                            ctx.stroke();
+                        }
+                        if (walls & 4) {
+                            ctx.beginPath();
+                            ctx.moveTo(px, py + cellSize);
+                            ctx.lineTo(px + cellSize, py + cellSize);
+                            ctx.stroke();
+                        }
+                        if (walls & 8) {
+                            ctx.beginPath();
+                            ctx.moveTo(px, py);
+                            ctx.lineTo(px, py + cellSize);
+                            ctx.stroke();
+                        }
+                    } else {
+                        if (walls === 1) {
+                            ctx.fillStyle = '#333333';
+                            ctx.fillRect(px, py, cellSize, cellSize);
                         }
                     }
                 }
+            }
+        }
+
+        function drawHexMaze(ctx, maze, size) {
+            const radius = canvasSize / (size * 2);
+            const hexHeight = radius * Math.sqrt(3);
+            const hexWidth = radius * 2;
+            
+            ctx.fillStyle = '#1a1a1a';
+            ctx.fillRect(0, 0, canvasSize, canvasSize);
+            
+            ctx.strokeStyle = '#ffffff';
+            ctx.lineWidth = 2;
+            
+            for (let y = 0; y < size; y++) {
+                for (let x = 0; x < size; x++) {
+                    const centerX = x * hexWidth * 0.75 + radius;
+                    const centerY = y * hexHeight + (x % 2) * hexHeight * 0.5 + radius;
+                    
+                    if (typeof maze[y][x] === 'number' && maze[y][x] === 0) {
+                        drawHexagon(ctx, centerX, centerY, radius * 0.8, false);
+                    } else if (maze[y][x] === 1) {
+                        ctx.fillStyle = '#333333';
+                        drawHexagon(ctx, centerX, centerY, radius * 0.9, true);
+                    }
+                }
+            }
+        }
+
+        function drawHexagon(ctx, x, y, radius, filled) {
+            ctx.beginPath();
+            for (let i = 0; i < 6; i++) {
+                const angle = (i * Math.PI) / 3;
+                const px = x + radius * Math.cos(angle);
+                const py = y + radius * Math.sin(angle);
+                if (i === 0) ctx.moveTo(px, py);
+                else ctx.lineTo(px, py);
+            }
+            ctx.closePath();
+            
+            if (filled) {
+                ctx.fill();
+            } else {
+                ctx.stroke();
+            }
+        }
+
+        function generateSpecialRooms(maze, size, numRooms) {
+            const rooms = [];
+            const roomTypes = [
+                { name: 'Treasure Chamber', color: '#ffd700', symbol: '$' },
+                { name: 'Boss Arena', color: '#ff4444', symbol: 'B' },
+                { name: 'Puzzle Room', color: '#44ff44', symbol: '?' },
+                { name: 'Trap Room', color: '#ff8844', symbol: '!' },
+                { name: 'Shrine', color: '#8844ff', symbol: '+' }
+            ];
+            
+            for (let i = 0; i < numRooms; i++) {
+                let x, y, attempts = 0;
                 
-                // Add entrance and exit
-                ctx.fillStyle = '#22c55e';
-                ctx.fillRect(cellSize * 0.25, cellSize * 0.25, cellSize * 0.5, cellSize * 0.5);
+                do {
+                    x = Math.floor(Math.random() * size);
+                    y = Math.floor(Math.random() * size);
+                    attempts++;
+                } while (attempts < 100 && (
+                    (typeof maze[y][x] === 'number' && maze[y][x] === 15) || 
+                    (maze[y][x] === 1)
+                ));
                 
-                ctx.fillStyle = '#ef4444';
-                ctx.fillRect((size - 1) * cellSize + cellSize * 0.25, (size - 1) * cellSize + cellSize * 0.25, cellSize * 0.5, cellSize * 0.5);
+                if (attempts < 100) {
+                    const roomType = roomTypes[Math.floor(Math.random() * roomTypes.length)];
+                    rooms.push({
+                        x: x,
+                        y: y,
+                        type: roomType.name,
+                        color: roomType.color,
+                        symbol: roomType.symbol,
+                        description: `A ${roomType.name.toLowerCase()} with mysterious properties`
+                    });
+                }
+            }
+            
+            rooms.push({
+                x: 0, y: 0,
+                type: 'Entrance', color: '#22c55e', symbol: 'E',
+                description: 'The way into the dungeon'
             });
+            
+            rooms.push({
+                x: size - 1, y: size - 1,
+                type: 'Exit', color: '#ef4444', symbol: 'X',
+                description: 'The way out of the dungeon'
+            });
+            
+            return rooms;
+        }
+
+        function generateMazePOIs(maze, size, numPOIs) {
+            const pois = [];
+            const poiTypes = Object.keys(POI_TYPES);
+            
+            for (let i = 0; i < numPOIs; i++) {
+                let x, y, attempts = 0;
+                
+                do {
+                    x = Math.floor(Math.random() * size);
+                    y = Math.floor(Math.random() * size);
+                    attempts++;
+                } while (attempts < 100 && (
+                    (typeof maze[y][x] === 'number' && maze[y][x] === 15) || 
+                    (maze[y][x] === 1)
+                ));
+                
+                if (attempts < 100) {
+                    const type = poiTypes[Math.floor(Math.random() * poiTypes.length)];
+                    pois.push({
+                        x: x, y: y,
+                        type: type,
+                        name: generatePOIName(type)
+                    });
+                }
+            }
+            
+            return pois;
+        }
+
+        function drawMazeFeatures(ctx, rooms, pois, size) {
+            const cellSize = canvasSize / size;
+            
+            rooms.forEach(room => {
+                const x = room.x * cellSize + cellSize / 2;
+                const y = room.y * cellSize + cellSize / 2;
+                
+                ctx.fillStyle = room.color;
+                ctx.beginPath();
+                ctx.arc(x, y, cellSize * 0.3, 0, Math.PI * 2);
+                ctx.fill();
+                
+                ctx.fillStyle = '#000000';
+                ctx.font = `bold ${cellSize * 0.4}px Arial`;
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                ctx.fillText(room.symbol, x, y);
+            });
+            
+            pois.forEach(poi => {
+                const x = poi.x * cellSize + cellSize / 2;
+                const y = poi.y * cellSize + cellSize / 2;
+                
+                const type = POI_TYPES[poi.type];
+                if (type) {
+                    ctx.fillStyle = type.color;
+                    ctx.strokeStyle = '#ffffff';
+                    ctx.lineWidth = 1;
+                    
+                    const size = cellSize * 0.15;
+                    
+                    ctx.beginPath();
+                    ctx.arc(x, y, size/2, 0, Math.PI * 2);
+                    ctx.fill();
+                    ctx.stroke();
+                }
+            });
+        }
+
+        function updateMazeDetails(rooms, pois) {
+            const container = document.getElementById('lab-room-list');
+            let html = '<h4 class="font-semibold text-white mb-2">Special Rooms:</h4>';
+            
+            rooms.forEach(room => {
+                html += `<div class="mb-2 p-2 bg-gray-700 rounded">
+                    <div class="flex items-center gap-2">
+                        <div style="width: 12px; height: 12px; background-color: ${room.color}; border-radius: 50%;"></div>
+                        <strong>${room.type}</strong>
+                    </div>
+                    <small class="text-gray-400">Position: (${room.x}, ${room.y})</small><br>
+                    <small class="text-gray-300">${room.description}</small>
+                </div>`;
+            });
+            
+            if (pois.length > 0) {
+                html += '<h4 class="font-semibold text-white mb-2 mt-4">Points of Interest:</h4>';
+                pois.slice(0, 8).forEach(poi => {
+                    const type = POI_TYPES[poi.type];
+                    html += `<div class="mb-1">
+                        <span style="color: ${type?.color || '#ffffff'}">${poi.name}</span>
+                        <small class="text-gray-400"> at (${poi.x}, ${poi.y})</small>
+                    </div>`;
+                });
+                
+                if (pois.length > 8) {
+                    html += `<small class="text-gray-400">... and ${pois.length - 8} more</small>`;
+                }
+            }
+            
+            container.innerHTML = html;
+        }
+
+        function updateMazeLegend() {
+            const legend = document.getElementById('lab-legend');
+            legend.innerHTML = `
+                <div class="flex items-center gap-1">
+                    <div style="width: 12px; height: 12px; background-color: #ffffff; border: 1px solid #ccc;"></div>
+                    <span>Walls</span>
+                </div>
+                <div class="flex items-center gap-1">
+                    <div style="width: 12px; height: 12px; background-color: #000000; border: 1px solid #ccc;"></div>
+                    <span>Paths</span>
+                </div>
+                <div class="flex items-center gap-1">
+                    <div style="width: 12px; height: 12px; background-color: #22c55e; border: 1px solid #ccc; border-radius: 50%;"></div>
+                    <span>Entrance</span>
+                </div>
+                <div class="flex items-center gap-1">
+                    <div style="width: 12px; height: 12px; background-color: #ef4444; border: 1px solid #ccc; border-radius: 50%;"></div>
+                    <span>Exit</span>
+                </div>
+                <div class="flex items-center gap-1">
+                    <div style="width: 12px; height: 12px; background-color: #ffd700; border: 1px solid #ccc; border-radius: 50%;"></div>
+                    <span>Special Rooms</span>
+                </div>
+            `;
         }
     </script>
 </body>
