@@ -11,6 +11,7 @@ description: Print2Play Edition of Deckbuilding Card Game
 Beyond the charted stars and the familiar laws of physics lies the **Eryxian Universe** – a rich science-fantasy setting born from real astronomical wonders and fueled by boundless imagination. This repository serves as the central hub for:
 
 *   **The Eryxian Universe Lore Wiki:** The most comprehensive and up-to-date source for the history, civilizations, technologies, mythos, and unique phenomena that define this expansive cosmos. Dive into the [**Official Eryxian Wiki here!**](https://github.com/eryxgames/eryxian/wiki)
+*   **Test Eryxian Universe GM Utilities:** http://eryxian.com/Eryxian/
 *   🃏 **Eryxian Civilizations Card Game:** A strategic deckbuilding game where you lead a unique interstellar faction to explore, expand, exploit, and exterminate. *(Under Development)*
 *   🎲 **Eryxian Universe TTRPG (Tabletop Roleplaying Game):** *(Under Development)* An upcoming TTRPG experience allowing you to forge your own legends within this vast universe.
 
