@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Eryxian Labyrinth Research Interface</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            overscroll-behavior: none;
+        }
+        .main-tab {
+            transition: all 0.3s ease;
+            border-bottom: 2px solid transparent;
+        }
+        .main-tab.active {
+            border-bottom-color: #818cf8;
+            color: #e0e7ff;
+        }
+        .info-box h3 {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: #c7d2fe;
+            border-bottom: 1px solid #4a5568;
+            padding-bottom: 0.5rem;
+        }
+        .info-box p, .info-box li {
+            font-size: 0.875rem;
+            line-height: 1.6;
+        }
+        .info-box ul {
+            list-style-type: disc;
+            padding-left: 1.25rem;
+            margin-bottom: 1rem;
+        }
+        .schematic-btn {
+            transition: background-color 0.2s ease-in-out;
+        }
+        .schematic-btn.active {
+            background-color: #4f46e5;
+        }
+        .generated-item {
+            background-color: rgba(255, 255, 255, 0.05);
+            border-left: 3px solid #818cf8;
+        }
+        .generated-item strong {
+            color: #a5b4fc;
+        }
+        .btn-primary {
+            background-color: #4f46e5;
+            transition: background-color 0.2s;
+        }
+        .btn-primary:hover {
+            background-color: #6366f1;
+        }
+    </style>
+</head>
+<body class="bg-gray-900 text-gray-200 flex flex-col items-center justify-center min-h-screen p-4">
+
+    <div class="w-full max-w-7xl bg-gray-800 rounded-2xl shadow-2xl p-4 sm:p-6 lg:p-8">
+        <header class="text-center mb-6">
+            <h1 class="text-2xl sm:text-3xl font-bold text-white">Eryxian Labyrinth Research Interface</h1>
+            <p class="text-sm sm:text-base text-gray-400 mt-2">Anomaly Classification & Generation Tool</p>
+        </header>
+
+        <div class="border-b border-gray-700 mb-6">
+            <nav class="flex justify-center -mb-px space-x-6 sm:space-x-8">
+                <button id="tab-viewer" class="main-tab active text-gray-400 hover:text-white whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm">Classification Viewer</button>
+                <button id="tab-generator" class="main-tab text-gray-400 hover:text-white whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm">Anomaly Generator</button>
+            </nav>
+        </div>
+
+        <div id="content-viewer" class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <div class="lg:col-span-2 bg-gray-900/50 rounded-xl flex items-center justify-center p-4 min-h-[400px] lg:min-h-[500px] overflow-hidden">
+                <svg id="schematic-svg" class="w-full h-full" viewBox="0 0 500 400"></svg>
+            </div>
+            <div class="bg-gray-800/50 rounded-xl p-6">
+                <div id="schematic-buttons" class="grid grid-cols-2 gap-2 mb-4">
+                    <!-- Buttons injected by JS -->
+                </div>
+                <div id="info-panel" class="info-box max-h-[400px] overflow-y-auto pr-2">
+                    <!-- Info content injected here -->
+                </div>
+            </div>
+        </div>
+
+        <div id="content-generator" class="hidden">
+            <div class="text-center mb-6">
+                <button id="generate-btn" class="btn-primary text-white font-bold py-3 px-6 rounded-lg shadow-lg">Generate New Labyrinth Anomaly</button>
+            </div>
+            <div id="generator-output" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                <!-- Generated items will be injected here -->
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // --- DOM Elements ---
+        const viewerContent = document.getElementById('content-viewer');
+        const generatorContent = document.getElementById('content-generator');
+        const tabViewer = document.getElementById('tab-viewer');
+        const tabGenerator = document.getElementById('tab-generator');
+        const svg = document.getElementById('schematic-svg');
+        const infoPanel = document.getElementById('info-panel');
+        const schematicButtonsContainer = document.getElementById('schematic-buttons');
+        const generateBtn = document.getElementById('generate-btn');
+        const generatorOutput = document.getElementById('generator-output');
+
+        // --- Data ---
+        const labyrinthTypes = {
+            spatial: {
+                name: "Spatial",
+                title: "Architectural Labyrinth (Non-Euclidean)",
+                description: "<p>These are the most common Labyrinths, characterized by impossible geometries. Hallways turn back on themselves, rooms are larger on the inside than the outside, and gravity shifts without reason.</p><ul><li><strong>Paradox:</strong> Violation of Euclidean geometry and consistent spatial metrics.</li><li><strong>Observed Effects:</strong> Navigational system failure, disorientation, physical paradoxes (e.g., climbing stairs to end up below your starting point).</li><li><strong>Hypothesis:</strong> May be the result of localized spacetime folding or a malfunctioning teleportation matrix.</li></ul>",
+                drawFunc: drawSpatial
+            },
+            temporal: {
+                name: "Temporal",
+                title: "Temporal Labyrinth (Causal Anomaly)",
+                description: "<p>These Labyrinths manipulate the flow of time. Explorers might experience hours in minutes, or days in seconds. Causal loops have been reported, where seeing a future event causes the event to happen.</p><ul><li><strong>Paradox:</strong> Violation of linear time progression and causality.</li><li><strong>Observed Effects:</strong> Time dilation/contraction, precognitive visions, déjà vu loops, objects aging or reverting to new states instantly.</li><li><strong>Hypothesis:</strong> A contained chroniton field or a stabilized wormhole with temporal displacement.</li></ul>",
+                drawFunc: drawTemporal
+            },
+            quantum: {
+                name: "Quantum",
+                title: "Quantum Labyrinth (Macro-State Anomaly)",
+                description: "<p>Within these zones, quantum effects manifest on a macroscopic scale. Walls may be in a state of superposition (both there and not there) until observed, and objects can become entangled over vast distances.</p><ul><li><strong>Paradox:</strong> Breakdown of the correspondence principle; quantum weirdness at classical scales.</li><li><strong>Observed Effects:</strong> Objects phasing through reality, spontaneous particle generation, 'observer effect' determining the physical layout.</li><li><strong>Hypothesis:</strong> A device designed to stabilize and expand a quantum vacuum state for energy extraction or computation.</li></ul>",
+                drawFunc: drawQuantum
+            },
+            thermo: {
+                name: "Thermo",
+                title: "Thermodynamic Labyrinth (Entropic Anomaly)",
+                description: "<p>These Labyrinths defy the laws of thermodynamics. Rooms can spontaneously freeze over while adjacent corridors boil. Perpetual motion machines and localized entropy reversal (e.g., a shattered cup reassembling itself) have been documented.</p><ul><li><strong>Paradox:</strong> Violation of the Second Law of Thermodynamics.</li><li><strong>Observed Effects:</strong> Extreme temperature gradients, energy appearing from nowhere, broken objects repairing themselves.</li><li><strong>Hypothesis:</strong> A sophisticated energy conversion system or a gateway to a universe with different physical laws.</li></ul>",
+                drawFunc: drawThermo
+            },
+            signal: {
+                name: "Signal",
+                title: "Signal Labyrinth (Informational Anomaly)",
+                description: "<p>Not always a physical place, these 'Labyrinth Libraries' can be complex signals, memetic hazards, or data constructs. They can infect computer systems or even living minds, creating mazes of logic and thought.</p><ul><li><strong>Paradox:</strong> Information that appears to have no physical source or that violates logical principles.</li><li><strong>Observed Effects:</strong> Incurable data corruption, sentient computer viruses, auditory/visual hallucinations of pure data, 'logic bombs' in thought processes.</li><li><strong>Hypothesis:</strong> An ancient data storage method, a psychic defense system, or a form of non-biological life.</li></ul>",
+                drawFunc: drawSignal
+            }
+        };
+
+        const generatorData = {
+            form: ["Crystalline Structure", "Shifting Metallic Corridors", "Organic/Fleshy Growth", "Unstable Gaseous Cloud", "Pure Light Construct", "Memetic/Informational Pattern", "Interlocking Geometric Shapes"],
+            primary_anomaly: ["Non-Euclidean Space", "Time Dilation/Loops", "Localized Entropy Reversal", "Macroscopic Quantum Tunneling", "Gravity Inversion/Shifting", "Spontaneous Matter Creation", "Reality Phasing"],
+            secondary_effect: ["Extreme Sensor Distortion", "Induces Vivid Hallucinations", "Alters Local Atmosphere", "Causes Rapid Aging/De-aging", "Nullifies Sound", "Generates Intense EM Fields", "Replicates Nearby Objects Imperfectly"],
+            trigger: ["Appears in Abandoned Places", "Reacts to High Energy Signatures", "Activates on a Long, Cyclical Schedule", "Triggered by Specific Radio Frequencies", "Manifests Near Unconscious Minds", "Moves Randomly Across the Surface", "Linked to Host Planet's Magnetic Field Flux"],
+            purpose: ["Defensive System", "Energy Regulator", "Terraforming Engine", "Data Archive/Library", "Living Organism/Creature", "Interdimensional Gateway", "A Trap for Intruders", "Physics Experiment Chamber", "Quarantine Zone"]
+        };
+
+        // --- Drawing Functions ---
+        function clearSVG() { svg.innerHTML = ''; }
+        function drawSpatial() {
+            clearSVG();
+            const paths = [
+                "M100 100 H400 V300 H100 L250 200 Z",
+                "M150 150 L350 150 L350 250 L150 250 Z",
+                "M250 200 L450 200 L450 350 L250 350 V200"
+            ];
+            paths.forEach((d, i) => {
+                const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+                path.setAttribute('d', d);
+                path.setAttribute('fill', 'none');
+                path.setAttribute('stroke', `rgba(199, 210, 254, ${0.4 + i*0.2})`);
+                path.setAttribute('stroke-width', '3');
+                path.setAttribute('stroke-linejoin', 'round');
+                svg.appendChild(path);
+            });
+            const door = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+            door.setAttribute('x', '90'); door.setAttribute('y', '180'); door.setAttribute('width', '20'); door.setAttribute('height', '40'); door.setAttribute('fill', '#e0e7ff');
+            svg.appendChild(door);
+        }
+        function drawTemporal() {
+            clearSVG();
+            const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+            circle.setAttribute('cx', '250'); circle.setAttribute('cy', '200'); circle.setAttribute('r', '150'); circle.setAttribute('fill', 'none'); circle.setAttribute('stroke', '#a5b4fc'); circle.setAttribute('stroke-width', '2');
+            svg.appendChild(circle);
+            for(let i=0; i<12; i++) {
+                const angle = i * Math.PI / 6;
+                const x1 = 250 + 150 * Math.cos(angle);
+                const y1 = 200 + 150 * Math.sin(angle);
+                const x2 = 250 + 130 * Math.cos(angle);
+                const y2 = 200 + 130 * Math.sin(angle);
+                const tick = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+                tick.setAttribute('x1', x1); tick.setAttribute('y1', y1); tick.setAttribute('x2', x2); tick.setAttribute('y2', y2);
+                tick.setAttribute('stroke', '#a5b4fc'); tick.setAttribute('stroke-width', '3');
+                svg.appendChild(tick);
+            }
+            const arrow = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+            arrow.setAttribute('d', "M250,50 A150,150 0 1,1 180,340 L160 320 M180 340 L200 325");
+            arrow.setAttribute('fill', 'none'); arrow.setAttribute('stroke', '#e0e7ff'); arrow.setAttribute('stroke-width', '5');
+            svg.appendChild(arrow);
+            const innerLoop = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+            innerLoop.setAttribute('d', "M250,120 A80,80 0 1,0 320,230 L300 240 M320 230 L330 210");
+            innerLoop.setAttribute('fill', 'none'); innerLoop.setAttribute('stroke', '#818cf8'); innerLoop.setAttribute('stroke-width', '3');
+            svg.appendChild(innerLoop);
+        }
+        function drawQuantum() {
+            clearSVG();
+            const wave = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+            wave.setAttribute('d', "M50 200 Q 150 100, 250 200 T 450 200");
+            wave.setAttribute('fill', 'none'); wave.setAttribute('stroke', '#a5b4fc'); wave.setAttribute('stroke-width', '3');
+            svg.appendChild(wave);
+            for(let i=0; i<8; i++) {
+                const particle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+                particle.setAttribute('cx', 70 + i * 50);
+                particle.setAttribute('cy', '200');
+                particle.setAttribute('r', '5');
+                particle.setAttribute('fill', '#e0e7ff');
+                particle.style.opacity = '0.5';
+                svg.appendChild(particle);
+            }
+            const box = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+            box.setAttribute('x', '175'); box.setAttribute('y', '125'); box.setAttribute('width', '150'); box.setAttribute('height', '150');
+            box.setAttribute('stroke', '#c7d2fe'); box.setAttribute('stroke-width', '3'); box.setAttribute('stroke-dasharray', '10 5'); box.setAttribute('fill', 'rgba(129, 140, 248, 0.1)');
+            svg.appendChild(box);
+            const text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+            text.setAttribute('x', '250'); text.setAttribute('y', '215'); text.setAttribute('font-size', '50'); text.setAttribute('fill', '#e0e7ff'); text.setAttribute('text-anchor', 'middle');
+            text.textContent = '?';
+            svg.appendChild(text);
+        }
+        function drawThermo() {
+            clearSVG();
+            const hotSide = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+            hotSide.setAttribute('d', 'M50 50 H450 V350 H50 Z');
+            hotSide.setAttribute('fill', 'url(#hotGradient)');
+            svg.appendChild(hotSide);
+            const coldSide = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+            coldSide.setAttribute('d', 'M250 50 H450 V350 H250 Z');
+            coldSide.setAttribute('fill', 'url(#coldGradient)');
+            svg.appendChild(coldSide);
+            
+            const defs = document.createElementNS('http://www.w3.org/2000/svg', 'defs');
+            const hotGradient = document.createElementNS('http://www.w3.org/2000/svg', 'radialGradient');
+            hotGradient.id = 'hotGradient';
+            hotGradient.innerHTML = `<stop offset="0%" stop-color="#fca5a5" /><stop offset="100%" stop-color="#ef4444" />`;
+            const coldGradient = document.createElementNS('http://www.w3.org/2000/svg', 'radialGradient');
+            coldGradient.id = 'coldGradient';
+            coldGradient.innerHTML = `<stop offset="0%" stop-color="#93c5fd" /><stop offset="100%" stop-color="#3b82f6" />`;
+            defs.appendChild(hotGradient); defs.appendChild(coldGradient);
+            svg.appendChild(defs);
+
+            const arrow = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+            arrow.setAttribute('d', 'M300 150 C 350 100, 350 300, 300 250 L 280 270 M 300 250 L 320 270');
+            arrow.setAttribute('fill', 'none'); arrow.setAttribute('stroke', 'white'); arrow.setAttribute('stroke-width', '4');
+            svg.appendChild(arrow);
+        }
+        function drawSignal() {
+            clearSVG();
+            for(let i=0; i<15; i++) {
+                const stream = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+                const startY = 50 + i * 20;
+                const midY1 = startY + (Math.random() - 0.5) * 30;
+                const midY2 = startY + (Math.random() - 0.5) * 30;
+                stream.setAttribute('d', `M50 ${startY} C 150 ${midY1}, 350 ${midY2}, 450 ${startY}`);
+                stream.setAttribute('fill', 'none');
+                stream.setAttribute('stroke', `rgba(165, 180, 252, ${Math.random() * 0.5 + 0.3})`);
+                stream.setAttribute('stroke-width', '2');
+                svg.appendChild(stream);
+            }
+            const head = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+            head.setAttribute('cx', '250'); head.setAttribute('cy', '200'); head.setAttribute('r', '50'); head.setAttribute('fill', 'none'); head.setAttribute('stroke', '#e0e7ff'); head.setAttribute('stroke-width', '3');
+            svg.appendChild(head);
+            const eye = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+            eye.setAttribute('cx', '250'); eye.setAttribute('cy', '200'); eye.setAttribute('r', '10'); eye.setAttribute('fill', '#e0e7ff');
+            svg.appendChild(eye);
+        }
+
+        // --- Generator Logic ---
+        function generateLabyrinth() {
+            generatorOutput.innerHTML = '';
+            const properties = {
+                "Form": generatorData.form[Math.floor(Math.random() * generatorData.form.length)],
+                "Primary Anomaly": generatorData.primary_anomaly[Math.floor(Math.random() * generatorData.primary_anomaly.length)],
+                "Secondary Effect": generatorData.secondary_effect[Math.floor(Math.random() * generatorData.secondary_effect.length)],
+                "Behavior / Trigger": generatorData.trigger[Math.floor(Math.random() * generatorData.trigger.length)],
+                "Hypothesized Purpose": generatorData.purpose[Math.floor(Math.random() * generatorData.purpose.length)],
+            };
+
+            for (const key in properties) {
+                const div = document.createElement('div');
+                div.className = 'generated-item p-4 rounded-lg';
+                div.innerHTML = `<strong>${key}:</strong><p class="mt-1 text-gray-300">${properties[key]}</p>`;
+                generatorOutput.appendChild(div);
+            }
+        }
+
+        // --- Event Handling & Initialization ---
+        function setupViewer() {
+            schematicButtonsContainer.innerHTML = '';
+            Object.keys(labyrinthTypes).forEach(key => {
+                const btn = document.createElement('button');
+                btn.id = `btn-${key}`;
+                btn.className = 'schematic-btn text-xs sm:text-sm font-medium py-2 px-3 rounded-md bg-gray-700 hover:bg-indigo-600';
+                btn.textContent = labyrinthTypes[key].name;
+                btn.addEventListener('click', () => selectLabyrinthType(key));
+                schematicButtonsContainer.appendChild(btn);
+            });
+            selectLabyrinthType('spatial');
+        }
+
+        function selectLabyrinthType(typeKey) {
+            const type = labyrinthTypes[typeKey];
+            if (!type) return;
+
+            document.querySelectorAll('.schematic-btn').forEach(b => b.classList.remove('active'));
+            document.getElementById(`btn-${typeKey}`).classList.add('active');
+            
+            infoPanel.innerHTML = `<h3>${type.title}</h3>${type.description}`;
+            type.drawFunc();
+        }
+
+        tabViewer.addEventListener('click', () => {
+            viewerContent.style.display = 'grid';
+            generatorContent.style.display = 'none';
+            tabViewer.classList.add('active');
+            tabGenerator.classList.remove('active');
+            setupViewer();
+        });
+
+        tabGenerator.addEventListener('click', () => {
+            viewerContent.style.display = 'none';
+            generatorContent.style.display = 'block';
+            tabViewer.classList.remove('active');
+            tabGenerator.classList.add('active');
+            if (generatorOutput.innerHTML === '') {
+                generateLabyrinth();
+            }
+        });
+        
+        generateBtn.addEventListener('click', generateLabyrinth);
+
+        // Initial load
+        setupViewer();
+
+    </script>
+</body>
+</html>

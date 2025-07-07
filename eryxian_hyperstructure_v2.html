@@ -1,0 +1,2833 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Eryxian Hyperstructure Observatory - Interactive Schematics</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            overscroll-behavior: none;
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+        }
+        .tab-button {
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+        }
+        .tab-button.active {
+            background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+            color: white;
+            box-shadow: 0 8px 25px -8px rgba(79, 70, 229, 0.6);
+            transform: translateY(-1px);
+        }
+        .tab-button:hover:not(.active) {
+            background: rgba(99, 102, 241, 0.2);
+            transform: translateY(-1px);
+        }
+        .category-tab {
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+        }
+        .category-tab.active {
+            background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+            box-shadow: 0 8px 25px -8px rgba(99, 102, 241, 0.5);
+        }
+        .info-box h3 {
+            font-size: 1.125rem;
+            font-weight: 600;
+            margin-bottom: 0.75rem;
+            color: #c7d2fe;
+            text-shadow: 0 0 10px rgba(199, 210, 254, 0.3);
+        }
+        .info-box p {
+            font-size: 0.875rem;
+            line-height: 1.6;
+            margin-bottom: 1rem;
+        }
+        .info-box .control-label {
+            font-size: 0.875rem;
+            font-weight: 500;
+            margin-bottom: 0.5rem;
+            display: block;
+            color: #e2e8f0;
+        }
+        .slider {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 100%;
+            height: 8px;
+            background: linear-gradient(90deg, #374151 0%, #4b5563 100%);
+            outline: none;
+            opacity: 0.8;
+            transition: opacity 0.2s;
+            border-radius: 9999px;
+            box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.3);
+        }
+        .slider:hover {
+            opacity: 1;
+        }
+        .slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 20px;
+            height: 20px;
+            background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+            cursor: pointer;
+            border-radius: 50%;
+            box-shadow: 0 4px 12px rgba(79, 70, 229, 0.4);
+            transition: all 0.2s ease;
+        }
+        .slider::-webkit-slider-thumb:hover {
+            transform: scale(1.1);
+            box-shadow: 0 6px 20px rgba(79, 70, 229, 0.6);
+        }
+        .slider::-moz-range-thumb {
+            width: 20px;
+            height: 20px;
+            background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+            cursor: pointer;
+            border-radius: 50%;
+            border: none;
+            box-shadow: 0 4px 12px rgba(79, 70, 229, 0.4);
+        }
+        .pulsar-beam {
+            mix-blend-mode: screen;
+            filter: blur(1px);
+        }
+        .trajectory-path {
+            stroke-dasharray: 5,5;
+            stroke-dashoffset: 0;
+            animation: dash 2s linear infinite;
+        }
+        @keyframes dash {
+            to { stroke-dashoffset: -10; }
+        }
+        .energy-beam {
+            mix-blend-mode: screen;
+            filter: blur(1px);
+            animation: pulse 2s ease-in-out infinite alternate;
+        }
+        @keyframes pulse {
+            from { opacity: 0.7; }
+            to { opacity: 1; }
+        }
+        .threat-indicator {
+            border-left: 4px solid;
+            transition: all 0.3s ease;
+        }
+        .threat-low { 
+            border-color: #10b981; 
+            background: rgba(16, 185, 129, 0.1);
+        }
+        .threat-medium { 
+            border-color: #f59e0b; 
+            background: rgba(245, 158, 11, 0.1);
+        }
+        .threat-high { 
+            border-color: #ef4444; 
+            background: rgba(239, 68, 68, 0.1);
+        }
+        .threat-extreme { 
+            border-color: #dc2626; 
+            background: rgba(220, 38, 38, 0.15);
+            box-shadow: 0 0 20px rgba(220, 38, 38, 0.2);
+        }
+        .physics-warning {
+            background: linear-gradient(45deg, #dc2626, #f59e0b);
+            color: white;
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+            animation: glow 2s ease-in-out infinite alternate;
+        }
+        @keyframes glow {
+            from { box-shadow: 0 0 5px rgba(220, 38, 38, 0.5); }
+            to { box-shadow: 0 0 20px rgba(220, 38, 38, 0.8); }
+        }
+        .glass-effect {
+            background: rgba(31, 41, 55, 0.7);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(75, 85, 99, 0.3);
+        }
+        .gm-output {
+            background: rgba(17, 24, 39, 0.8);
+            backdrop-filter: blur(8px);
+            border: 1px solid rgba(55, 65, 81, 0.5);
+        }
+        .logo-glow {
+            filter: drop-shadow(0 0 20px rgba(79, 70, 229, 0.3));
+        }
+        .logo {
+            display: block;
+            max-width: 200px;
+            height: auto;
+            margin: 0 auto 20px auto;
+            filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.3));
+        }
+        
+        .hyperstructure-card {
+            background: rgba(31, 41, 55, 0.6);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(75, 85, 99, 0.3);
+            transition: all 0.3s ease;
+        }
+        .hyperstructure-card:hover {
+            background: rgba(31, 41, 55, 0.8);
+            transform: translateY(-2px);
+            box-shadow: 0 12px 24px rgba(0, 0, 0, 0.3);
+        }
+        select {
+            background: rgba(55, 65, 81, 0.8);
+            backdrop-filter: blur(8px);
+            border: 1px solid rgba(75, 85, 99, 0.5);
+            color: #e2e8f0;
+        }
+        select:focus {
+            border-color: #6366f1;
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+        }
+    </style>
+</head>
+<body class="text-gray-200 flex flex-col items-center justify-center min-h-screen p-4">
+
+    <div class="w-full max-w-7xl glass-effect rounded-2xl shadow-2xl p-4 sm:p-6 lg:p-8">
+        <header class="text-center mb-6">
+            <div class="flex justify-between items-start mb-4">
+                <div class="text-left">
+                    <a href="https://eryxian.com" target="_blank" class="text-blue-400 hover:text-blue-300 text-sm transition-colors duration-200 flex items-center gap-1">
+                        🌐 Eryxian.com
+                    </a>
+                    <a href="https://github.com/eryxgames/Eryxian/wiki" target="_blank" class="text-blue-400 hover:text-blue-300 text-sm transition-colors duration-200 flex items-center gap-1 mt-1">
+                        📚 Universe Wiki
+                    </a>
+                </div>
+                <div class="logo-glow">
+                    <img src="eryxian-dash-logo-sm.png" alt="Eryxian" class="logo">
+<!--                    <div class="w-16 h-16 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-full flex items-center justify-center text-2xl font-bold">E</div> -->
+                </div>
+                <div class="text-right">
+                    <a href="https://github.com/eryxgames/Eryxian/wiki/Hyperstructures-and-Extragalactic-Archaeology" target="_blank" class="text-purple-400 hover:text-purple-300 text-sm transition-colors duration-200 flex items-center gap-1 justify-end">
+                        🔬 Hyperstructure Research
+                    </a>
+                </div>
+            </div>
+            <h1 class="text-3xl sm:text-4xl font-bold text-white mb-2 bg-gradient-to-r from-blue-400 via-purple-400 to-pink-400 bg-clip-text text-transparent">
+                Eryxian Hyperstructure Observatory
+            </h1>
+            <p class="text-sm sm:text-base text-gray-400 mt-2 max-w-2xl mx-auto">
+                Interactive schematics of theoretically plausible megastructures and astronomical engineering from the Eryxian Universe
+            </p>
+            <div class="flex justify-center gap-2 mt-4 text-xs flex-wrap">
+                <span class="px-3 py-1 bg-blue-900/50 text-blue-200 rounded-full backdrop-blur">Archaeological Evidence</span>
+                <span class="px-3 py-1 bg-purple-900/50 text-purple-200 rounded-full backdrop-blur">Physics Validated</span>
+                <span class="px-3 py-1 bg-green-900/50 text-green-200 rounded-full backdrop-blur">GM Tools Included</span>
+            </div>
+        </header>
+
+        <!-- Category Tabs -->
+        <div class="mb-6">
+            <div class="flex justify-center mb-4">
+                <div class="flex gap-2 p-1 glass-effect rounded-xl">
+                    <button id="category-disc" class="category-tab active px-6 py-3 rounded-lg font-medium bg-indigo-600 text-white">
+                        🌍 Disc Worlds
+                    </button>
+                    <button id="category-stellar" class="category-tab px-6 py-3 rounded-lg font-medium bg-gray-700/50 hover:bg-gray-600/50 text-gray-300">
+                        ⭐ Stellar Engineering
+                    </button>
+                    <button id="category-galactic" class="category-tab px-6 py-3 rounded-lg font-medium bg-gray-700/50 hover:bg-gray-600/50 text-gray-300">
+                        🌌 Galactic Scale
+                    </button>
+                </div>
+            </div>
+
+            <!-- Disc World Systems -->
+            <div id="disc-systems" class="flex flex-wrap justify-center gap-2 sm:gap-3">
+                <button id="btn-bobbing" class="tab-button active px-4 py-2 rounded-full text-xs sm:text-sm font-medium bg-gray-700/50 hover:bg-indigo-500">1. Bobbing Sun</button>
+                <button id="btn-wobbling" class="tab-button px-4 py-2 rounded-full text-xs sm:text-sm font-medium bg-gray-700/50 hover:bg-indigo-500">2. Wobbling Sun</button>
+                <button id="btn-twin" class="tab-button px-4 py-2 rounded-full text-xs sm:text-sm font-medium bg-gray-700/50 hover:bg-indigo-500">3. Twin Suns</button>
+                <button id="btn-reflectors" class="tab-button px-4 py-2 rounded-full text-xs sm:text-sm font-medium bg-gray-700/50 hover:bg-indigo-500">4. Orbital Reflectors</button>
+                <button id="btn-microsun" class="tab-button px-4 py-2 rounded-full text-xs sm:text-sm font-medium bg-gray-700/50 hover:bg-indigo-500">5. Orbiting Microsun</button>
+                <button id="btn-pulsar" class="tab-button px-4 py-2 rounded-full text-xs sm:text-sm font-medium bg-gray-700/50 hover:bg-indigo-500">6. Pulsar Lighthouse</button>
+            </div>
+
+            <!-- Stellar Engineering Systems -->
+            <div id="stellar-systems" class="hidden flex flex-wrap justify-center gap-2 sm:gap-3">
+                <button id="btn-gyrotron" class="tab-button px-4 py-2 rounded-full text-xs sm:text-sm font-medium bg-gray-700/50 hover:bg-indigo-500">7. Stellar Gyrotron</button>
+                <button id="btn-harvester" class="tab-button px-4 py-2 rounded-full text-xs sm:text-sm font-medium bg-gray-700/50 hover:bg-indigo-500">8. Stellar Harvester</button>
+                <button id="btn-brain" class="tab-button px-4 py-2 rounded-full text-xs sm:text-sm font-medium bg-gray-700/50 hover:bg-indigo-500">9. Matrioshka Brain</button>
+                <button id="btn-beam" class="tab-button px-4 py-2 rounded-full text-xs sm:text-sm font-medium bg-gray-700/50 hover:bg-indigo-500">10. Nicoll-Dyson Beam</button>
+            </div>
+
+            <!-- Galactic Scale Systems -->
+            <div id="galactic-systems" class="hidden flex flex-wrap justify-center gap-2 sm:gap-3">
+                <button id="btn-loom" class="tab-button px-4 py-2 rounded-full text-xs sm:text-sm font-medium bg-gray-700/50 hover:bg-indigo-500">11. Stellar Loom</button>
+                <button id="btn-sieve" class="tab-button px-4 py-2 rounded-full text-xs sm:text-sm font-medium bg-gray-700/50 hover:bg-indigo-500">12. Supernova Sieve</button>
+                <button id="btn-cenotaph" class="tab-button px-4 py-2 rounded-full text-xs sm:text-sm font-medium bg-gray-700/50 hover:bg-indigo-500">13. Galactic Cenotaph</button>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <!-- Visualization Area -->
+            <div class="lg:col-span-2 hyperstructure-card rounded-xl flex items-center justify-center p-4 min-h-[350px] sm:min-h-[400px] lg:min-h-[500px] overflow-hidden relative">
+                <svg id="schematic-svg" class="w-full h-full" viewBox="0 0 800 600">
+                    <!-- SVG content will be dynamically generated -->
+                </svg>
+                <!-- Loading indicator -->
+                <div id="loading-indicator" class="absolute inset-0 flex items-center justify-center bg-gray-900/50 backdrop-blur hidden">
+                    <div class="text-center">
+                        <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-500 mx-auto mb-4"></div>
+                        <p class="text-gray-400">Initializing hyperstructure simulation...</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Info Panel -->
+            <div id="info-panel" class="hyperstructure-card rounded-xl p-6 max-h-[500px] overflow-y-auto">
+                <!-- Info content will be injected here by JS -->
+                <div class="text-center text-gray-500">
+                    <div class="animate-pulse">
+                        <div class="h-4 bg-gray-700 rounded w-3/4 mb-2"></div>
+                        <div class="h-4 bg-gray-700 rounded w-1/2 mb-2"></div>
+                        <div class="h-4 bg-gray-700 rounded w-5/6"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- GM Tools Panel -->
+        <div class="mt-6 hyperstructure-card rounded-xl p-6">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-lg font-semibold text-purple-300 flex items-center gap-2">
+                    🎮 Game Master Tools
+                </h3>
+                <div class="flex gap-2 flex-wrap">
+                    <button id="gm-scenario" class="bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-700 hover:to-purple-800 text-white px-4 py-2 rounded-lg text-sm transition-all duration-200 transform hover:scale-105">
+                        Generate Scenario
+                    </button>
+                    <button id="gm-threat" class="bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 text-white px-4 py-2 rounded-lg text-sm transition-all duration-200 transform hover:scale-105">
+                        Threat Assessment
+                    </button>
+                    <button id="gm-evidence" class="bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white px-4 py-2 rounded-lg text-sm transition-all duration-200 transform hover:scale-105">
+                        Archaeological Evidence
+                    </button>
+                </div>
+            </div>
+            <div id="gm-output" class="text-sm text-gray-300 gm-output rounded-lg p-4 min-h-[80px] transition-all duration-300">
+                <div class="text-center text-gray-500">
+                    <p class="mb-2">🎮 <strong>Game Master Tools</strong></p>
+                    <p class="text-sm">Select a hyperstructure above, then click a tool button to generate content for your campaign.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Info Modal -->
+    <div id="info-modal" class="fixed inset-0 bg-black/70 backdrop-blur-sm hidden items-center justify-center z-50">
+        <div class="hyperstructure-card rounded-xl p-6 max-w-3xl max-h-[85vh] overflow-y-auto m-4 shadow-2xl">
+            <div class="flex justify-between items-center mb-4">
+                <h3 id="modal-title" class="text-xl font-bold text-white"></h3>
+                <button id="close-modal" class="text-gray-400 hover:text-white text-2xl w-8 h-8 flex items-center justify-center rounded-full hover:bg-gray-700/50 transition-colors duration-200">×</button>
+            </div>
+            <div id="modal-content" class="text-gray-300"></div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="w-full max-w-7xl mt-6 text-center text-xs text-gray-500">
+        <div class="glass-effect rounded-lg p-4">
+            <p>The Eryxian Universe © 2024 <a href="https://eryxian.com" target="_blank" class="text-blue-400 hover:text-blue-300 transition-colors duration-200">Daniel Sandner</a></p>
+            <p class="mt-1">Interactive Hyperstructure Observatory | 
+                <a href="https://github.com/eryxgames/Eryxian/wiki" target="_blank" class="text-blue-400 hover:text-blue-300 transition-colors duration-200">Explore the Wiki</a> | 
+                <a href="https://github.com/eryxgames/Eryxian/wiki/Hyperstructures-and-Extragalactic-Archaeology" target="_blank" class="text-purple-400 hover:text-purple-300 transition-colors duration-200">Research Papers</a>
+            </p>
+        </div>
+    </footer>
+
+    <script>
+        // Physics Constants
+        const PHYSICS = {
+            G: 6.67430e-11,           // Gravitational constant
+            c: 299792458,             // Speed of light (m/s)
+            AU: 1.496e11,             // Astronomical unit (m)
+            SOLAR_MASS: 1.989e30,     // Solar mass (kg)
+            STEFAN_BOLTZMANN: 5.670374419e-8, // Stefan-Boltzmann constant
+            PLANCK: 6.62607015e-34,   // Planck constant
+            SOLAR_LUMINOSITY: 3.828e26 // Solar luminosity (W)
+        };
+
+        // --- DOM Elements ---
+        const svg = document.getElementById('schematic-svg');
+        const infoPanel = document.getElementById('info-panel');
+        const gmOutput = document.getElementById('gm-output');
+        const modal = document.getElementById('info-modal');
+        const modalTitle = document.getElementById('modal-title');
+        const modalContent = document.getElementById('modal-content');
+        const loadingIndicator = document.getElementById('loading-indicator');
+
+        // Category and button management
+        const categoryTabs = document.querySelectorAll('.category-tab');
+        const systemGroups = {
+            'disc': document.getElementById('disc-systems'),
+            'stellar': document.getElementById('stellar-systems'),
+            'galactic': document.getElementById('galactic-systems')
+        };
+
+        const buttons = {
+            // Disc World Systems
+            bobbing: document.getElementById('btn-bobbing'),
+            wobbling: document.getElementById('btn-wobbling'),
+            twin: document.getElementById('btn-twin'),
+            reflectors: document.getElementById('btn-reflectors'),
+            microsun: document.getElementById('btn-microsun'),
+            pulsar: document.getElementById('btn-pulsar'),
+            
+            // Stellar Engineering
+            gyrotron: document.getElementById('btn-gyrotron'),
+            harvester: document.getElementById('btn-harvester'),
+            brain: document.getElementById('btn-brain'),
+            beam: document.getElementById('btn-beam'),
+            
+            // Galactic Scale
+            loom: document.getElementById('btn-loom'),
+            sieve: document.getElementById('btn-sieve'),
+            cenotaph: document.getElementById('btn-cenotaph')
+        };
+
+        // --- State Management ---
+        let activeSystem = 'bobbing';
+        let activeCategory = 'disc';
+        let animationFrameId = null;
+
+        // --- Physics Calculation Classes ---
+        class PhysicsEngine {
+            static gravitationalForce(m1, m2, r) {
+                return PHYSICS.G * m1 * m2 / (r * r);
+            }
+
+            static relativisticFactor(v) {
+                const beta = v / PHYSICS.c;
+                return Math.max(1, 1 / Math.sqrt(Math.max(0.001, 1 - beta * beta)));
+            }
+
+            static stellarLuminosity(radius, temperature) {
+                return 4 * Math.PI * radius * radius * PHYSICS.STEFAN_BOLTZMANN * Math.pow(temperature, 4);
+            }
+
+            static orbitalVelocity(radius, mass) {
+                return Math.sqrt(PHYSICS.G * mass / radius);
+            }
+
+            static orbitalPeriod(radius, mass) {
+                return 2 * Math.PI * Math.sqrt(radius * radius * radius / (PHYSICS.G * mass));
+            }
+
+            static kineticEnergy(mass, velocity) {
+                const gamma = this.relativisticFactor(velocity);
+                return (gamma - 1) * mass * PHYSICS.c * PHYSICS.c;
+            }
+
+            static escapeVelocity(mass, radius) {
+                return Math.sqrt(2 * PHYSICS.G * mass / radius);
+            }
+
+            static formatScientific(value) {
+                if (value === 0) return '0';
+                const exp = Math.floor(Math.log10(Math.abs(value)));
+                const mantissa = value / Math.pow(10, exp);
+                return `${mantissa.toFixed(2)}×10${exp >= 0 ? '⁺' : ''}${exp}`;
+            }
+        }
+
+        class PhysicsValidator {
+            static validateSystem(type, parameters) {
+                const warnings = [];
+                
+                switch(type) {
+                    case 'gyrotron':
+                        if (parameters.velocity > 0.5 * PHYSICS.c) {
+                            warnings.push("⚠️ Velocity exceeds 0.5c - extreme relativistic effects");
+                        }
+                        if (parameters.segments < 8) {
+                            warnings.push("⚠️ Insufficient acceleration segments for stable operation");
+                        }
+                        break;
+                        
+                    case 'harvester':
+                        if (parameters.extractionRate > 5) {
+                            warnings.push("⚠️ Extraction rate may destabilize target star");
+                        }
+                        break;
+                        
+                    case 'brain':
+                        if (parameters.shells > 15) {
+                            warnings.push("⚠️ Thermal cascade may become unstable");
+                        }
+                        break;
+                }
+                
+                return warnings;
+            }
+        }
+
+        // --- System Data (Enhanced with Physics) ---
+        const systems = {
+            bobbing: {
+                title: 'System 1: The Bobbing Sun',
+                threat: 3,
+                description: `<p>A single, powerful artificial sun positioned in the central hole of the disc. This mechanically simple design relies on active stabilization.</p><h3>Gravity Solution</h3><p>The sun is held precisely centered by <strong>Active Stabilization Thrusters</strong>. These plasma drives make constant corrections to counteract gravitational drift toward the disc's inner edge.</p><h3>Day/Night Cycle</h3><p>The sun "bobs" vertically with amplitude <em>A = 0.1 AU</em>, creating a 24-hour cycle as it illuminates alternating surfaces of the disc.</p><h3>Physics</h3><p>Gravitational force: <em>F = GMm/r²</em><br>Thruster power required: <em>P ∝ (Δv)³</em><br>Stellar luminosity varies: <em>L = 4πR²σT⁴</em></p><h3>Seasonal Control</h3><p>Seasons are simulated by modulating the sun's energy output through controlled fusion rate adjustments.</p>`,
+                controls: `<label class="control-label">Day/Night Phase</label><input type="range" id="bobbing-slider" class="slider" min="-100" max="100" value="50"><label class="control-label mt-4">Seasonal Cycle (Temperature)</label><input type="range" id="season-slider" class="slider" min="0" max="100" value="50"><div class="mt-4 p-3 rounded-lg threat-indicator threat-low"><p class="text-xs text-green-300"><strong>Threat Level:</strong> 3/10 - Stable civilian infrastructure</p></div>`
+            },
+            wobbling: {
+                title: 'System 2: The Wobbling Sun',
+                threat: 4,
+                description: `<p>Creates natural-feeling sky movement by having the sun execute a controlled orbital wobble within the central aperture.</p><h3>Orbital Mechanics</h3><p>The sun follows an elliptical path with semi-major axis <em>a = 0.05 AU</em> and period <em>T = 24 hours</em>. Orbital velocity: <em>v = √(GM/r)</em></p><h3>Stability Requirements</h3><p>Requires constant station-keeping due to disc's gravitational perturbations. The wobble creates natural-appearing sunrise and sunset effects.</p><h3>Seasonal Variation</h3><p>Elliptical eccentricity creates seasons as solar distance varies by ±20%. Closest approach increases solar flux by 44%.</p><h3>Engineering Challenge</h3><p>Maintaining stable orbit within the confined space requires precise gravitational balance and active correction systems.</p>`,
+                controls: `<div class="mt-4 p-3 rounded-lg threat-indicator threat-medium"><p class="text-xs text-yellow-300"><strong>Threat Level:</strong> 4/10 - Orbital instability risk</p></div><p class="text-sm text-gray-400 text-center mt-2">Animation running... Period: 24h | Eccentricity: 0.3</p>`
+            },
+            twin: {
+                title: 'System 3: The Twin Suns',
+                threat: 2,
+                description: `<p>Two identical artificial suns positioned above and below the disc center, gravitationally locked in stable binary configuration.</p><h3>Lagrange Point Physics</h3><p>The disc occupies the L1 Lagrange point between the binary stars. Distance to L1: <em>r₁ = a(μ/3)^(1/3)</em> where <em>μ = m₂/(m₁+m₂)</em></p><h3>Binary Dynamics</h3><p>Binary separation: <em>a = 5 AU</em><br>Orbital period: <em>T = 2π√(a³/G(m₁+m₂))</em> ≈ 8.5 years<br>System is passively stable due to gravitational balance.</p><h3>Operational Advantages</h3><p>Redundancy ensures system survival if one star fails. Perfect mass balance eliminates need for active stabilization.</p>`,
+                controls: `<label class="control-label">Day/Night Control (Top/Bottom)</label><input type="range" id="twin-slider" class="slider" min="0" max="100" value="100"><label class="control-label mt-4">Seasonal Phase (Top Sun)</label><input type="range" id="twin-season-slider" class="slider" min="0" max="100" value="75"><div class="mt-4 p-3 rounded-lg threat-indicator threat-low"><p class="text-xs text-green-300"><strong>Threat Level:</strong> 2/10 - Gravitationally stable</p></div>`
+            },
+            reflectors: {
+                title: 'System 4: Orbital Reflector Array',
+                threat: 5,
+                description: `<p>A synchronized array of massive orbital mirrors redirects light from a distant host star to illuminate the disc.</p><h3>Orbital Mechanics</h3><p>12 mirrors in heliocentric orbits with period <em>T = 24 hours</em>. Orbital radius: <em>r = (GMT²/4π²)^(1/3)</em> ≈ 2.5 AU</p><h3>Optical Physics</h3><p>Light pressure force: <em>F = IA/c(1+ρ)</em> where <em>ρ</em> is reflectivity<br>Mirror area required: <em>A = πR²</em> ≈ 10⁶ km² each<br>Focus intensity: <em>I = I₀(R/r)²</em></p><h3>Engineering Challenges</h3><p>Requires precise orbital station-keeping to maintain 24-hour synchronization. Light pressure effects must be compensated.</p>`,
+                controls: `<label class="control-label">Mirror Angle (Season)</label><input type="range" id="reflector-slider" class="slider" min="-20" max="20" value="10"><p class="text-sm text-gray-400 text-center mt-4">12 mirrors • Orbital period: 24h • Area: 10⁶ km² each</p><div class="mt-4 p-3 rounded-lg threat-indicator threat-medium"><p class="text-xs text-yellow-300"><strong>Threat Level:</strong> 5/10 - Focused light weapons potential</p></div>`
+            },
+            microsun: {
+                title: 'System 5: Orbiting Microsun',
+                threat: 6,
+                description: `<p>A compact artificial star orbits high above the disc, creating mobile daylight and realistic dawn/dusk terminator zones.</p><h3>Gravitational Architecture</h3><p>Central micro-singularity (mass ≈ 10⁻⁶ M☉) provides gravitational anchor. Microsun orbits at radius <em>r = 15 AU</em> with period <em>T = 58 days</em>.</p><h3>Fusion Physics</h3><p>Microsun specifications:<br>• Mass: 10⁻³ M☉<br>• Luminosity: 10⁻⁴ L☉<br>• Core temperature: 2×10⁷ K<br>• Fusion rate controlled by magnetic confinement</p><h3>Advantages</h3><p>Creates realistic day/night terminator with gradual dawn/dusk transitions. Mobile daylight allows different regions to experience varying day lengths.</p>`,
+                controls: `<p class="text-sm text-gray-400 text-center">Orbital period: 58 days<br>Illuminated zone: 4,000 km diameter<br>Fusion power: 10²³ W</p><div class="mt-4 p-3 rounded-lg threat-indicator threat-medium"><p class="text-xs text-orange-300"><strong>Threat Level:</strong> 6/10 - Microsun could be weaponized</p></div>`
+            },
+            pulsar: {
+                title: 'System 6: Pulsar Lighthouse',
+                threat: 7,
+                description: `<p>An artificial pulsar at the disc center emits precisely controlled beams of energy, creating a lighthouse effect for day/night cycles.</p><h3>Pulsar Physics</h3><p>Rotation period: <em>P = 2π/Ω</em> (adjustable 0.1-10 seconds)<br>Magnetic field: <em>B ≈ 10⁸ Tesla</em><br>Beam power: <em>P = 2μ₀μ²Ω⁴sin²α/3c³</em></p><h3>Relativistic Effects</h3><p>Beam divergence: <em>θ ≈ 1/γ</em> where <em>γ</em> is Lorentz factor<br>Lighthouse sweeps create precisely timed illumination cycles with microsecond accuracy.</p><h3>Engineering Marvel</h3><p>Most exotic solution requiring manipulation of degenerate matter and magnetic fields beyond current technology.</p>`,
+                controls: `<label class="control-label">Rotation Speed (Hz)</label><input type="range" id="pulsar-slider" class="slider" min="0.01" max="3" value="0.03" step="0.01"><label class="control-label mt-4">Beam Power (%)</label><input type="range" id="pulsar-power-slider" class="slider" min="50" max="100" value="80"><div class="mt-4 p-3 rounded-lg threat-indicator threat-high"><p class="text-xs text-red-300"><strong>Threat Level:</strong> 7/10 - Directed energy weapon</p></div>`
+            },
+            gyrotron: {
+                title: 'System 7: Stellar Gyrotron',
+                threat: 9,
+                description: `<p>A massive orbital accelerator spanning multiple AU, capable of launching objects to relativistic velocities using gravitational slingshots and electromagnetic acceleration.</p><h3>Acceleration Physics</h3><p>Each orbital pass increases kinetic energy: <em>ΔE = ½mv²</em><br>Relativistic effects become significant above 0.1c: <em>γ = 1/√(1-v²/c²)</em><br>Final velocity limited by structural integrity and available energy.</p><h3>Archaeological Evidence</h3><p>Systems SG-1, SG-2, SG-3 show orbital anomalies and exotic material fragments. Gravitational wave signatures persist for millions of years.</p><h3>Weapons Potential</h3><p>Relativistic projectiles carry energy equivalent to thousands of fusion bombs. Even small objects become planet-killers at 0.9c.</p>`,
+                controls: `<label class="control-label">Initial Velocity (km/s)</label><input type="range" id="gyrotron-velocity" class="slider" min="100" max="10000" value="1000"><label class="control-label mt-4">Acceleration Segments</label><input type="range" id="gyrotron-segments" class="slider" min="4" max="32" value="12"><label class="control-label mt-4">EM Field Strength (Tesla)</label><input type="range" id="gyrotron-field" class="slider" min="0.1" max="10" value="1" step="0.1"><div id="gyrotron-physics" class="mt-2 text-xs text-blue-300"></div><div class="mt-4 p-3 rounded-lg threat-indicator threat-extreme"><p class="text-xs text-red-300"><strong>Threat Level:</strong> 9/10 - Relativistic kinetic weapons</p></div>`
+            },
+            harvester: {
+                title: 'System 8: Stellar Harvester',
+                threat: 10,
+                description: `<p>Extracts and processes stellar material for star creation or weaponization. Represents the ultimate stellar engineering capability.</p><h3>Extraction Mechanism</h3><p>Magnetic confinement extracts plasma: <em>B = √(2μ₀P)</em> where P is stellar pressure<br>Processing rate: <em>dm/dt</em> = 10⁻⁹ to 10⁻⁶ M☉/year<br>Can create custom protostars or direct relativistic plasma streams</p><h3>Weapons Applications</h3><p>Plasma streams at 0.1-0.5c can sterilize planets or destabilize star systems through gravitational perturbation.</p><h3>Ultimate Engineering</h3><p>Represents Type II+ civilization capability. Can build stars to order or weaponize stellar material on galactic scales.</p>`,
+                controls: `<label class="control-label">Extraction Rate (M☉/year × 10⁻⁹)</label><input type="range" id="harvester-rate" class="slider" min="0.1" max="10" value="2" step="0.1"><label class="control-label mt-4">Mode</label><select id="harvester-mode" class="w-full p-2 rounded text-sm"><option value="stellar">Stellar Reforging</option><option value="weapon">Weaponization</option></select><div id="harvester-physics" class="mt-2 text-xs text-green-300"></div><div class="mt-4 p-3 rounded-lg threat-indicator threat-extreme"><p class="text-xs text-red-300"><strong>Threat Level:</strong> 10/10 - Stellar-scale weapons</p></div>`
+            },
+            brain: {
+                title: 'System 9: Matrioshka Brain',
+                threat: 5,
+                description: `<p>Nested computational shells around a star, utilizing the entire stellar energy output for information processing.</p><h3>Thermodynamic Cascade</h3><p>Each shell operates at lower temperature: <em>T₍ₙ₊₁₎ = T₍ₙ₎ × η</em> where η ≈ 0.7<br>Total computational power scales with number of shells and thermal efficiency</p><h3>Processing Capacity</h3><p>Could simulate entire universes or host 10¹⁵ uploaded consciousnesses. Purpose unknown - research, preservation, or solving cosmic-scale problems.</p><h3>Detection Signatures</h3><p>Perfect spherical heat signatures and infrared emissions suggesting nested computational structures.</p>`,
+                controls: `<label class="control-label">Computational Shells</label><input type="range" id="brain-shells" class="slider" min="3" max="20" value="7"><label class="control-label mt-4">Processing Mode</label><select id="brain-mode" class="w-full p-2 rounded text-sm"><option value="research">Scientific Research</option><option value="consciousness">Consciousness Storage</option><option value="simulation">Universe Simulation</option></select><div id="brain-physics" class="mt-2 text-xs text-purple-300"></div><div class="mt-4 p-3 rounded-lg threat-indicator threat-medium"><p class="text-xs text-yellow-300"><strong>Threat Level:</strong> 5/10 - Potentially benign but incomprehensible</p></div>`
+            },
+            beam: {
+                title: 'System 10: Nicoll-Dyson Beam',
+                threat: 8,
+                description: `<p>A Dyson swarm reconfigured to focus the entire stellar output into a single, coherent beam for propulsion or weapons.</p><h3>Beam Physics</h3><p>Stellar luminosity: L☉ = 3.828×10²⁶ W<br>Focused beam intensity: <em>I = L/(πr²)</em><br>Can accelerate light sails to relativistic speeds or act as stellar-scale laser weapon</p><h3>Stellar Engine</h3><p>Beam thrust accelerates entire star system. Newton's third law: <em>F = dp/dt = L/c</em><br>Can move star systems across galaxy over geological timescales.</p><h3>Dual Purpose</h3><p>Ultimate strategic weapon or transportation system. Entire civilizations could migrate by moving their star.</p>`,
+                controls: `<label class="control-label">Beam Focus (AU)</label><input type="range" id="beam-focus" class="slider" min="1" max="100" value="10"><label class="control-label mt-4">Stellar Collector Efficiency (%)</label><input type="range" id="beam-efficiency" class="slider" min="10" max="95" value="70"><div id="beam-physics" class="mt-2 text-xs text-yellow-300"></div><div class="mt-4 p-3 rounded-lg threat-indicator threat-high"><p class="text-xs text-red-300"><strong>Threat Level:</strong> 8/10 - Stellar-scale directed energy</p></div>`
+            },
+            loom: {
+                title: 'System 11: Stellar Loom (Hephaestian Loom)',
+                threat: 6,
+                description: `<p>A vast network spanning hundreds of light-years that mass-produces stars by manipulating molecular clouds and star formation regions.</p><h3>Magnetic Weaving</h3><p>Superconducting filaments generate magnetic fields to herd interstellar gas: <em>B ≈ 10⁻³ Tesla</em> over light-year scales<br>Accelerates star formation from millions of years to millennia</p><h3>Production Capacity</h3><p>Can create thousands of stars in perfect geometric arrangements. Detected by unnatural stellar demographics and residual magnetic signatures.</p><h3>Galactic Engineering</h3><p>Represents Type III civilization capability to manipulate galactic structure and stellar populations.</p>`,
+                controls: `<label class="control-label">Production Rate (stars/millennium)</label><input type="range" id="loom-rate" class="slider" min="10" max="1000" value="100"><label class="control-label mt-4">Star Template Mass (M☉)</label><input type="range" id="loom-mass" class="slider" min="0.1" max="10" value="1" step="0.1"><div class="mt-4 p-3 rounded-lg threat-indicator threat-medium"><p class="text-xs text-orange-300"><strong>Threat Level:</strong> 6/10 - Galactic engineering</p></div>`
+            },
+            sieve: {
+                title: 'System 12: Supernova Sieve (Thorne-Żytkow Collector)',
+                threat: 7,
+                description: `<p>Harvests 100% of supernova ejecta using trillions of autonomous collectors that sort and store elements by atomic weight.</p><h3>Collection Physics</h3><p>Supernova energy: ~10⁴⁴ J released in seconds<br>Ejecta velocity: 3,000-30,000 km/s<br>Heavy element yield: 10-100 M☉ of metals per supernova</p><h3>Archaeological Signature</h3><p>Supernova remnants depleted in heavy elements, surrounded by dormant collector swarms spanning light-years.</p><h3>Economic Impact</h3><p>Controls galactic supply of rare elements essential for advanced technology. Ultimate resource monopolization.</p>`,
+                controls: `<label class="control-label">Collection Efficiency (%)</label><input type="range" id="sieve-efficiency" class="slider" min="50" max="99" value="95"><label class="control-label mt-4">Target Elements</label><select id="sieve-elements" class="w-full p-2 rounded text-sm"><option value="all">All Heavy Elements</option><option value="rare">Rare Earth Metals</option><option value="radioactive">Radioactive Isotopes</option></select><div class="mt-4 p-3 rounded-lg threat-indicator threat-high"><p class="text-xs text-red-300"><strong>Threat Level:</strong> 7/10 - Resource monopolization</p></div>`
+            },
+            cenotaph: {
+                title: 'System 13: Galactic Cenotaph (Akashic Lode)',
+                threat: 4,
+                description: `<p>A neutron star converted into the ultimate archive, storing an entire civilization's knowledge in quantum spin states.</p><h3>Information Storage</h3><p>Neutron star crust density: ~10¹⁴ g/cm³<br>Information capacity: ~10⁴⁰ bits per cubic meter<br>Data encoded in neutron quantum spin states: <em>|↑⟩</em> and <em>|↓⟩</em></p><h3>Data Retrieval</h3><p>Millisecond pulsar broadcasts index in radio waves. Full archive accessed via resonant electromagnetic keys that excite the neutronium lattice.</p><h3>Unknown Contents</h3><p>May contain entire civilization's knowledge, art, consciousness uploads, or warnings about cosmic threats.</p>`,
+                controls: `<label class="control-label">Pulse Period (ms)</label><input type="range" id="cenotaph-period" class="slider" min="1" max="100" value="33"><label class="control-label mt-4">Data Complexity</label><select id="cenotaph-data" class="w-full p-2 rounded text-sm"><option value="basic">Basic Mathematics</option><option value="science">Scientific Knowledge</option><option value="consciousness">Uploaded Minds</option><option value="warning">Warning Messages</option></select><div class="mt-4 p-3 rounded-lg threat-indicator threat-medium"><p class="text-xs text-blue-300"><strong>Threat Level:</strong> 4/10 - Information hazard potential</p></div>`
+            }
+        };
+
+        // --- GM Tools Data ---
+        const gmTools = {
+            scenarios: {
+                bobbing: [
+                    "Corporate mining operation destabilizing the central sun's position through unauthorized gravitational manipulation",
+                    "Ancient thruster systems failing after millennia of operation - sun beginning to drift toward disc edge",
+                    "Pirates using the predictable day/night cycle to hide illegal salvage operations in the disc's shadow",
+                    "Solar engineers discover the sun's fusion rate is slowly increasing - disc may become uninhabitable in decades"
+                ],
+                wobbling: [
+                    "Orbital mechanics professor claims the wobble pattern encodes a hidden message from the builders",
+                    "Seismic activity on the disc correlates perfectly with solar position - the structure is responding",
+                    "Navigation computers report impossible stellar positions that violate known physics",
+                    "The wobble is slowly decaying - without intervention, the sun will collide with the disc edge in 200 years"
+                ],
+                twin: [
+                    "One of the twin suns begins showing signs of artificial dimming - sabotage or system failure?",
+                    "Gravitational anomalies suggest a third massive object has entered the system",
+                    "Binary synchronization failing - astrophysicists predict catastrophic collision within the century",
+                    "Ancient control systems are attempting to merge the twin suns into a single, more powerful star"
+                ],
+                reflectors: [
+                    "Mirror array operators demand ransom to prevent plunging entire continents into permanent darkness",
+                    "Several mirrors have gone dark in sequence - coordinated sabotage or cascading system failure?",
+                    "Focused mirror array being weaponized to target orbital habitats and shipping lanes",
+                    "The mirrors are slowly drifting out of position - someone or something is altering their orbits"
+                ],
+                microsun: [
+                    "Microsun's orbit is decaying due to gravitational wave radiation - will impact the disc in 50 years",
+                    "Unknown quantum signals detected from the central micro-singularity suggest it's artificially maintained",
+                    "Fusion instabilities in the microsun could cause it to explode with the force of a hydrogen bomb",
+                    "The microsun is accelerating - someone has turned it into a weapon aimed at a distant target"
+                ],
+                pulsar: [
+                    "Pulsar rotation increasing exponentially - beam sweeps becoming dangerously frequent and powerful",
+                    "Magnetic field fluctuations causing planet-wide electronic interference and navigation failures",
+                    "The beam pattern is encoding complex mathematical sequences - first contact protocol or countdown?",
+                    "Deep space monitoring stations detect the pulsar beam has been focused toward an inhabited system"
+                ],
+                gyrotron: [
+                    "Ancient Gyrotron detected in 'empty' system - gravitational sensors show it's still partially active",
+                    "Rogue star approaching populated space at 0.3c - backtracking reveals it was launched by a Gyrotron",
+                    "Corporate expedition attempting to reactivate dormant accelerator for commercial interstellar transport",
+                    "Multiple hyper-velocity objects detected - someone has been using an unknown Gyrotron for decades"
+                ],
+                harvester: [
+                    "Star showing signs of artificial material extraction - stellar wind patterns are impossible",
+                    "Relativistic plasma streams detected crossing interstellar space, heading toward populated systems",
+                    "Multiple stellar systems going dark in sequence - something is harvesting entire stars",
+                    "Ancient Harvester facility discovered - still contains processed stellar material worth quadrillions"
+                ],
+                brain: [
+                    "Perfect radio silence from previously advanced civilization - only infrared signatures remain",
+                    "Quantum entanglement signals detected from 'empty' star system suggest active computation",
+                    "Reality glitches and physics anomalies detected near suspected Brain location",
+                    "Archaeological team receives response to their signals - something in the Brain is still conscious"
+                ],
+                beam: [
+                    "Stellar beam sweeping across local sector - disrupting navigation and frying unshielded electronics",
+                    "Entire star system accelerating at impossible rate - destination and purpose unknown",
+                    "Beam focus shifting toward populated systems - accidental drift or deliberate targeting?",
+                    "Ancient Beam facility offers to transport entire civilizations - but what's the hidden cost?"
+                ],
+                loom: [
+                    "Molecular cloud showing signs of artificial star formation acceleration beyond known physics",
+                    "Perfect stellar cluster discovered - geometric arrangement impossible through natural formation",
+                    "Missing interstellar gas traced to unknown mega-engineering project spanning light-years",
+                    "Newly formed stars in the cluster begin broadcasting synchronized signals across the galaxy"
+                ],
+                sieve: [
+                    "Ancient supernova site stripped of all heavy elements - only hydrogen and helium remain",
+                    "Massive storage facilities discovered in deep space, filled with pure rare elements",
+                    "Dormant collector swarm reactivating around aging red supergiant - supernova imminent",
+                    "Galactic metal shortage traced to ancient Sieve operations - economic warfare on stellar scales"
+                ],
+                cenotaph: [
+                    "Millisecond pulsar broadcasting complex mathematical sequences - more than random noise",
+                    "Archaeological team claims to have decoded partial archive - knowledge is dangerous",
+                    "Accessing the Cenotaph archive may have awakened something that was meant to stay buried",
+                    "The archive contains a complete record of what destroyed its creators - and it's still out there"
+                ]
+            },
+            
+            threats: {
+                bobbing: [
+                    "Sun drift could cause catastrophic climate change across entire disc surface within decades",
+                    "Thruster malfunction could send sun into collision course with disc edge - total system destruction",
+                    "Solar flares from unstable positioning affecting all electronic systems and causing radiation exposure",
+                    "Gravitational waves from thruster corrections destabilizing nearby planetary orbits"
+                ],
+                wobbling: [
+                    "Orbital instability could lead to sun collision with disc edge - millions of casualties",
+                    "Gravitational fluctuations causing progressive tidal stress fractures in disc structure",
+                    "Navigation hazards from unpredictable stellar positions causing shipping disasters",
+                    "Resonance effects between sun's orbit and disc rotation threatening structural integrity"
+                ],
+                twin: [
+                    "Binary star collision would release energy equivalent to hypernova - system sterilization",
+                    "Gravitational waves from unstable orbit affecting nearby systems and disrupting galactic navigation",
+                    "One sun could be weaponized as relativistic projectile against planetary targets",
+                    "Lagrange point instability could eject disc from system at high velocity"
+                ],
+                reflectors: [
+                    "Focused mirror array creates devastating orbital laser weapon capable of planetary bombardment",
+                    "Light pressure effects gradually destabilizing satellite orbits and space infrastructure",
+                    "Mirror failure cascade could plunge continents into permanent winter within months",
+                    "Coordinated mirror positioning could create focused beam weapon visible across star systems"
+                ],
+                microsun: [
+                    "Microsun explosion would sterilize disc surface with gamma radiation and neutron flux",
+                    "Orbital decay leading to kinetic impact equivalent to asteroid strike",
+                    "Fusion instabilities creating dangerous radiation bursts affecting biological systems",
+                    "Microsun magnetic field disruption causing aurora-level radiation exposure"
+                ],
+                pulsar: [
+                    "Directed energy beams can be focused as precision weapons against spacecraft and habitats",
+                    "Magnetic field strength disrupting planetary magnetospheres and satellite electronics",
+                    "Radiation exposure from beam sweeps causing long-term genetic damage",
+                    "Electromagnetic pulse effects from beam interaction with planetary atmosphere"
+                ],
+                gyrotron: [
+                    "Relativistic projectiles equivalent to thousands of fusion bombs - planet-killer potential",
+                    "Gravitational disruption affecting planetary orbits within 50 light-year radius",
+                    "Automated defense systems including particle beam weapons and hunter-killer drones",
+                    "Spacetime distortion from extreme accelerations affecting faster-than-light travel"
+                ],
+                harvester: [
+                    "Stellar plasma streams at 0.1-0.5c capable of sterilizing multiple star systems",
+                    "Can destabilize target stars through mass extraction - induced stellar collapse",
+                    "Gravitational disruption from artificial stellar engineering affecting galactic structure",
+                    "Weaponized protostars can be launched as relativistic kinetic weapons"
+                ],
+                brain: [
+                    "Consciousness manipulation and reality simulation - difficulty distinguishing real from virtual",
+                    "May contain archived weapons designs or dangerous knowledge from extinct civilizations",
+                    "Unknown AI entities with stellar-scale computational power and incomprehensible motivations",
+                    "Information hazards that could destroy civilizations through dangerous knowledge"
+                ],
+                beam: [
+                    "Focused stellar energy can sterilize planets and boil away atmospheres",
+                    "Moving star systems disrupts galactic gravitational balance and stellar formation",
+                    "Beam can accelerate projectiles to relativistic speeds - kinetic bombardment weapon",
+                    "Electromagnetic interference from beam affects navigation and communications across sectors"
+                ],
+                loom: [
+                    "Runaway star formation could destabilize galactic spiral structure over millions of years",
+                    "Artificial stellar arrangements may serve unknown strategic purposes - galactic fortifications",
+                    "Resource depletion from massive stellar engineering affecting natural star formation",
+                    "Geometric star clusters could function as navigation beacons for hostile extragalactic forces"
+                ],
+                sieve: [
+                    "Monopolization of heavy elements across galactic regions - technological stagnation",
+                    "Stored radioactive materials could be weaponized as dirty bombs on planetary scales",
+                    "Disruption of natural stellar evolution cycles affecting galactic chemical evolution",
+                    "Collector swarms could be reprogrammed to target and strip inhabited worlds"
+                ],
+                cenotaph: [
+                    "Archive may contain records of what destroyed the builders - existential threat data",
+                    "Information overload or consciousness traps designed to preserve builders in reader minds",
+                    "Accessing data may alert unknown entities to current galactic civilization locations",
+                    "Archive could contain memetic weapons designed to destroy civilizations through ideas"
+                ]
+            },
+            
+            evidence: {
+                bobbing: [
+                    "Thruster nozzles show wear patterns consistent with millions of years of automated operation",
+                    "Isotopic anomalies in stellar spectrum indicating artificial fusion control and fuel injection",
+                    "Gravitational wave signatures from periodic thruster firings detectable by sensitive instruments",
+                    "Metallic debris in disc orbit with composition matching no known natural stellar processes"
+                ],
+                wobbling: [
+                    "Orbital resonances and periodicities impossible in natural gravitational systems",
+                    "Magnetic field patterns indicating presence of artificial guidance and stabilization systems",
+                    "Stellar composition too uniform and isotopically pure for natural star formation",
+                    "Gravitational anomalies suggesting hidden mass or exotic matter in system"
+                ],
+                twin: [
+                    "Binary mass ratio precisely calculated for optimal Lagrange point stability - too perfect",
+                    "Synchronized luminosity variations indicating coordinated fusion rate control",
+                    "Gravitational lensing effects revealing artificial mass distribution around stars",
+                    "Spectroscopic evidence of identical stellar composition despite separate formation"
+                ],
+                reflectors: [
+                    "Orbital debris fields containing materials with impossibly high reflectivity coefficients",
+                    "Coordinated orbital periods requiring constant active station-keeping impossible naturally",
+                    "Light polarization patterns and spectral signatures indicating artificial reflection surfaces",
+                    "Gravitational perturbations from light pressure effects on massive reflector arrays"
+                ],
+                microsun: [
+                    "Central micro-singularity with mass-to-radius ratio inconsistent with natural formation",
+                    "Fusion spectrum showing artificial magnetic confinement signatures and controlled burn rates",
+                    "Perfect circular orbit impossible without continuous active trajectory correction",
+                    "Exotic particle emissions suggesting controlled antimatter annihilation processes"
+                ],
+                pulsar: [
+                    "Magnetic field strength and configuration exceeding limits of natural pulsar formation",
+                    "Beam pattern encoding non-random mathematical sequences and artificial modulation",
+                    "Rotational stability indicating active angular momentum control systems",
+                    "Neutron star composition anomalies suggesting artificial construction or modification"
+                ],
+                gyrotron: [
+                    "Kuiper Belt objects in gravitationally impossible orbital resonances and alignments",
+                    "Exotic material fragments with isotope ratios that can't exist naturally",
+                    "Fossilized gravitational wave signatures permanently embedded in local spacetime structure",
+                    "Hyper-velocity stellar objects with trajectories tracing back to empty coordinates"
+                ],
+                harvester: [
+                    "Stellar wind patterns and coronal mass ejections indicating artificial material extraction",
+                    "Missing stellar mass and altered composition inconsistent with natural stellar evolution",
+                    "Directed plasma streams with coherent magnetic fields spanning interstellar distances",
+                    "Isotopic separation signatures in processed stellar material orbiting harvest sites"
+                ],
+                brain: [
+                    "Perfect spherical heat emission patterns inconsistent with natural stellar objects",
+                    "Infrared signatures suggesting nested computational structures and heat cascade systems",
+                    "Quantum entanglement correlations between separated components of the structure",
+                    "Electromagnetic emissions with computational complexity patterns and information content"
+                ],
+                beam: [
+                    "Perfectly collimated energy emissions maintaining coherence over interstellar distances",
+                    "Stellar motion vectors inconsistent with natural gravitational interactions",
+                    "Synchronized orbital mechanics across light-year separations requiring active coordination",
+                    "Doppler shift patterns indicating controlled stellar acceleration using photon pressure"
+                ],
+                loom: [
+                    "Star formation rates in molecular clouds exceeding theoretical physical maximums",
+                    "Geometric stellar arrangements in perfect mathematical patterns impossible naturally",
+                    "Residual magnetic field structures with coherent patterns spanning hundreds of light-years",
+                    "Isotopic uniformity in stellar populations indicating artificial nucleosynthesis control"
+                ],
+                sieve: [
+                    "Supernova remnants with heavy element abundance significantly below theoretical predictions",
+                    "Massive artificial structures detected in debris fields around historical supernova sites",
+                    "Evidence of industrial-scale isotopic separation in collected supernova ejecta",
+                    "Coherent magnetic field patterns in remnant gas suggesting active collection systems"
+                ],
+                cenotaph: [
+                    "Pulsar timing precision exceeding limits of natural neutron star rotation stability",
+                    "Complex modulation patterns in radio emissions with information-theoretic signatures",
+                    "Gravitational anomalies suggesting artificial modification of neutron star structure",
+                    "Quantum coherence signatures in neutron star magnetic field indicating data storage"
+                ]
+            }
+        };
+
+        // --- Drawing Functions ---
+        function clearSVG() {
+            if (animationFrameId) {
+                cancelAnimationFrame(animationFrameId);
+                animationFrameId = null;
+            }
+            svg.innerHTML = '';
+            
+            // Add common defs for gradients and patterns
+            const defs = document.createElementNS('http://www.w3.org/2000/svg', 'defs');
+            
+            // Star gradient
+            const starGradient = document.createElementNS('http://www.w3.org/2000/svg', 'radialGradient');
+            starGradient.id = 'starGradient';
+            starGradient.innerHTML = `
+                <stop offset="0%" style="stop-color:#FFF3CD;stop-opacity:1" />
+                <stop offset="70%" style="stop-color:#FFE066;stop-opacity:0.8" />
+                <stop offset="100%" style="stop-color:#FFD700;stop-opacity:0.3" />
+            `;
+            
+            // Disc gradient
+            const discGradient = document.createElementNS('http://www.w3.org/2000/svg', 'linearGradient');
+            discGradient.id = 'discGradient';
+            discGradient.innerHTML = `
+                <stop offset="0%" style="stop-color:#a5b4fc" />
+                <stop offset="50%" style="stop-color:#4b5563" />
+                <stop offset="100%" style="stop-color:#1f2937" />
+            `;
+            
+            // Grid pattern
+            const gridPattern = document.createElementNS('http://www.w3.org/2000/svg', 'pattern');
+            gridPattern.id = 'grid';
+            gridPattern.setAttribute('width', '50');
+            gridPattern.setAttribute('height', '50');
+            gridPattern.setAttribute('patternUnits', 'userSpaceOnUse');
+            gridPattern.innerHTML = `<path d="M 50 0 L 0 0 0 50" fill="none" stroke="#374151" stroke-width="1"/>`;
+            
+            defs.appendChild(starGradient);
+            defs.appendChild(discGradient);
+            defs.appendChild(gridPattern);
+            svg.appendChild(defs);
+            
+            // Background
+            const background = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+            background.setAttribute('width', '100%');
+            background.setAttribute('height', '100%');
+            background.setAttribute('fill', 'url(#grid)');
+            background.setAttribute('opacity', '0.1');
+            svg.appendChild(background);
+        }
+
+        function updatePhysicsDisplay(systemType, values) {
+            const displays = {
+                'gyrotron-physics': document.getElementById('gyrotron-physics'),
+                'harvester-physics': document.getElementById('harvester-physics'),
+                'brain-physics': document.getElementById('brain-physics'),
+                'beam-physics': document.getElementById('beam-physics')
+            };
+            
+            const display = displays[systemType + '-physics'];
+            if (!display) return;
+            
+            let content = '';
+            
+            try {
+                switch(systemType) {
+                    case 'gyrotron':
+                        const finalV = values.velocity * 1000 * Math.sqrt(1 + values.segments * 0.1);
+                        const gamma = PhysicsEngine.relativisticFactor(finalV);
+                        const fracC = (finalV / PHYSICS.c).toFixed(3);
+                        content = `Final velocity: ${fracC}c | γ = ${gamma.toFixed(2)}`;
+                        if (finalV > 0.1 * PHYSICS.c) {
+                            content += ` <span class="physics-warning">Relativistic!</span>`;
+                        }
+                        break;
+                        
+                    case 'harvester':
+                        const extractionMass = values.rate * PHYSICS.SOLAR_MASS / 1e9; // kg/year
+                        const energyRate = extractionMass * PHYSICS.c * PHYSICS.c / (365.25 * 24 * 3600);
+                        content = `Extraction: ${values.rate}×10⁻⁹ M☉/yr | Power: ${PhysicsEngine.formatScientific(energyRate)} W`;
+                        break;
+                        
+                    case 'brain':
+                        const computingPower = Math.pow(10, 15 + values.shells);
+                        const thermalEff = values.efficiency / 100;
+                        content = `Processing: ${PhysicsEngine.formatScientific(computingPower)} ops/s | η = ${(thermalEff*100).toFixed(0)}%`;
+                        break;
+                        
+                    case 'beam':
+                        const efficiency = values.efficiency / 100;
+                        const beamPower = PHYSICS.SOLAR_LUMINOSITY * efficiency;
+                        const focusArea = Math.PI * Math.pow(values.focus * PHYSICS.AU, 2);
+                        const intensity = beamPower / focusArea;
+                        content = `Beam power: ${PhysicsEngine.formatScientific(beamPower)} W | Intensity: ${PhysicsEngine.formatScientific(intensity)} W/m²`;
+                        break;
+                }
+            } catch (error) {
+                content = 'Calculation error';
+                console.warn('Physics calculation error:', error);
+            }
+            
+            display.innerHTML = content;
+        }
+
+        // Enhanced drawing functions with improved physics and visuals
+        function drawBobbingSun() {
+            clearSVG();
+            const slider = document.getElementById('bobbing-slider');
+            const seasonSlider = document.getElementById('season-slider');
+            
+            // Draw disc structure
+            const disc = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+            disc.setAttribute('x', '100'); disc.setAttribute('y', '295'); 
+            disc.setAttribute('width', '600'); disc.setAttribute('height', '10'); 
+            disc.setAttribute('fill', '#4b5563'); disc.setAttribute('rx', '5');
+            disc.setAttribute('stroke', '#6b7280'); disc.setAttribute('stroke-width', '1');
+            svg.appendChild(disc);
+            
+            // Central aperture
+            const aperture = document.createElementNS('http://www.w3.org/2000/svg', 'ellipse');
+            aperture.setAttribute('cx', '400'); aperture.setAttribute('cy', '300');
+            aperture.setAttribute('rx', '40'); aperture.setAttribute('ry', '8');
+            aperture.setAttribute('fill', '#111827');
+            aperture.setAttribute('stroke', '#374151'); aperture.setAttribute('stroke-width', '1');
+            svg.appendChild(aperture);
+            
+            // Stabilization framework
+            const framework = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+            framework.setAttribute('cx', '400'); framework.setAttribute('cy', '300');
+            framework.setAttribute('r', '80'); framework.setAttribute('fill', 'none');
+            framework.setAttribute('stroke', '#4b5563'); framework.setAttribute('stroke-width', '2');
+            framework.setAttribute('stroke-dasharray', '8,4'); framework.setAttribute('opacity', '0.6');
+            svg.appendChild(framework);
+            
+            // Sun
+            const sun = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+            sun.setAttribute('cx', '400'); sun.setAttribute('r', '30');
+            svg.appendChild(sun);
+            
+            // Sun glow effect
+            const sunGlow = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+            sunGlow.setAttribute('cx', '400'); sunGlow.setAttribute('r', '45'); 
+            sunGlow.style.opacity = '0.3';
+            svg.insertBefore(sunGlow, sun);
+            
+            // Stabilization thrusters
+            const thrusters = [
+                { x1: 360, y1: 300, x2: 330, y2: 300, dir: 'left' },
+                { x1: 440, y1: 300, x2: 470, y2: 300, dir: 'right' },
+                { x1: 400, y1: 260, x2: 400, y2: 230, dir: 'up' },
+                { x1: 400, y1: 340, x2: 400, y2: 370, dir: 'down' }
+            ];
+            
+            thrusters.forEach((t, i) => {
+                const thruster = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+                thruster.setAttribute('x', t.x1 - 5); thruster.setAttribute('y', t.y1 - 3);
+                thruster.setAttribute('width', '10'); thruster.setAttribute('height', '6');
+                thruster.setAttribute('fill', '#374151'); thruster.setAttribute('rx', '2');
+                svg.appendChild(thruster);
+                
+                const exhaust = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+                exhaust.setAttribute('x1', t.x1); exhaust.setAttribute('y1', t.y1);
+                exhaust.setAttribute('x2', t.x2); exhaust.setAttribute('y2', t.y2);
+                exhaust.setAttribute('stroke', '#6366f1'); exhaust.setAttribute('stroke-width', '3');
+                exhaust.setAttribute('stroke-linecap', 'round'); exhaust.style.opacity = '0.7';
+                exhaust.setAttribute('class', 'energy-beam');
+                svg.appendChild(exhaust);
+            });
+            
+            function update() {
+                const bobValue = parseFloat(slider?.value || 50);
+                const seasonValue = parseFloat(seasonSlider?.value || 50) / 100;
+                
+                // Physics: bobbing amplitude based on gravitational equilibrium
+                const yPos = 300 - bobValue * 0.8; // Enhanced amplitude for visibility
+                sun.setAttribute('cy', yPos);
+                sunGlow.setAttribute('cy', yPos);
+                
+                // Update thruster positions
+                thrusters.forEach((t, i) => {
+                    const exhaust = svg.querySelectorAll('.energy-beam')[i];
+                    const thruster = svg.querySelectorAll('rect')[i + 2]; // Skip disc and aperture
+                    
+                    const newY1 = yPos + (t.y1 - 300);
+                    const newY2 = yPos + (t.y2 - 300);
+                    
+                    exhaust.setAttribute('y1', newY1);
+                    exhaust.setAttribute('y2', newY2);
+                    thruster.setAttribute('y', newY1 - 3);
+                });
+                
+                // Stefan-Boltzmann law for seasonal temperature variation
+                const baseTemp = 5778; // K (Solar temperature)
+                const temp = baseTemp * (0.85 + 0.3 * seasonValue);
+                const brightness = 0.6 + (0.4 * seasonValue);
+                
+                // Color temperature effect
+                const r = Math.min(255, 200 + seasonValue * 55);
+                const g = Math.min(255, 180 + seasonValue * 75);
+                const b = Math.min(255, 120 + seasonValue * 135);
+                
+                const color = `rgba(${r}, ${g}, ${b}, ${brightness})`;
+                sun.setAttribute('fill', color);
+                sunGlow.setAttribute('fill', color);
+            }
+            
+            slider?.addEventListener('input', update);
+            seasonSlider?.addEventListener('input', update);
+            update();
+        }
+
+        function drawWobblingSun() {
+            clearSVG();
+            
+            // Draw disc with perspective
+            const disc = document.createElementNS('http://www.w3.org/2000/svg', 'ellipse');
+            disc.setAttribute('cx', '400'); disc.setAttribute('cy', '300'); 
+            disc.setAttribute('rx', '350'); disc.setAttribute('ry', '100'); 
+            disc.setAttribute('fill', 'url(#discGradient)');
+            disc.setAttribute('stroke', '#4b5563'); disc.setAttribute('stroke-width', '2');
+            svg.appendChild(disc);
+            
+            // Central aperture
+            const hole = document.createElementNS('http://www.w3.org/2000/svg', 'ellipse');
+            hole.setAttribute('cx', '400'); hole.setAttribute('cy', '300'); 
+            hole.setAttribute('rx', '80'); hole.setAttribute('ry', '25'); 
+            hole.setAttribute('fill', '#111827');
+            hole.setAttribute('stroke', '#374151'); hole.setAttribute('stroke-width', '1');
+            svg.appendChild(hole);
+            
+            // Orbital path
+            const orbitPath = document.createElementNS('http://www.w3.org/2000/svg', 'ellipse');
+            orbitPath.setAttribute('cx', '400'); orbitPath.setAttribute('cy', '300');
+            orbitPath.setAttribute('rx', '60'); orbitPath.setAttribute('ry', '15');
+            orbitPath.setAttribute('fill', 'none');
+            orbitPath.setAttribute('stroke', '#4F46E5');
+            orbitPath.setAttribute('stroke-width', '2');
+            orbitPath.setAttribute('stroke-dasharray', '5,5');
+            orbitPath.setAttribute('opacity', '0.6');
+            svg.appendChild(orbitPath);
+            
+            // Gravitational field lines
+            for (let i = 0; i < 8; i++) {
+                const angle = (i / 8) * 2 * Math.PI;
+                const x1 = 400 + Math.cos(angle) * 80;
+                const y1 = 300 + Math.sin(angle) * 25;
+                const x2 = 400 + Math.cos(angle) * 120;
+                const y2 = 300 + Math.sin(angle) * 35;
+                
+                const fieldLine = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+                fieldLine.setAttribute('x1', x1); fieldLine.setAttribute('y1', y1);
+                fieldLine.setAttribute('x2', x2); fieldLine.setAttribute('y2', y2);
+                fieldLine.setAttribute('stroke', '#8b5cf6'); fieldLine.setAttribute('stroke-width', '1');
+                fieldLine.setAttribute('opacity', '0.4');
+                svg.appendChild(fieldLine);
+            }
+            
+            const sun = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+            sun.setAttribute('r', '18'); sun.setAttribute('fill', 'rgba(255, 255, 220, 0.95)');
+            svg.appendChild(sun);
+            
+            const sunGlow = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+            sunGlow.setAttribute('r', '28'); sunGlow.setAttribute('fill', 'rgba(255, 255, 220, 0.3)');
+            svg.appendChild(sunGlow);
+
+            let angle = 0;
+            function animate() {
+                angle += 0.008; // 24-hour period simulation
+                
+                // Elliptical orbit with seasonal variation
+                const eccentricity = 0.3;
+                const seasonAngle = Math.sin(angle * 0.1) * eccentricity + 1.0;
+                const x = 400 + Math.cos(angle) * 60 * seasonAngle;
+                const y = 300 + Math.sin(angle) * 15;
+                
+                sun.setAttribute('cx', x); sun.setAttribute('cy', y);
+                sunGlow.setAttribute('cx', x); sunGlow.setAttribute('cy', y);
+                
+                // Depth sorting for 3D effect
+                if (Math.sin(angle) > 0) { 
+                    svg.appendChild(sunGlow); svg.appendChild(sun); 
+                } else { 
+                    svg.insertBefore(sunGlow, hole); svg.insertBefore(sun, hole); 
+                }
+                
+                // Brightness variation based on distance
+                const distance = Math.sqrt((x-400)*(x-400) + (y-300)*(y-300));
+                const brightness = 0.7 + 0.3 * (80 - distance) / 80;
+                sun.style.opacity = Math.max(0.3, brightness);
+                
+                animationFrameId = requestAnimationFrame(animate);
+            }
+            animate();
+        }
+
+        function drawTwinSun() {
+            clearSVG();
+            const twinSlider = document.getElementById('twin-slider');
+            const seasonSlider = document.getElementById('twin-season-slider');
+            
+            // Draw disc
+            const disc = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+            disc.setAttribute('x', '100'); disc.setAttribute('y', '295'); 
+            disc.setAttribute('width', '600'); disc.setAttribute('height', '10'); 
+            disc.setAttribute('fill', '#4b5563'); disc.setAttribute('rx', '5');
+            disc.setAttribute('stroke', '#6b7280'); disc.setAttribute('stroke-width', '1');
+            svg.appendChild(disc);
+            
+            // L1 Lagrange point visualization
+            const l1Point = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+            l1Point.setAttribute('cx', '400'); l1Point.setAttribute('cy', '300');
+            l1Point.setAttribute('r', '4'); l1Point.setAttribute('fill', '#8B5CF6');
+            l1Point.setAttribute('stroke', '#a855f7'); l1Point.setAttribute('stroke-width', '1');
+            svg.appendChild(l1Point);
+            
+            const l1Label = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+            l1Label.setAttribute('x', '410'); l1Label.setAttribute('y', '305');
+            l1Label.setAttribute('fill', '#8B5CF6'); l1Label.setAttribute('font-size', '11');
+            l1Label.setAttribute('font-weight', 'bold');
+            l1Label.textContent = 'L1 Lagrange Point';
+            svg.appendChild(l1Label);
+            
+            // Binary orbit visualization
+            const binaryOrbit = document.createElementNS('http://www.w3.org/2000/svg', 'ellipse');
+            binaryOrbit.setAttribute('cx', '400'); binaryOrbit.setAttribute('cy', '300');
+            binaryOrbit.setAttribute('rx', '200'); binaryOrbit.setAttribute('ry', '200');
+            binaryOrbit.setAttribute('fill', 'none'); binaryOrbit.setAttribute('stroke', '#6366f1');
+            binaryOrbit.setAttribute('stroke-width', '1'); binaryOrbit.setAttribute('stroke-dasharray', '10,5');
+            binaryOrbit.setAttribute('opacity', '0.3');
+            svg.appendChild(binaryOrbit);
+            
+            // Top sun
+            const sunTop = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+            sunTop.setAttribute('cx', '400'); sunTop.setAttribute('cy', '150'); 
+            sunTop.setAttribute('r', '28');
+            svg.appendChild(sunTop);
+            
+            const sunTopGlow = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+            sunTopGlow.setAttribute('cx', '400'); sunTopGlow.setAttribute('cy', '150'); 
+            sunTopGlow.setAttribute('r', '40');
+            svg.insertBefore(sunTopGlow, sunTop);
+            
+            // Bottom sun
+            const sunBottom = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+            sunBottom.setAttribute('cx', '400'); sunBottom.setAttribute('cy', '450'); 
+            sunBottom.setAttribute('r', '28');
+            svg.appendChild(sunBottom);
+            
+            const sunBottomGlow = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+            sunBottomGlow.setAttribute('cx', '400'); sunBottomGlow.setAttribute('cy', '450'); 
+            sunBottomGlow.setAttribute('r', '40');
+            svg.insertBefore(sunBottomGlow, sunBottom);
+            
+            // Gravitational field visualization
+            const gravityLine = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+            gravityLine.setAttribute('x1', '400'); gravityLine.setAttribute('y1', '150'); 
+            gravityLine.setAttribute('x2', '400'); gravityLine.setAttribute('y2', '450'); 
+            gravityLine.setAttribute('stroke', '#93c5fd'); gravityLine.setAttribute('stroke-width', '3'); 
+            gravityLine.setAttribute('stroke-dasharray', '8,4'); gravityLine.style.opacity = '0.6';
+            gravityLine.setAttribute('class', 'energy-beam');
+            svg.insertBefore(gravityLine, sunTop);
+            
+            // Mass indicators
+            const massTop = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+            massTop.setAttribute('x', '320'); massTop.setAttribute('y', '145');
+            massTop.setAttribute('fill', '#fbbf24'); massTop.setAttribute('font-size', '12');
+            massTop.textContent = '1.0 M☉';
+            svg.appendChild(massTop);
+            
+            const massBottom = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+            massBottom.setAttribute('x', '320'); massBottom.setAttribute('y', '465');
+            massBottom.setAttribute('fill', '#fbbf24'); massBottom.setAttribute('font-size', '12');
+            massBottom.textContent = '1.0 M☉';
+            svg.appendChild(massBottom);
+            
+            function update() {
+                const dayNightValue = parseFloat(twinSlider?.value || 100) / 100;
+                const seasonValue = parseFloat(seasonSlider?.value || 75) / 100;
+                
+                // Binary dynamics - alternating luminosity with smooth transitions
+                const topBrightness = (Math.sin(dayNightValue * Math.PI) + 1) / 2;
+                const bottomBrightness = (Math.cos(dayNightValue * Math.PI) + 1) / 2;
+                
+                // Seasonal modulation affecting each star independently
+                const topSeasonMod = 0.5 + 0.5 * seasonValue;
+                const bottomSeasonMod = 0.5 + 0.5 * (1 - seasonValue);
+                
+                const topFinalBrightness = topBrightness * topSeasonMod;
+                const bottomFinalBrightness = bottomBrightness * bottomSeasonMod;
+                
+                const topColor = `rgba(255, 240, 200, ${topFinalBrightness})`;
+                const bottomColor = `rgba(255, 240, 200, ${bottomFinalBrightness})`;
+                
+                sunTop.setAttribute('fill', topColor); 
+                sunTopGlow.setAttribute('fill', topColor); 
+                sunTopGlow.style.opacity = String(0.3 * topFinalBrightness);
+                
+                sunBottom.setAttribute('fill', bottomColor); 
+                sunBottomGlow.setAttribute('fill', bottomColor); 
+                sunBottomGlow.style.opacity = String(0.3 * bottomFinalBrightness);
+                
+                // Update gravitational field strength visualization
+                gravityLine.style.opacity = String(0.6 * (topFinalBrightness + bottomFinalBrightness) / 2);
+            }
+            
+            twinSlider?.addEventListener('input', update);
+            seasonSlider?.addEventListener('input', update);
+            update();
+        }
+
+        function drawReflectors() {
+            clearSVG();
+            const slider = document.getElementById('reflector-slider');
+            
+            // Draw disc
+            const disc = document.createElementNS('http://www.w3.org/2000/svg', 'ellipse');
+            disc.setAttribute('cx', '400'); disc.setAttribute('cy', '300'); 
+            disc.setAttribute('rx', '150'); disc.setAttribute('ry', '50'); 
+            disc.setAttribute('fill', '#4b5563');
+            disc.setAttribute('stroke', '#6b7280'); disc.setAttribute('stroke-width', '2');
+            svg.appendChild(disc);
+
+            // Distant host star
+            const distantSun = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+            distantSun.setAttribute('cx', '80'); distantSun.setAttribute('cy', '80'); 
+            distantSun.setAttribute('r', '18'); distantSun.setAttribute('fill', 'rgba(255, 255, 240, 0.9)');
+            distantSun.setAttribute('stroke', '#fbbf24'); distantSun.setAttribute('stroke-width', '1');
+            svg.appendChild(distantSun);
+            
+            const sunRays = [];
+            for (let i = 0; i < 8; i++) {
+                const angle = (i / 8) * 2 * Math.PI;
+                const ray = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+                ray.setAttribute('x1', 80 + Math.cos(angle) * 20);
+                ray.setAttribute('y1', 80 + Math.sin(angle) * 20);
+                ray.setAttribute('x2', 80 + Math.cos(angle) * 30);
+                ray.setAttribute('y2', 80 + Math.sin(angle) * 30);
+                ray.setAttribute('stroke', '#fbbf24'); ray.setAttribute('stroke-width', '2');
+                ray.setAttribute('stroke-linecap', 'round'); ray.setAttribute('opacity', '0.6');
+                svg.appendChild(ray);
+                sunRays.push(ray);
+            }
+            
+            const sunLabel = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+            sunLabel.setAttribute('x', '110'); sunLabel.setAttribute('y', '75');
+            sunLabel.setAttribute('fill', '#FBBF24'); sunLabel.setAttribute('font-size', '11');
+            sunLabel.setAttribute('font-weight', 'bold');
+            sunLabel.textContent = 'Host Star (G-type)';
+            svg.appendChild(sunLabel);
+
+            // Orbital path
+            const orbitPath = document.createElementNS('http://www.w3.org/2000/svg', 'ellipse');
+            orbitPath.setAttribute('cx', '400'); orbitPath.setAttribute('cy', '300');
+            orbitPath.setAttribute('rx', '280'); orbitPath.setAttribute('ry', '120');
+            orbitPath.setAttribute('fill', 'none'); orbitPath.setAttribute('stroke', '#6366f1');
+            orbitPath.setAttribute('stroke-width', '1'); orbitPath.setAttribute('stroke-dasharray', '5,5');
+            orbitPath.setAttribute('opacity', '0.4');
+            svg.appendChild(orbitPath);
+
+            const mirrors = [];
+            const lightBeams = [];
+            
+            for (let i = 0; i < 12; i++) {
+                const mirror = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+                mirror.setAttribute('width', '40');
+                mirror.setAttribute('height', '8');
+                mirror.setAttribute('fill', '#e5e7eb');
+                mirror.setAttribute('stroke', '#9ca3af'); mirror.setAttribute('stroke-width', '1');
+                mirror.setAttribute('rx', '2');
+                svg.appendChild(mirror);
+                mirrors.push(mirror);
+
+                const lightBeam = document.createElementNS('http://www.w3.org/2000/svg', 'polygon');
+                lightBeam.setAttribute('fill', 'rgba(255, 255, 220, 0.3)');
+                lightBeam.setAttribute('class', 'energy-beam');
+                svg.appendChild(lightBeam);
+                lightBeams.push(lightBeam);
+            }
+
+            let angleOffset = 0;
+            function animate() {
+                angleOffset += 0.004; // 24-hour period simulation
+                const seasonAngle = parseFloat(slider?.value || 10) * Math.PI / 180;
+
+                mirrors.forEach((mirror, i) => {
+                    const angle = (i / 12) * 2 * Math.PI + angleOffset;
+                    const radius = 280;
+                    const x = 400 + Math.cos(angle) * radius;
+                    const y = 300 + Math.sin(angle) * 120;
+                    
+                    // Mirror orientation calculation for optimal reflection
+                    const angleToSun = Math.atan2(y - 80, x - 80);
+                    const angleToDisc = Math.atan2(300 - y, 400 - x);
+                    const mirrorAngle = (angleToSun + angleToDisc) / 2 + seasonAngle;
+                    
+                    mirror.setAttribute('transform', `translate(${x-20}, ${y-4}) rotate(${mirrorAngle * 180 / Math.PI} 20 4)`);
+
+                    // Light beam calculation - only if mirror is properly positioned
+                    const lightBeam = lightBeams[i];
+                    const canReflect = x > 200 && x < 600 && y > 150 && y < 450;
+                    
+                    if (canReflect) {
+                        const mx1 = x - 20 * Math.cos(mirrorAngle);
+                        const my1 = y - 20 * Math.sin(mirrorAngle);
+                        const mx2 = x + 20 * Math.cos(mirrorAngle);
+                        const my2 = y + 20 * Math.sin(mirrorAngle);
+                        
+                        // Target point on disc
+                        const targetX = 400 + Math.cos(angleToDisc) * 120;
+                        const targetY = 300 + Math.sin(angleToDisc) * 40;
+                        
+                        lightBeam.setAttribute('points', `${mx1},${my1} ${mx2},${my2} ${targetX},${targetY}`);
+                        lightBeam.style.display = 'block';
+                        lightBeam.style.opacity = String(0.6 * Math.abs(Math.cos(seasonAngle)));
+                    } else {
+                        lightBeam.style.display = 'none';
+                    }
+                });
+
+                // Animate sun rays
+                sunRays.forEach((ray, i) => {
+                    const angle = (i / 8) * 2 * Math.PI + angleOffset * 2;
+                    ray.setAttribute('transform', `rotate(${angle * 180 / Math.PI} 80 80)`);
+                });
+
+                animationFrameId = requestAnimationFrame(animate);
+            }
+            
+            slider?.addEventListener('input', () => {}); // for immediate update on drag
+            animate();
+        }
+
+        function drawOrbitingMicrosun() {
+            clearSVG();
+            
+            // Draw disc with enhanced detail
+            const disc = document.createElementNS('http://www.w3.org/2000/svg', 'ellipse');
+            disc.setAttribute('cx', '400'); disc.setAttribute('cy', '300'); 
+            disc.setAttribute('rx', '300'); disc.setAttribute('ry', '80'); 
+            disc.setAttribute('fill', '#374151');
+            disc.setAttribute('stroke', '#4b5563'); disc.setAttribute('stroke-width', '2');
+            svg.appendChild(disc);
+
+            // Central micro-singularity with accretion effect
+            const singularityGlow = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+            singularityGlow.setAttribute('cx', '400'); singularityGlow.setAttribute('cy', '300'); 
+            singularityGlow.setAttribute('r', '12'); singularityGlow.setAttribute('fill', 'rgba(236, 72, 153, 0.3)');
+            singularityGlow.setAttribute('class', 'energy-beam');
+            svg.appendChild(singularityGlow);
+            
+            const singularity = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+            singularity.setAttribute('cx', '400'); singularity.setAttribute('cy', '300'); 
+            singularity.setAttribute('r', '5'); singularity.setAttribute('fill', '#EC4899');
+            svg.appendChild(singularity);
+            
+            const singularityLabel = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+            singularityLabel.setAttribute('x', '410'); singularityLabel.setAttribute('y', '290');
+            singularityLabel.setAttribute('fill', '#EC4899'); singularityLabel.setAttribute('font-size', '10');
+            singularityLabel.setAttribute('font-weight', 'bold');
+            singularityLabel.textContent = 'Micro-singularity (10⁻⁶ M☉)';
+            svg.appendChild(singularityLabel);
+            
+            // Orbital path
+            const orbitPath = document.createElementNS('http://www.w3.org/2000/svg', 'ellipse');
+            orbitPath.setAttribute('cx', '400'); orbitPath.setAttribute('cy', '300'); 
+            orbitPath.setAttribute('rx', '200'); orbitPath.setAttribute('ry', '60'); 
+            orbitPath.setAttribute('fill', 'none'); orbitPath.setAttribute('stroke', '#4f46e5'); 
+            orbitPath.setAttribute('stroke-dasharray', '8,4'); orbitPath.style.opacity = '0.6';
+            svg.appendChild(orbitPath);
+
+            // Gravitational field lines
+            for (let i = 0; i < 12; i++) {
+                const angle = (i / 12) * 2 * Math.PI;
+                const fieldLine = document.createElementNS('http://www.w3.org/2000/svg', 'ellipse');
+                fieldLine.setAttribute('cx', '400'); fieldLine.setAttribute('cy', '300');
+                fieldLine.setAttribute('rx', 50 + i * 15); fieldLine.setAttribute('ry', 15 + i * 5);
+                fieldLine.setAttribute('fill', 'none'); fieldLine.setAttribute('stroke', '#ec4899');
+                fieldLine.setAttribute('stroke-width', '1'); fieldLine.setAttribute('opacity', '0.2');
+                svg.appendChild(fieldLine);
+            }
+
+            // Microsun
+            const microsun = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+            microsun.setAttribute('r', '15'); microsun.setAttribute('fill', 'rgba(255, 255, 200, 1)');
+            microsun.setAttribute('stroke', '#fbbf24'); microsun.setAttribute('stroke-width', '1');
+            svg.appendChild(microsun);
+            
+            // Daylight zone with enhanced effect
+            const daylight = document.createElementNS('http://www.w3.org/2000/svg', 'ellipse');
+            daylight.setAttribute('rx', '80'); daylight.setAttribute('ry', '40'); 
+            daylight.setAttribute('fill', 'rgba(255, 255, 220, 0.4)');
+            daylight.style.filter = 'blur(12px)';
+            daylight.setAttribute('class', 'energy-beam');
+            svg.appendChild(daylight);
+
+            // Performance data
+            const perfData = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+            perfData.setAttribute('x', '50'); perfData.setAttribute('y', '50');
+            perfData.setAttribute('fill', '#fbbf24'); perfData.setAttribute('font-size', '12');
+            perfData.textContent = 'Microsun: 10⁻³ M☉ | Luminosity: 10⁻⁴ L☉';
+            svg.appendChild(perfData);
+
+            let angle = 0;
+            function animate() {
+                angle += 0.006; // 58-day orbital period simulation
+                const x = 400 + Math.cos(angle) * 200;
+                const y = 300 + Math.sin(angle) * 60;
+                
+                microsun.setAttribute('cx', x); microsun.setAttribute('cy', y);
+                daylight.setAttribute('cx', x); daylight.setAttribute('cy', y);
+                
+                // Enhanced depth sorting based on orbital position
+                if (Math.sin(angle) > 0) {
+                    svg.appendChild(daylight); svg.appendChild(microsun);
+                } else {
+                    svg.insertBefore(daylight, singularity); svg.insertBefore(microsun, singularity);
+                }
+
+                // Update illumination intensity based on position
+                const illumination = 0.3 + 0.3 * Math.abs(Math.sin(angle));
+                daylight.style.opacity = String(illumination);
+
+                animationFrameId = requestAnimationFrame(animate);
+            }
+            animate();
+        }
+
+        function drawPulsar() {
+            clearSVG();
+            const speedSlider = document.getElementById('pulsar-slider');
+            const powerSlider = document.getElementById('pulsar-power-slider');
+            
+            // Draw disc with enhanced appearance
+            const disc = document.createElementNS('http://www.w3.org/2000/svg', 'ellipse');
+            disc.setAttribute('cx', '400'); disc.setAttribute('cy', '300'); 
+            disc.setAttribute('rx', '350'); disc.setAttribute('ry', '100'); 
+            disc.setAttribute('fill', '#1f2937');
+            disc.setAttribute('stroke', '#374151'); disc.setAttribute('stroke-width', '2');
+            svg.appendChild(disc);
+            
+            // Magnetosphere visualization
+            for (let i = 1; i <= 5; i++) {
+                const magnetosphere = document.createElementNS('http://www.w3.org/2000/svg', 'ellipse');
+                magnetosphere.setAttribute('cx', '400'); magnetosphere.setAttribute('cy', '300');
+                magnetosphere.setAttribute('rx', 30 + i * 15); magnetosphere.setAttribute('ry', 15 + i * 8);
+                magnetosphere.setAttribute('fill', 'none'); magnetosphere.setAttribute('stroke', '#6366F1');
+                magnetosphere.setAttribute('stroke-width', '1'); magnetosphere.setAttribute('opacity', '0.3');
+                magnetosphere.setAttribute('stroke-dasharray', '4,4');
+                svg.appendChild(magnetosphere);
+            }
+            
+            // Pulsar core with enhanced detail
+            const pulsarCoreGlow = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+            pulsarCoreGlow.setAttribute('cx', '400'); pulsarCoreGlow.setAttribute('cy', '300'); 
+            pulsarCoreGlow.setAttribute('r', '20'); pulsarCoreGlow.setAttribute('fill', 'rgba(255, 255, 255, 0.3)');
+            pulsarCoreGlow.setAttribute('class', 'energy-beam');
+            svg.appendChild(pulsarCoreGlow);
+            
+            const pulsarCore = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+            pulsarCore.setAttribute('cx', '400'); pulsarCore.setAttribute('cy', '300'); 
+            pulsarCore.setAttribute('r', '12'); pulsarCore.setAttribute('fill', 'white');
+            pulsarCore.setAttribute('stroke', '#e5e7eb'); pulsarCore.setAttribute('stroke-width', '1');
+            svg.appendChild(pulsarCore);
+            
+            // Magnetic field visualization
+            for (let i = 0; i < 8; i++) {
+                const fieldAngle = (i / 8) * 2 * Math.PI;
+                const fieldLine = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+                const curve = `M 400 300 Q ${400 + Math.cos(fieldAngle) * 40} ${300 + Math.sin(fieldAngle) * 20} ${400 + Math.cos(fieldAngle) * 80} ${300 + Math.sin(fieldAngle) * 40}`;
+                fieldLine.setAttribute('d', curve);
+                fieldLine.setAttribute('stroke', '#6366F1'); fieldLine.setAttribute('stroke-width', '2');
+                fieldLine.setAttribute('fill', 'none'); fieldLine.setAttribute('opacity', '0.4');
+                svg.appendChild(fieldLine);
+            }
+
+            // Energy beams
+            const beam1 = document.createElementNS('http://www.w3.org/2000/svg', 'polygon');
+            beam1.setAttribute('class', 'pulsar-beam energy-beam');
+            svg.appendChild(beam1);
+
+            const beam2 = document.createElementNS('http://www.w3.org/2000/svg', 'polygon');
+            beam2.setAttribute('class', 'pulsar-beam energy-beam');
+            svg.appendChild(beam2);
+
+            // Technical specifications
+            const techSpecs = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+            techSpecs.setAttribute('x', '50'); techSpecs.setAttribute('y', '50');
+            techSpecs.setAttribute('fill', '#6366F1'); techSpecs.setAttribute('font-size', '12');
+            techSpecs.textContent = 'Artificial Pulsar | B-field: 10⁸ Tesla';
+            svg.appendChild(techSpecs);
+
+            let angle = 0;
+            function animate() {
+                const speed = parseFloat(speedSlider?.value || 1) / 2;
+                const power = parseFloat(powerSlider?.value || 80) / 100;
+                angle += speed;
+
+                const beamWidth = 0.15; // Beam divergence angle
+                const beamLength = 350;
+                
+                // Primary beam with enhanced visuals
+                const p1x = 400 + beamLength * Math.cos(angle);
+                const p1y = 300 + beamLength * Math.sin(angle);
+                const p2x = 400 + beamLength * Math.cos(angle + beamWidth);
+                const p2y = 300 + beamLength * Math.sin(angle + beamWidth);
+                beam1.setAttribute('points', `400,300 ${p1x},${p1y} ${p2x},${p2y}`);
+                beam1.setAttribute('fill', `rgba(147, 197, 253, ${power * 0.9})`);
+
+                // Opposite beam (lighthouse effect)
+                const p3x = 400 + beamLength * Math.cos(angle + Math.PI);
+                const p3y = 300 + beamLength * Math.sin(angle + Math.PI);
+                const p4x = 400 + beamLength * Math.cos(angle + Math.PI + beamWidth);
+                const p4y = 300 + beamLength * Math.sin(angle + Math.PI + beamWidth);
+                beam2.setAttribute('points', `400,300 ${p3x},${p3y} ${p4x},${p4y}`);
+                beam2.setAttribute('fill', `rgba(147, 197, 253, ${power * 0.9})`);
+                
+                // Update core brightness based on beam power and rotation
+                const coreBrightness = 0.7 + 0.3 * power + 0.1 * Math.sin(angle * 10);
+                pulsarCore.setAttribute('fill', `rgba(255, 255, 255, ${coreBrightness})`);
+                pulsarCoreGlow.style.opacity = String(0.5 * power);
+                
+                animationFrameId = requestAnimationFrame(animate);
+            }
+            
+            speedSlider?.addEventListener('input', () => {});
+            powerSlider?.addEventListener('input', () => {});
+            animate();
+        }
+
+        function drawStellarGyrotron() {
+            clearSVG();
+            
+            const velocitySlider = document.getElementById('gyrotron-velocity');
+            const segmentsSlider = document.getElementById('gyrotron-segments');
+            const fieldSlider = document.getElementById('gyrotron-field');
+            
+            const velocity = parseFloat(velocitySlider?.value || 1000);
+            const segments = parseInt(segmentsSlider?.value || 12);
+            const fieldStrength = parseFloat(fieldSlider?.value || 1);
+            
+            // Draw central star with corona
+            const starCorona = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+            starCorona.setAttribute('cx', '400'); starCorona.setAttribute('cy', '300');
+            starCorona.setAttribute('r', '35'); starCorona.setAttribute('fill', 'rgba(255, 243, 205, 0.3)');
+            starCorona.setAttribute('class', 'energy-beam');
+            svg.appendChild(starCorona);
+            
+            const star = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+            star.setAttribute('cx', '400'); star.setAttribute('cy', '300');
+            star.setAttribute('r', '25'); star.setAttribute('fill', 'url(#starGradient)');
+            star.setAttribute('stroke', '#fbbf24'); star.setAttribute('stroke-width', '1');
+            svg.appendChild(star);
+            
+            // Orbital paths at different radii
+            for (let i = 1; i <= 3; i++) {
+                const orbitPath = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+                orbitPath.setAttribute('cx', '400'); orbitPath.setAttribute('cy', '300');
+                orbitPath.setAttribute('r', 80 + i * 40);
+                orbitPath.setAttribute('fill', 'none'); orbitPath.setAttribute('stroke', '#4F46E5');
+                orbitPath.setAttribute('stroke-width', '1'); orbitPath.setAttribute('stroke-dasharray', '3,3');
+                orbitPath.setAttribute('opacity', 0.3 + i * 0.1);
+                svg.appendChild(orbitPath);
+            }
+            
+            // Draw stator ring segments
+            const radius = 160;
+            for (let i = 0; i < segments; i++) {
+                const angle = (i / segments) * 2 * Math.PI;
+                const x = 400 + Math.cos(angle) * radius;
+                const y = 300 + Math.sin(angle) * radius;
+                
+                // Stator segment
+                const segment = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+                segment.setAttribute('x', x - 25);
+                segment.setAttribute('y', y - 10);
+                segment.setAttribute('width', '50');
+                segment.setAttribute('height', '20');
+                segment.setAttribute('fill', '#6366F1');
+                segment.setAttribute('stroke', '#4f46e5'); segment.setAttribute('stroke-width', '1');
+                segment.setAttribute('rx', '5');
+                segment.setAttribute('transform', `rotate(${angle * 180 / Math.PI} ${x} ${y})`);
+                svg.appendChild(segment);
+                
+                // Electromagnetic field visualization
+                if (fieldStrength > 0.3) {
+                    const field = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+                    field.setAttribute('cx', x);
+                    field.setAttribute('cy', y);
+                    field.setAttribute('r', fieldStrength * 20);
+                    field.setAttribute('fill', 'rgba(99, 102, 241, 0.1)');
+                    field.setAttribute('stroke', '#6366F1');
+                    field.setAttribute('stroke-width', '1');
+                    field.setAttribute('opacity', '0.7');
+                    field.setAttribute('class', 'energy-beam');
+                    svg.appendChild(field);
+                }
+                
+                // Power coupling lines
+                const couplingLine = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+                couplingLine.setAttribute('x1', 400 + Math.cos(angle) * 80);
+                couplingLine.setAttribute('y1', 300 + Math.sin(angle) * 80);
+                couplingLine.setAttribute('x2', x);
+                couplingLine.setAttribute('y2', y);
+                couplingLine.setAttribute('stroke', '#8b5cf6'); couplingLine.setAttribute('stroke-width', '2');
+                couplingLine.setAttribute('opacity', '0.4'); couplingLine.setAttribute('stroke-dasharray', '5,5');
+                svg.appendChild(couplingLine);
+            }
+            
+            // Draw rotor arms (gravitational shepherds)
+            for (let i = 0; i < 4; i++) {
+                const angle = (i / 4) * 2 * Math.PI;
+                const x = 400 + Math.cos(angle) * (radius - 40);
+                const y = 300 + Math.sin(angle) * (radius - 40);
+                
+                const arm = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+                arm.setAttribute('cx', x);
+                arm.setAttribute('cy', y);
+                arm.setAttribute('r', '12');
+                arm.setAttribute('fill', '#10B981');
+                arm.setAttribute('stroke', '#059669'); arm.setAttribute('stroke-width', '2');
+                arm.setAttribute('opacity', '0.8');
+                svg.appendChild(arm);
+                
+                const armLabel = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+                armLabel.setAttribute('x', x); armLabel.setAttribute('y', y - 20);
+                armLabel.setAttribute('fill', '#10B981'); armLabel.setAttribute('font-size', '9');
+                armLabel.setAttribute('text-anchor', 'middle');
+                armLabel.textContent = 'Rotor';
+                svg.appendChild(armLabel);
+            }
+            
+            // Spacecraft being accelerated
+            const spacecraft = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+            spacecraft.setAttribute('x', 400 + radius - 5);
+            spacecraft.setAttribute('y', '295');
+            spacecraft.setAttribute('width', '10');
+            spacecraft.setAttribute('height', '10');
+            spacecraft.setAttribute('fill', '#60A5FA');
+            spacecraft.setAttribute('stroke', '#3b82f6'); spacecraft.setAttribute('stroke-width', '1');
+            spacecraft.setAttribute('rx', '2');
+            svg.appendChild(spacecraft);
+            
+            // Trajectory trail
+            const trail = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+            trail.setAttribute('d', `M ${400 + radius} 300 Q ${400 + radius + 50} ${250} ${400 + radius + 100} ${200}`);
+            trail.setAttribute('stroke', '#60A5FA'); trail.setAttribute('stroke-width', '3');
+            trail.setAttribute('fill', 'none'); trail.setAttribute('opacity', '0.6');
+            trail.setAttribute('class', 'trajectory-path');
+            svg.appendChild(trail);
+            
+            // System specifications
+            const specs = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+            specs.setAttribute('x', '50'); specs.setAttribute('y', '50');
+            specs.setAttribute('fill', '#6366F1'); specs.setAttribute('font-size', '12');
+            specs.setAttribute('font-weight', 'bold');
+            specs.textContent = `Stellar Gyrotron | ${segments} segments | ${fieldStrength} Tesla`;
+            svg.appendChild(specs);
+            
+            // Update physics display
+            updatePhysicsDisplay('gyrotron', {
+                velocity: velocity,
+                segments: segments,
+                field: fieldStrength
+            });
+            
+            // Event listeners
+            velocitySlider?.addEventListener('input', drawStellarGyrotron);
+            segmentsSlider?.addEventListener('input', drawStellarGyrotron);
+            fieldSlider?.addEventListener('input', drawStellarGyrotron);
+        }
+
+        function drawStellarHarvester() {
+            clearSVG();
+            
+            const rateSlider = document.getElementById('harvester-rate');
+            const modeSelect = document.getElementById('harvester-mode');
+            
+            const rate = parseFloat(rateSlider?.value || 2);
+            const mode = modeSelect?.value || 'stellar';
+            
+            // Draw target star being harvested
+            const targetStarGlow = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+            targetStarGlow.setAttribute('cx', '200'); targetStarGlow.setAttribute('cy', '300');
+            targetStarGlow.setAttribute('r', '60'); targetStarGlow.setAttribute('fill', 'rgba(255, 100, 100, 0.3)');
+            targetStarGlow.setAttribute('class', 'energy-beam');
+            svg.appendChild(targetStarGlow);
+            
+            const targetStar = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+            targetStar.setAttribute('cx', '200'); targetStar.setAttribute('cy', '300');
+            targetStar.setAttribute('r', '40'); targetStar.setAttribute('fill', 'rgba(255, 120, 120, 0.9)');
+            targetStar.setAttribute('stroke', '#ef4444'); targetStar.setAttribute('stroke-width', '2');
+            svg.appendChild(targetStar);
+            
+            // Extraction apparatus in orbital formation
+            const extractors = [];
+            for (let i = 0; i < 12; i++) {
+                const angle = (i / 12) * 2 * Math.PI;
+                const extractorX = 200 + Math.cos(angle) * 120;
+                const extractorY = 300 + Math.sin(angle) * 120;
+                
+                // Harvester station
+                const extractor = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+                extractor.setAttribute('x', extractorX - 12);
+                extractor.setAttribute('y', extractorY - 8);
+                extractor.setAttribute('width', '24');
+                extractor.setAttribute('height', '16');
+                extractor.setAttribute('fill', '#059669');
+                extractor.setAttribute('stroke', '#047857'); extractor.setAttribute('stroke-width', '1');
+                extractor.setAttribute('rx', '4');
+                svg.appendChild(extractor);
+                extractors.push({ x: extractorX, y: extractorY, angle: angle });
+                
+                // Magnetic confinement field
+                const confinementField = document.createElementNS('http://www.w3.org/2000/svg', 'ellipse');
+                confinementField.setAttribute('cx', extractorX); confinementField.setAttribute('cy', extractorY);
+                confinementField.setAttribute('rx', '20'); confinementField.setAttribute('ry', '10');
+                confinementField.setAttribute('fill', 'none'); confinementField.setAttribute('stroke', '#10B981');
+                confinementField.setAttribute('stroke-width', '1'); confinementField.setAttribute('opacity', '0.5');
+                confinementField.setAttribute('transform', `rotate(${angle * 180 / Math.PI} ${extractorX} ${extractorY})`);
+                svg.appendChild(confinementField);
+                
+                // Extraction beam
+                const extractionBeam = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+                const controlPointX = 200 + Math.cos(angle) * 70;
+                const controlPointY = 300 + Math.sin(angle) * 70;
+                const beamPath = `M ${extractorX} ${extractorY} Q ${controlPointX} ${controlPointY} ${200 + Math.cos(angle) * 40} ${300 + Math.sin(angle) * 40}`;
+                extractionBeam.setAttribute('d', beamPath);
+                extractionBeam.setAttribute('stroke', '#10B981'); extractionBeam.setAttribute('stroke-width', '3');
+                extractionBeam.setAttribute('fill', 'none'); extractionBeam.setAttribute('opacity', rate / 10);
+                extractionBeam.setAttribute('class', 'energy-beam');
+                svg.appendChild(extractionBeam);
+            }
+            
+            // Processing facility
+            const processingStation = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+            processingStation.setAttribute('x', '360'); processingStation.setAttribute('y', '280');
+            processingStation.setAttribute('width', '80'); processingStation.setAttribute('height', '40');
+            processingStation.setAttribute('fill', '#374151'); processingStation.setAttribute('stroke', '#4b5563');
+            processingStation.setAttribute('stroke-width', '2'); processingStation.setAttribute('rx', '8');
+            svg.appendChild(processingStation);
+            
+            const processingLabel = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+            processingLabel.setAttribute('x', '400'); processingLabel.setAttribute('y', '305');
+            processingLabel.setAttribute('fill', '#9ca3af'); processingLabel.setAttribute('font-size', '10');
+            processingLabel.setAttribute('text-anchor', 'middle'); processingLabel.setAttribute('font-weight', 'bold');
+            processingLabel.textContent = 'Processing';
+            svg.appendChild(processingLabel);
+            
+            // Draw output based on mode
+            if (mode === 'stellar') {
+                // New protostar creation
+                const protostar = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+                protostar.setAttribute('cx', '600'); protostar.setAttribute('cy', '300');
+                protostar.setAttribute('r', '30'); protostar.setAttribute('fill', 'rgba(255, 255, 180, 0.8)');
+                protostar.setAttribute('stroke', '#fbbf24'); protostar.setAttribute('stroke-width', '2');
+                protostar.setAttribute('class', 'energy-beam');
+                svg.appendChild(protostar);
+                
+                const protostarLabel = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+                protostarLabel.setAttribute('x', '600'); protostarLabel.setAttribute('y', '350');
+                protostarLabel.setAttribute('fill', '#fbbf24'); protostarLabel.setAttribute('font-size', '11');
+                protostarLabel.setAttribute('text-anchor', 'middle'); protostarLabel.setAttribute('font-weight', 'bold');
+                protostarLabel.textContent = 'Custom Protostar';
+                svg.appendChild(protostarLabel);
+                
+                // Formation beam
+                const formationBeam = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+                formationBeam.setAttribute('x1', '440'); formationBeam.setAttribute('y1', '300');
+                formationBeam.setAttribute('x2', '570'); formationBeam.setAttribute('y2', '300');
+                formationBeam.setAttribute('stroke', '#fbbf24'); formationBeam.setAttribute('stroke-width', '4');
+                formationBeam.setAttribute('opacity', '0.7'); formationBeam.setAttribute('class', 'energy-beam');
+                svg.appendChild(formationBeam);
+            } else {
+                // Weaponized plasma stream
+                const weaponBeam = document.createElementNS('http://www.w3.org/2000/svg', 'polygon');
+                weaponBeam.setAttribute('points', '440,295 440,305 750,290 750,310');
+                weaponBeam.setAttribute('fill', '#EF4444'); weaponBeam.setAttribute('opacity', '0.8');
+                weaponBeam.setAttribute('class', 'energy-beam');
+                svg.appendChild(weaponBeam);
+                
+                const weaponLabel = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+                weaponLabel.setAttribute('x', '600'); weaponLabel.setAttribute('y', '280');
+                weaponLabel.setAttribute('fill', '#EF4444'); weaponLabel.setAttribute('font-size', '11');
+                weaponLabel.setAttribute('text-anchor', 'middle'); weaponLabel.setAttribute('font-weight', 'bold');
+                weaponLabel.textContent = 'Relativistic Plasma Stream (0.1-0.5c)';
+                svg.appendChild(weaponLabel);
+                
+                // Target system
+                const target = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+                target.setAttribute('cx', '720'); target.setAttribute('cy', '300');
+                target.setAttribute('r', '10'); target.setAttribute('fill', '#7c2d12');
+                target.setAttribute('stroke', '#dc2626'); target.setAttribute('stroke-width', '1');
+                svg.appendChild(target);
+            }
+            
+            // System status display
+            const statusDisplay = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+            statusDisplay.setAttribute('x', '50'); statusDisplay.setAttribute('y', '50');
+            statusDisplay.setAttribute('fill', '#059669'); statusDisplay.setAttribute('font-size', '12');
+            statusDisplay.setAttribute('font-weight', 'bold');
+            statusDisplay.textContent = `Stellar Harvester | Rate: ${rate}×10⁻⁹ M☉/yr | Mode: ${mode}`;
+            svg.appendChild(statusDisplay);
+            
+            // Update physics display
+            updatePhysicsDisplay('harvester', {
+                rate: rate,
+                mode: mode
+            });
+            
+            // Event listeners
+            rateSlider?.addEventListener('input', drawStellarHarvester);
+            modeSelect?.addEventListener('change', drawStellarHarvester);
+        }
+
+        function drawMatrioshkaBrain() {
+            clearSVG();
+            
+            const shellsSlider = document.getElementById('brain-shells');
+            const modeSelect = document.getElementById('brain-mode');
+            const efficiencySlider = document.getElementById('brain-efficiency');
+            
+            const shells = parseInt(shellsSlider?.value || 7);
+            const mode = modeSelect?.value || 'research';
+            const efficiency = parseFloat(efficiencySlider?.value || 85);
+            
+            // Draw central star with special appearance
+            const centralStar = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+            centralStar.setAttribute('cx', '400'); centralStar.setAttribute('cy', '300');
+            centralStar.setAttribute('r', '20'); centralStar.setAttribute('fill', 'rgba(255, 255, 255, 1)');
+            centralStar.setAttribute('stroke', '#e5e7eb'); centralStar.setAttribute('stroke-width', '2');
+            svg.appendChild(centralStar);
+            
+            // Energy flow indicators
+            for (let i = 0; i < 6; i++) {
+                const angle = (i / 6) * 2 * Math.PI;
+                const energyFlow = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+                energyFlow.setAttribute('x1', 400 + Math.cos(angle) * 25);
+                energyFlow.setAttribute('y1', 300 + Math.sin(angle) * 25);
+                energyFlow.setAttribute('x2', 400 + Math.cos(angle) * 35);
+                energyFlow.setAttribute('y2', 300 + Math.sin(angle) * 35);
+                energyFlow.setAttribute('stroke', '#fbbf24'); energyFlow.setAttribute('stroke-width', '3');
+                energyFlow.setAttribute('stroke-linecap', 'round'); energyFlow.setAttribute('opacity', '0.7');
+                energyFlow.setAttribute('class', 'energy-beam');
+                svg.appendChild(energyFlow);
+            }
+            
+            // Draw nested computational shells
+            const shellColors = ['#93c5fd', '#60a5fa', '#3b82f6', '#2563eb', '#1d4ed8', '#1e40af', '#1e3a8a'];
+            for (let i = 0; i < shells; i++) {
+                const radius = 40 + (i * 25);
+                const temperature = 1.0 - (i * 0.8 / shells); // Temperature cascade
+                const shellEfficiency = efficiency / 100;
+                const colorIndex = i % shellColors.length;
+                
+                const shell = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+                shell.setAttribute('cx', '400');
+                shell.setAttribute('cy', '300');
+                shell.setAttribute('r', radius);
+                shell.setAttribute('fill', 'none');
+                shell.setAttribute('stroke', shellColors[colorIndex]);
+                shell.setAttribute('stroke-width', '3');
+                shell.setAttribute('stroke-dasharray', '12,6');
+                shell.setAttribute('opacity', temperature * shellEfficiency);
+                svg.appendChild(shell);
+                
+                // Computation indicators around each shell
+                if (i % 2 === 0) {
+                    for (let j = 0; j < 6; j++) {
+                        const angle = (j / 6) * 2 * Math.PI + (i * 0.2);
+                        const x = 400 + Math.cos(angle) * radius;
+                        const y = 300 + Math.sin(angle) * radius;
+                        
+                        const indicator = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+                        indicator.setAttribute('x', x - 5);
+                        indicator.setAttribute('y', y - 5);
+                        indicator.setAttribute('width', '10');
+                        indicator.setAttribute('height', '10');
+                        indicator.setAttribute('fill', shellColors[colorIndex]);
+                        indicator.setAttribute('rx', '2');
+                        indicator.setAttribute('opacity', temperature * 0.8);
+                        svg.appendChild(indicator);
+                    }
+                }
+                
+                // Heat flow arrows between shells
+                if (i < shells - 1) {
+                    const arrowX = 400 + radius + 15;
+                    const arrowY = 300;
+                    const arrow = document.createElementNS('http://www.w3.org/2000/svg', 'polygon');
+                    arrow.setAttribute('points', `${arrowX},${arrowY-4} ${arrowX+10},${arrowY} ${arrowX},${arrowY+4}`);
+                    arrow.setAttribute('fill', '#F59E0B');
+                    arrow.setAttribute('opacity', temperature * 0.7);
+                    svg.appendChild(arrow);
+                }
+            }
+            
+            // Mode-specific visualization
+            let modeInfo = '';
+            let modeColor = '#9CA3AF';
+            switch(mode) {
+                case 'consciousness':
+                    modeInfo = `Hosted Minds: ${PhysicsEngine.formatScientific(shells * 1e12)}`;
+                    modeColor = '#8B5CF6';
+                    
+                    // Add consciousness indicators
+                    for (let i = 0; i < 20; i++) {
+                        const angle = (i / 20) * 2 * Math.PI;
+                        const radius = 60 + (i % 3) * 40;
+                        const x = 400 + Math.cos(angle) * radius;
+                        const y = 300 + Math.sin(angle) * radius;
+                        
+                        const consciousness = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+                        consciousness.setAttribute('cx', x); consciousness.setAttribute('cy', y);
+                        consciousness.setAttribute('r', '3'); consciousness.setAttribute('fill', '#8B5CF6');
+                        consciousness.setAttribute('opacity', '0.6'); consciousness.setAttribute('class', 'energy-beam');
+                        svg.appendChild(consciousness);
+                    }
+                    break;
+                case 'simulation':
+                    modeInfo = `Simulated Universes: ${shells}`;
+                    modeColor = '#EC4899';
+                    break;
+                case 'research':
+                    modeInfo = `Research Projects: ${shells * 1000}`;
+                    modeColor = '#10B981';
+                    break;
+            }
+            
+            // Information display
+            const infoText = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+            infoText.setAttribute('x', '50'); infoText.setAttribute('y', '50');
+            infoText.setAttribute('fill', modeColor); infoText.setAttribute('font-size', '12');
+            infoText.setAttribute('font-weight', 'bold');
+            infoText.textContent = `Matrioshka Brain | ${shells} shells | ${modeInfo}`;
+            svg.appendChild(infoText);
+            
+            const thermalInfo = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+            thermalInfo.setAttribute('x', '50'); thermalInfo.setAttribute('y', '70');
+            thermalInfo.setAttribute('fill', '#F59E0B'); thermalInfo.setAttribute('font-size', '11');
+            thermalInfo.textContent = `Thermal Efficiency: ${efficiency}% | Power: ${PhysicsEngine.formatScientific(PHYSICS.SOLAR_LUMINOSITY)} W`;
+            svg.appendChild(thermalInfo);
+            
+            // Update physics display
+            updatePhysicsDisplay('brain', {
+                shells: shells,
+                mode: mode,
+                efficiency: efficiency
+            });
+            
+            // Event listeners
+            shellsSlider?.addEventListener('input', drawMatrioshkaBrain);
+            modeSelect?.addEventListener('change', drawMatrioshkaBrain);
+            efficiencySlider?.addEventListener('input', drawMatrioshkaBrain);
+        }
+
+        function drawNicollDysonBeam() {
+            clearSVG();
+            
+            const focusSlider = document.getElementById('beam-focus');
+            const efficiencySlider = document.getElementById('beam-efficiency');
+            
+            const focus = parseFloat(focusSlider?.value || 10);
+            const efficiency = parseFloat(efficiencySlider?.value || 70);
+            
+            // Draw central star
+            const star = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+            star.setAttribute('cx', '200'); star.setAttribute('cy', '300');
+            star.setAttribute('r', '30'); star.setAttribute('fill', 'url(#starGradient)');
+            star.setAttribute('stroke', '#fbbf24'); star.setAttribute('stroke-width', '2');
+            svg.appendChild(star);
+            
+            // Draw collection swarm (hemisphere) with enhanced detail
+            for (let i = 0; i < 48; i++) {
+                const angle = (i / 48) * Math.PI; // Only upper hemisphere
+                const radius = 90;
+                const x = 200 + Math.cos(angle) * radius;
+                const y = 300 - Math.sin(angle) * radius * 0.7; // Flattened perspective
+                
+                const collector = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+                collector.setAttribute('x', x - 4);
+                collector.setAttribute('y', y - 4);
+                collector.setAttribute('width', '8');
+                collector.setAttribute('height', '8');
+                collector.setAttribute('fill', '#10B981');
+                collector.setAttribute('stroke', '#059669'); collector.setAttribute('stroke-width', '1');
+                collector.setAttribute('opacity', '0.8'); collector.setAttribute('rx', '1');
+                svg.appendChild(collector);
+                
+                // Energy collection lines
+                if (i % 4 === 0) {
+                    const energyLine = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+                    energyLine.setAttribute('x1', x);
+                    energyLine.setAttribute('y1', y);
+                    energyLine.setAttribute('x2', 200);
+                    energyLine.setAttribute('y2', 300);
+                    energyLine.setAttribute('stroke', '#FBBF24');
+                    energyLine.setAttribute('stroke-width', '1');
+                    energyLine.setAttribute('opacity', efficiency / 200);
+                    svg.appendChild(energyLine);
+                }
+            }
+            
+            // Draw focusing array (other hemisphere)
+            for (let i = 0; i < 32; i++) {
+                const angle = (i / 32) * Math.PI;
+                const radius = 90;
+                const x = 200 - Math.cos(angle) * radius;
+                const y = 300 + Math.sin(angle) * radius * 0.7;
+                
+                const focuser = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+                focuser.setAttribute('x', x - 6);
+                focuser.setAttribute('y', y - 3);
+                focuser.setAttribute('width', '12');
+                focuser.setAttribute('height', '6');
+                focuser.setAttribute('fill', '#6366F1');
+                focuser.setAttribute('stroke', '#4f46e5'); focuser.setAttribute('stroke-width', '1');
+                focuser.setAttribute('opacity', '0.9'); focuser.setAttribute('rx', '2');
+                svg.appendChild(focuser);
+            }
+            
+            // Draw the focused beam with variable width
+            const beamWidth = Math.max(3, 25 - focus);
+            const beam = document.createElementNS('http://www.w3.org/2000/svg', 'polygon');
+            beam.setAttribute('points', `110,${300-beamWidth/2} 110,${300+beamWidth/2} 650,${300+beamWidth/4} 650,${300-beamWidth/4}`);
+            beam.setAttribute('fill', 'rgba(255, 255, 255, 0.9)');
+            beam.setAttribute('class', 'energy-beam');
+            svg.appendChild(beam);
+            
+            // Beam intensity visualization
+            const beamCore = document.createElementNS('http://www.w3.org/2000/svg', 'polygon');
+            beamCore.setAttribute('points', `110,${300-beamWidth/4} 110,${300+beamWidth/4} 650,${300+beamWidth/8} 650,${300-beamWidth/8}`);
+            beamCore.setAttribute('fill', 'rgba(255, 255, 255, 1)');
+            beamCore.setAttribute('class', 'energy-beam');
+            svg.appendChild(beamCore);
+            
+            // Target system visualization
+            if (focus < 50) {
+                const target = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+                target.setAttribute('cx', '650');
+                target.setAttribute('cy', '300');
+                target.setAttribute('r', '12');
+                target.setAttribute('fill', '#EF4444');
+                target.setAttribute('stroke', '#dc2626'); target.setAttribute('stroke-width', '2');
+                target.setAttribute('opacity', '0.8');
+                svg.appendChild(target);
+                
+                const targetLabel = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+                targetLabel.setAttribute('x', '650'); targetLabel.setAttribute('y', '330');
+                targetLabel.setAttribute('fill', '#EF4444'); targetLabel.setAttribute('font-size', '10');
+                targetLabel.setAttribute('text-anchor', 'middle'); targetLabel.setAttribute('font-weight', 'bold');
+                targetLabel.textContent = 'Target System';
+                svg.appendChild(targetLabel);
+                
+                // Impact effect
+                const impactRing = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+                impactRing.setAttribute('cx', '650'); impactRing.setAttribute('cy', '300');
+                impactRing.setAttribute('r', '20'); impactRing.setAttribute('fill', 'none');
+                impactRing.setAttribute('stroke', '#ef4444'); impactRing.setAttribute('stroke-width', '2');
+                impactRing.setAttribute('opacity', '0.5'); impactRing.setAttribute('class', 'energy-beam');
+                svg.appendChild(impactRing);
+            }
+            
+            // System specifications and status
+            const beamStats = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+            beamStats.setAttribute('x', '50'); beamStats.setAttribute('y', '50');
+            beamStats.setAttribute('fill', '#6366F1'); beamStats.setAttribute('font-size', '12');
+            beamStats.setAttribute('font-weight', 'bold');
+            beamStats.textContent = `Nicoll-Dyson Beam | Focus: ${focus} AU | Efficiency: ${efficiency}%`;
+            svg.appendChild(beamStats);
+            
+            const powerStats = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+            powerStats.setAttribute('x', '50'); powerStats.setAttribute('y', '70');
+            powerStats.setAttribute('fill', '#FBBF24'); powerStats.setAttribute('font-size', '11');
+            const beamPower = PHYSICS.SOLAR_LUMINOSITY * efficiency / 100;
+            powerStats.textContent = `Beam Power: ${PhysicsEngine.formatScientific(beamPower)} W`;
+            svg.appendChild(powerStats);
+            
+            // Update physics display
+            updatePhysicsDisplay('beam', {
+                focus: focus,
+                efficiency: efficiency
+            });
+            
+            // Event listeners
+            focusSlider?.addEventListener('input', drawNicollDysonBeam);
+            efficiencySlider?.addEventListener('input', drawNicollDysonBeam);
+        }
+
+        // Galactic Scale Systems
+        function drawStellarLoom() {
+            clearSVG();
+            
+            const rateSlider = document.getElementById('loom-rate');
+            const massSlider = document.getElementById('loom-mass');
+            
+            const rate = parseFloat(rateSlider?.value || 100);
+            const stellarMass = parseFloat(massSlider?.value || 1);
+            
+            // Draw molecular cloud background
+            const cloud = document.createElementNS('http://www.w3.org/2000/svg', 'ellipse');
+            cloud.setAttribute('cx', '400'); cloud.setAttribute('cy', '300');
+            cloud.setAttribute('rx', '350'); cloud.setAttribute('ry', '180');
+            cloud.setAttribute('fill', 'rgba(75, 85, 99, 0.2)');
+            cloud.setAttribute('stroke', '#6B7280');
+            cloud.setAttribute('stroke-width', '2');
+            cloud.setAttribute('stroke-dasharray', '15,8');
+            svg.appendChild(cloud);
+            
+            // Density gradients within cloud
+            for (let i = 1; i <= 4; i++) {
+                const densityRegion = document.createElementNS('http://www.w3.org/2000/svg', 'ellipse');
+                densityRegion.setAttribute('cx', '400'); densityRegion.setAttribute('cy', '300');
+                densityRegion.setAttribute('rx', 350 - i * 60); densityRegion.setAttribute('ry', 180 - i * 30);
+                densityRegion.setAttribute('fill', `rgba(75, 85, 99, ${0.1 + i * 0.05})`);
+                densityRegion.setAttribute('opacity', '0.6');
+                svg.appendChild(densityRegion);
+            }
+            
+            // Magnetic field filament network
+            for (let i = 0; i < 16; i++) {
+                const angle = (i / 16) * 2 * Math.PI;
+                const length = 280;
+                const x1 = 400 + Math.cos(angle) * 70;
+                const y1 = 300 + Math.sin(angle) * 35;
+                const x2 = 400 + Math.cos(angle) * length;
+                const y2 = 300 + Math.sin(angle) * length * 0.6;
+                
+                const filament = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+                filament.setAttribute('x1', x1); filament.setAttribute('y1', y1);
+                filament.setAttribute('x2', x2); filament.setAttribute('y2', y2);
+                filament.setAttribute('stroke', '#8B5CF6');
+                filament.setAttribute('stroke-width', '2');
+                filament.setAttribute('opacity', '0.7');
+                filament.setAttribute('class', 'energy-beam');
+                svg.appendChild(filament);
+                
+                // Superconducting nodes
+                const node = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+                node.setAttribute('cx', x2); node.setAttribute('cy', y2);
+                node.setAttribute('r', '8');
+                node.setAttribute('fill', '#8B5CF6');
+                node.setAttribute('stroke', '#7c3aed'); node.setAttribute('stroke-width', '2');
+                svg.appendChild(node);
+                
+                // Field strength indicators
+                if (i % 4 === 0) {
+                    for (let j = 1; j <= 3; j++) {
+                        const fieldIndicator = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+                        fieldIndicator.setAttribute('cx', x1 + (x2-x1) * j/4);
+                        fieldIndicator.setAttribute('cy', y1 + (y2-y1) * j/4);
+                        fieldIndicator.setAttribute('r', '3');
+                        fieldIndicator.setAttribute('fill', '#a855f7');
+                        fieldIndicator.setAttribute('opacity', '0.6');
+                        svg.appendChild(fieldIndicator);
+                    }
+                }
+            }
+            
+            // Newly formed stars in geometric pattern
+            const numStars = Math.min(25, Math.floor(rate / 4));
+            const patterns = ['spiral', 'lattice', 'ring'];
+            const pattern = patterns[Math.floor(numStars / 8) % patterns.length];
+            
+            for (let i = 0; i < numStars; i++) {
+                let x, y;
+                
+                switch(pattern) {
+                    case 'spiral':
+                        const spiralAngle = (i / numStars) * 6 * Math.PI;
+                        const radius = 60 + (i / numStars) * 150;
+                        x = 400 + Math.cos(spiralAngle) * radius;
+                        y = 300 + Math.sin(spiralAngle) * radius * 0.6;
+                        break;
+                    case 'lattice':
+                        const cols = Math.ceil(Math.sqrt(numStars));
+                        const rows = Math.ceil(numStars / cols);
+                        const col = i % cols;
+                        const row = Math.floor(i / cols);
+                        x = 300 + (col / (cols-1)) * 200;
+                        y = 230 + (row / (rows-1)) * 140;
+                        break;
+                    case 'ring':
+                        const ringAngle = (i / numStars) * 2 * Math.PI;
+                        const ringRadius = 120;
+                        x = 400 + Math.cos(ringAngle) * ringRadius;
+                        y = 300 + Math.sin(ringAngle) * ringRadius * 0.5;
+                        break;
+                    default:
+                        x = 300 + Math.random() * 200;
+                        y = 250 + Math.random() * 100;
+                }
+                
+                const starRadius = 2 + stellarMass * 3;
+                const star = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+                star.setAttribute('cx', x); star.setAttribute('cy', y);
+                star.setAttribute('r', starRadius);
+                star.setAttribute('fill', 'rgba(255, 255, 200, 0.9)');
+                star.setAttribute('stroke', '#fbbf24'); star.setAttribute('stroke-width', '1');
+                star.setAttribute('class', 'energy-beam');
+                svg.appendChild(star);
+                
+                // Star formation indicators
+                if (i < 5) {
+                    const formationRing = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+                    formationRing.setAttribute('cx', x); formationRing.setAttribute('cy', y);
+                    formationRing.setAttribute('r', starRadius + 8); formationRing.setAttribute('fill', 'none');
+                    formationRing.setAttribute('stroke', '#10b981'); formationRing.setAttribute('stroke-width', '1');
+                    formationRing.setAttribute('opacity', '0.5'); formationRing.setAttribute('stroke-dasharray', '3,3');
+                    svg.appendChild(formationRing);
+                }
+            }
+            
+            // Production statistics display
+            const statsText = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+            statsText.setAttribute('x', '50'); statsText.setAttribute('y', '50');
+            statsText.setAttribute('fill', '#8B5CF6'); statsText.setAttribute('font-size', '12');
+            statsText.setAttribute('font-weight', 'bold');
+            statsText.textContent = `Stellar Loom | Production: ${rate} stars/kyr | Template: ${stellarMass} M☉`;
+            svg.appendChild(statsText);
+            
+            const patternText = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+            patternText.setAttribute('x', '50'); patternText.setAttribute('y', '70');
+            patternText.setAttribute('fill', '#10B981'); patternText.setAttribute('font-size', '11');
+            patternText.textContent = `Pattern: ${pattern.charAt(0).toUpperCase() + pattern.slice(1)} | Stars formed: ${numStars}`;
+            svg.appendChild(patternText);
+            
+            rateSlider?.addEventListener('input', drawStellarLoom);
+            massSlider?.addEventListener('input', drawStellarLoom);
+        }
+
+        function drawSupernovaSieve() {
+            clearSVG();
+            
+            const efficiencySlider = document.getElementById('sieve-efficiency');
+            const elementsSelect = document.getElementById('sieve-elements');
+            
+            const efficiency = parseFloat(efficiencySlider?.value || 95);
+            const targetElements = elementsSelect?.value || 'all';
+            
+            // Draw central stellar remnant
+            const remnantType = 'neutron'; // Could be 'black_hole' for more massive progenitors
+            
+            if (remnantType === 'neutron') {
+                const neutronStar = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+                neutronStar.setAttribute('cx', '400'); neutronStar.setAttribute('cy', '300');
+                neutronStar.setAttribute('r', '8');
+                neutronStar.setAttribute('fill', '#EC4899');
+                neutronStar.setAttribute('stroke', '#db2777'); neutronStar.setAttribute('stroke-width', '2');
+                svg.appendChild(neutronStar);
+                
+                // Neutron star magnetic field
+                for (let i = 0; i < 6; i++) {
+                    const fieldAngle = (i / 6) * 2 * Math.PI;
+                    const fieldLine = document.createElementNS('http://www.w3.org/2000/svg', 'ellipse');
+                    fieldLine.setAttribute('cx', '400'); fieldLine.setAttribute('cy', '300');
+                    fieldLine.setAttribute('rx', 15 + i * 5); fieldLine.setAttribute('ry', 8 + i * 3);
+                    fieldLine.setAttribute('fill', 'none'); fieldLine.setAttribute('stroke', '#ec4899');
+                    fieldLine.setAttribute('stroke-width', '1'); fieldLine.setAttribute('opacity', '0.4');
+                    fieldLine.setAttribute('transform', `rotate(${fieldAngle * 30} 400 300)`);
+                    svg.appendChild(fieldLine);
+                }
+            }
+            
+            // Expanding shock wave (what remains uncollected)
+            const shockWave = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+            shockWave.setAttribute('cx', '400'); shockWave.setAttribute('cy', '300');
+            shockWave.setAttribute('r', '180');
+            shockWave.setAttribute('fill', 'none');
+            shockWave.setAttribute('stroke', '#EF4444');
+            shockWave.setAttribute('stroke-width', '4');
+            shockWave.setAttribute('opacity', (100 - efficiency) / 100);
+            shockWave.setAttribute('stroke-dasharray', '8,4');
+            svg.appendChild(shockWave);
+            
+            // Fading shock wave (collected material)
+            const collectedWave = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+            collectedWave.setAttribute('cx', '400'); collectedWave.setAttribute('cy', '300');
+            collectedWave.setAttribute('r', '150');
+            collectedWave.setAttribute('fill', 'none');
+            collectedWave.setAttribute('stroke', '#10B981');
+            collectedWave.setAttribute('stroke-width', '2');
+            collectedWave.setAttribute('opacity', efficiency / 200);
+            collectedWave.setAttribute('stroke-dasharray', '12,6');
+            svg.appendChild(collectedWave);
+            
+            // Collection swarm deployment
+            const swarmDensity = Math.floor(efficiency / 2);
+            for (let i = 0; i < swarmDensity; i++) {
+                const angle = (i / swarmDensity) * 2 * Math.PI;
+                const radius = 100 + Math.random() * 120;
+                const x = 400 + Math.cos(angle) * radius;
+                const y = 300 + Math.sin(angle) * radius;
+                
+                const collector = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+                collector.setAttribute('x', x - 4); collector.setAttribute('y', y - 4);
+                collector.setAttribute('width', '8'); collector.setAttribute('height', '8');
+                collector.setAttribute('fill', '#10B981');
+                collector.setAttribute('stroke', '#059669'); collector.setAttribute('stroke-width', '1');
+                collector.setAttribute('opacity', efficiency / 100); collector.setAttribute('rx', '1');
+                svg.appendChild(collector);
+                
+                // Collection beams toward center
+                if (i % 6 === 0) {
+                    const beam = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+                    beam.setAttribute('x1', x); beam.setAttribute('y1', y);
+                    beam.setAttribute('x2', 400 + Math.cos(angle) * 30);
+                    beam.setAttribute('y2', 300 + Math.sin(angle) * 30);
+                    beam.setAttribute('stroke', '#FBBF24');
+                    beam.setAttribute('stroke-width', '1');
+                    beam.setAttribute('opacity', efficiency / 150);
+                    beam.setAttribute('class', 'energy-beam');
+                    svg.appendChild(beam);
+                }
+            }
+            
+            // Element-specific storage reservoirs
+            const elementColors = {
+                'all': '#FBBF24',
+                'rare': '#8B5CF6', 
+                'radioactive': '#EF4444'
+            };
+            
+            const reservoirPositions = [
+                { x: 600, y: 200, label: 'Fe/Ni' },
+                { x: 650, y: 350, label: 'Au/Pt' },
+                { x: 550, y: 450, label: 'REE' },
+                { x: 150, y: 400, label: 'U/Th' }
+            ];
+            
+            reservoirPositions.forEach((pos, i) => {
+                const reservoir = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+                reservoir.setAttribute('x', pos.x - 20); reservoir.setAttribute('y', pos.y - 15);
+                reservoir.setAttribute('width', '40'); reservoir.setAttribute('height', '30');
+                reservoir.setAttribute('fill', elementColors[targetElements] || '#FBBF24');
+                reservoir.setAttribute('stroke', '#374151'); reservoir.setAttribute('stroke-width', '2');
+                reservoir.setAttribute('opacity', '0.8'); reservoir.setAttribute('rx', '5');
+                svg.appendChild(reservoir);
+                
+                const label = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+                label.setAttribute('x', pos.x); label.setAttribute('y', pos.y + 5);
+                label.setAttribute('fill', 'white'); label.setAttribute('font-size', '9');
+                label.setAttribute('text-anchor', 'middle'); label.setAttribute('font-weight', 'bold');
+                label.textContent = pos.label;
+                svg.appendChild(label);
+                
+                // Storage level indicator
+                const fillLevel = efficiency / 100;
+                const fill = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+                fill.setAttribute('x', pos.x - 18); fill.setAttribute('y', pos.y - 13 + (1-fillLevel) * 26);
+                fill.setAttribute('width', '36'); fill.setAttribute('height', fillLevel * 26);
+                fill.setAttribute('fill', elementColors[targetElements] || '#FBBF24');
+                fill.setAttribute('opacity', '0.6'); fill.setAttribute('rx', '3');
+                svg.appendChild(fill);
+            });
+            
+            // System status displays
+            const effText = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+            effText.setAttribute('x', '50'); effText.setAttribute('y', '50');
+            effText.setAttribute('fill', '#10B981'); effText.setAttribute('font-size', '12');
+            effText.setAttribute('font-weight', 'bold');
+            effText.textContent = `Supernova Sieve | Collection Efficiency: ${efficiency}%`;
+            svg.appendChild(effText);
+            
+            const elementText = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+            elementText.setAttribute('x', '50'); elementText.setAttribute('y', '70');
+            elementText.setAttribute('fill', elementColors[targetElements]); elementText.setAttribute('font-size', '11');
+            elementText.textContent = `Target: ${targetElements.charAt(0).toUpperCase() + targetElements.slice(1)} Elements | Collectors: ${swarmDensity}`;
+            svg.appendChild(elementText);
+            
+            const yieldText = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+            yieldText.setAttribute('x', '50'); yieldText.setAttribute('y', '90');
+            yieldText.setAttribute('fill', '#FBBF24'); yieldText.setAttribute('font-size', '10');
+            yieldText.textContent = `Estimated yield: ${(efficiency/100 * 50).toFixed(1)} M☉ heavy elements`;
+            svg.appendChild(yieldText);
+            
+            efficiencySlider?.addEventListener('input', drawSupernovaSieve);
+            elementsSelect?.addEventListener('change', drawSupernovaSieve);
+        }
+
+        function drawGalacticCenotaph() {
+            clearSVG();
+            
+            const periodSlider = document.getElementById('cenotaph-period');
+            const dataSelect = document.getElementById('cenotaph-data');
+            
+            const period = parseFloat(periodSlider?.value || 33);
+            const dataType = dataSelect?.value || 'basic';
+            
+            // Draw neutron star with detailed structure
+            const neutronStarGlow = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+            neutronStarGlow.setAttribute('cx', '400'); neutronStarGlow.setAttribute('cy', '300');
+            neutronStarGlow.setAttribute('r', '35'); neutronStarGlow.setAttribute('fill', 'rgba(229, 231, 235, 0.2)');
+            neutronStarGlow.setAttribute('class', 'energy-beam');
+            svg.appendChild(neutronStarGlow);
+            
+            const neutronStar = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+            neutronStar.setAttribute('cx', '400'); neutronStar.setAttribute('cy', '300');
+            neutronStar.setAttribute('r', '25');
+            neutronStar.setAttribute('fill', '#E5E7EB');
+            neutronStar.setAttribute('stroke', '#9CA3AF');
+            neutronStar.setAttribute('stroke-width', '3');
+            svg.appendChild(neutronStar);
+            
+            // Neutron star crust layers (information storage visualization)
+            for (let i = 1; i <= 6; i++) {
+                const layer = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+                layer.setAttribute('cx', '400'); layer.setAttribute('cy', '300');
+                layer.setAttribute('r', 25 - i * 3.5);
+                layer.setAttribute('fill', 'none');
+                layer.setAttribute('stroke', '#6B7280');
+                layer.setAttribute('stroke-width', '1');
+                layer.setAttribute('opacity', '0.6');
+                svg.appendChild(layer);
+                
+                // Data storage indicators
+                if (i <= 4) {
+                    for (let j = 0; j < 8; j++) {
+                        const angle = (j / 8) * 2 * Math.PI;
+                        const radius = 25 - i * 3.5;
+                        const x = 400 + Math.cos(angle) * radius;
+                        const y = 300 + Math.sin(angle) * radius;
+                        
+                        const dataBit = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+                        dataBit.setAttribute('cx', x); dataBit.setAttribute('cy', y);
+                        dataBit.setAttribute('r', '1'); dataBit.setAttribute('fill', '#3B82F6');
+                        dataBit.setAttribute('opacity', '0.7');
+                        svg.appendChild(dataBit);
+                    }
+                }
+            }
+            
+            // Magnetosphere structure
+            for (let i = 1; i <= 4; i++) {
+                const magnetosphere = document.createElementNS('http://www.w3.org/2000/svg', 'ellipse');
+                magnetosphere.setAttribute('cx', '400'); magnetosphere.setAttribute('cy', '300');
+                magnetosphere.setAttribute('rx', 40 + i * 20); magnetosphere.setAttribute('ry', 20 + i * 10);
+                magnetosphere.setAttribute('fill', 'none');
+                magnetosphere.setAttribute('stroke', '#8B5CF6');
+                magnetosphere.setAttribute('stroke-width', '2');
+                magnetosphere.setAttribute('stroke-dasharray', '6,6');
+                magnetosphere.setAttribute('opacity', '0.5');
+                svg.appendChild(magnetosphere);
+            }
+            
+            // Pulsar radio beam with enhanced visualization
+            const beamCone = document.createElementNS('http://www.w3.org/2000/svg', 'polygon');
+            beamCone.setAttribute('points', '400,300 650,270 650,330');
+            beamCone.setAttribute('fill', 'rgba(59, 130, 246, 0.4)');
+            beamCone.setAttribute('class', 'energy-beam');
+            svg.appendChild(beamCone);
+            
+            // Beam intensity core
+            const beamCore = document.createElementNS('http://www.w3.org/2000/svg', 'polygon');
+            beamCore.setAttribute('points', '400,300 650,285 650,315');
+            beamCore.setAttribute('fill', 'rgba(147, 197, 253, 0.8)');
+            beamCore.setAttribute('class', 'energy-beam');
+            svg.appendChild(beamCore);
+            
+            // Data stream visualization based on type
+            const dataColors = {
+                'basic': '#10B981',
+                'science': '#3B82F6', 
+                'consciousness': '#8B5CF6',
+                'warning': '#EF4444'
+            };
+            
+            const dataComplexity = {
+                'basic': 8,
+                'science': 16,
+                'consciousness': 24,
+                'warning': 12
+            };
+            
+            // Data packets in the beam
+            const numPackets = dataComplexity[dataType];
+            for (let i = 0; i < numPackets; i++) {
+                const x = 430 + i * 12;
+                const y = 295 + Math.sin(i * 0.8) * 8;
+                
+                const dataPacket = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+                dataPacket.setAttribute('x', x); dataPacket.setAttribute('y', y);
+                dataPacket.setAttribute('width', '6'); dataPacket.setAttribute('height', '10');
+                dataPacket.setAttribute('fill', dataColors[dataType]);
+                dataPacket.setAttribute('opacity', '0.8');
+                dataPacket.setAttribute('rx', '1');
+                svg.appendChild(dataPacket);
+                
+                // Data complexity indicators
+                if (dataType === 'consciousness' || dataType === 'science') {
+                    const complexityIndicator = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+                    complexityIndicator.setAttribute('cx', x + 3); complexityIndicator.setAttribute('cy', y + 5);
+                    complexityIndicator.setAttribute('r', '2'); complexityIndicator.setAttribute('fill', 'white');
+                    complexityIndicator.setAttribute('opacity', '0.6');
+                    svg.appendChild(complexityIndicator);
+                }
+            }
+            
+            // Receiving station or decoder (if beam is being accessed)
+            const decoder = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+            decoder.setAttribute('x', '680'); decoder.setAttribute('y', '290');
+            decoder.setAttribute('width', '40'); decoder.setAttribute('height', '20');
+            decoder.setAttribute('fill', '#374151'); decoder.setAttribute('stroke', '#4b5563');
+            decoder.setAttribute('stroke-width', '2'); decoder.setAttribute('rx', '5');
+            svg.appendChild(decoder);
+            
+            const decoderLabel = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+            decoderLabel.setAttribute('x', '700'); decoderLabel.setAttribute('y', '305');
+            decoderLabel.setAttribute('fill', '#9ca3af'); decoderLabel.setAttribute('font-size', '8');
+            decoderLabel.setAttribute('text-anchor', 'middle'); decoderLabel.setAttribute('font-weight', 'bold');
+            decoderLabel.textContent = 'Decoder';
+            svg.appendChild(decoderLabel);
+            
+            // Archive information displays
+            const archiveText = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+            archiveText.setAttribute('x', '50'); archiveText.setAttribute('y', '50');
+            archiveText.setAttribute('fill', '#9CA3AF'); archiveText.setAttribute('font-size', '12');
+            archiveText.setAttribute('font-weight', 'bold');
+            archiveText.textContent = `Galactic Cenotaph | Pulse Period: ${period} ms`;
+            svg.appendChild(archiveText);
+            
+            const dataText = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+            dataText.setAttribute('x', '50'); dataText.setAttribute('y', '70');
+            dataText.setAttribute('fill', dataColors[dataType]); dataText.setAttribute('font-size', '11');
+            dataText.textContent = `Archive Content: ${dataType.charAt(0).toUpperCase() + dataType.slice(1)} Data`;
+            svg.appendChild(dataText);
+            
+            const capacityText = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+            capacityText.setAttribute('x', '50'); capacityText.setAttribute('y', '90');
+            capacityText.setAttribute('fill', '#6B7280'); capacityText.setAttribute('font-size', '10');
+            capacityText.textContent = `Storage Capacity: ~${PhysicsEngine.formatScientific(1e40)} bits (neutronium lattice)`;
+            svg.appendChild(capacityText);
+            
+            const transmissionText = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+            transmissionText.setAttribute('x', '50'); transmissionText.setAttribute('y', '110');
+            transmissionText.setAttribute('fill', '#3B82F6'); transmissionText.setAttribute('font-size', '10');
+            transmissionText.textContent = `Transmission Rate: ${PhysicsEngine.formatScientific(1000/period)} Hz | Data Packets: ${numPackets}`;
+            svg.appendChild(transmissionText);
+            
+            periodSlider?.addEventListener('input', drawGalacticCenotaph);
+            dataSelect?.addEventListener('change', drawGalacticCenotaph);
+        }
+
+        // --- Category Management ---
+        function switchCategory(category) {
+            if (activeCategory === category) return;
+            
+            activeCategory = category;
+            
+            // Update category tabs
+            categoryTabs.forEach(tab => {
+                tab.classList.remove('active');
+                tab.classList.add('bg-gray-700/50', 'hover:bg-gray-600/50', 'text-gray-300');
+                tab.classList.remove('bg-indigo-600', 'text-white');
+            });
+            
+            const activeTab = document.getElementById(`category-${category}`);
+            if (activeTab) {
+                activeTab.classList.add('active');
+                activeTab.classList.remove('bg-gray-700/50', 'hover:bg-gray-600/50', 'text-gray-300');
+                activeTab.classList.add('bg-indigo-600', 'text-white');
+            }
+            
+            // Show/hide system groups
+            Object.values(systemGroups).forEach(group => {
+                if (group) group.classList.add('hidden');
+            });
+            const targetGroup = systemGroups[category];
+            if (targetGroup) targetGroup.classList.remove('hidden');
+            
+            // Set first system in category as active
+            const firstSystem = {
+                'disc': 'bobbing',
+                'stellar': 'gyrotron', 
+                'galactic': 'loom'
+            }[category];
+            
+            if (firstSystem) {
+                setActiveSystem(firstSystem);
+            }
+        }
+
+        // --- System Management ---
+        function setActiveSystem(systemName) {
+            if (activeSystem === systemName) return;
+            
+            // Show loading indicator briefly
+            if (loadingIndicator) {
+                loadingIndicator.classList.remove('hidden');
+                setTimeout(() => {
+                    loadingIndicator.classList.add('hidden');
+                }, 300);
+            }
+            
+            clearSVG();
+            activeSystem = systemName;
+            
+            // Update button states
+            Object.values(buttons).forEach(button => {
+                if (button) {
+                    button.classList.remove('active');
+                    button.classList.add('bg-gray-700/50', 'hover:bg-indigo-500');
+                    button.classList.remove('bg-indigo-500', 'text-white');
+                }
+            });
+            
+            const activeButton = buttons[systemName];
+            if (activeButton) {
+                activeButton.classList.add('active');
+                activeButton.classList.remove('bg-gray-700/50', 'hover:bg-indigo-500');
+                activeButton.classList.add('bg-indigo-500', 'text-white');
+            }
+
+            // Update info panel
+            const systemData = systems[systemName];
+            if (systemData) {
+                infoPanel.innerHTML = `
+                    <div class="info-box">
+                        <h3>${systemData.title}</h3>
+                        ${systemData.description}
+                        <div class="mt-6">${systemData.controls}</div>
+                    </div>
+                `;
+            }
+
+            // Call appropriate drawing function
+            const drawFunctions = {
+                bobbing: drawBobbingSun,
+                wobbling: drawWobblingSun,
+                twin: drawTwinSun,
+                reflectors: drawReflectors,
+                microsun: drawOrbitingMicrosun,
+                pulsar: drawPulsar,
+                gyrotron: drawStellarGyrotron,
+                harvester: drawStellarHarvester,
+                brain: drawMatrioshkaBrain,
+                beam: drawNicollDysonBeam,
+                loom: drawStellarLoom,
+                sieve: drawSupernovaSieve,
+                cenotaph: drawGalacticCenotaph
+            };
+            
+            const drawFunction = drawFunctions[systemName];
+            if (drawFunction) {
+                setTimeout(drawFunction, 100); // Small delay for smooth transition
+            }
+        }
+
+        // --- GM Tools ---
+        function generateGMContent(type) {
+            const data = gmTools[type];
+            if (!data || !data[activeSystem]) {
+                gmOutput.innerHTML = `
+                    <div class="text-center text-gray-500">
+                        <p class="mb-2">❌ <strong>No ${type} data available</strong></p>
+                        <p class="text-sm">Data for ${activeSystem} is not yet available in the ${type} database.</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            const content = data[activeSystem];
+            const randomItem = content[Math.floor(Math.random() * content.length)];
+            
+            const titles = {
+                scenarios: '🎲 Generated Scenario',
+                threats: '⚠️ Threat Assessment', 
+                evidence: '🔍 Archaeological Evidence'
+            };
+            
+            const icons = {
+                scenarios: '🎭',
+                threats: '☢️',
+                evidence: '🏛️'
+            };
+            
+            gmOutput.innerHTML = `
+                <div class="border-l-4 border-purple-500 pl-4 bg-gradient-to-r from-purple-900/20 to-transparent rounded-r-lg">
+                    <h4 class="font-semibold text-purple-300 mb-3 flex items-center gap-2">
+                        ${icons[type]} ${titles[type]}
+                    </h4>
+                    <p class="text-gray-300 leading-relaxed mb-3">${randomItem}</p>
+                    <div class="flex justify-between items-center text-xs text-gray-500 border-t border-gray-700 pt-2 mt-3">
+                        <span><strong>System:</strong> ${systems[activeSystem]?.title || activeSystem}</span>
+                        <span><strong>Threat Level:</strong> ${systems[activeSystem]?.threat || 'Unknown'}/10</span>
+                    </div>
+                </div>
+            `;
+        }
+
+        function showModal(title, content) {
+            if (modalTitle && modalContent && modal) {
+                modalTitle.textContent = title;
+                modalContent.innerHTML = content;
+                modal.classList.remove('hidden');
+                modal.classList.add('flex');
+            }
+        }
+
+        function hideModal() {
+            if (modal) {
+                modal.classList.add('hidden');
+                modal.classList.remove('flex');
+            }
+        }
+
+        // --- Event Listeners ---
+        
+        // Category switching
+        categoryTabs.forEach(tab => {
+            tab.addEventListener('click', () => {
+                const category = tab.id.replace('category-', '');
+                switchCategory(category);
+            });
+        });
+
+        // System selection
+        Object.entries(buttons).forEach(([key, button]) => {
+            if (button) {
+                button.addEventListener('click', () => setActiveSystem(key));
+            }
+        });
+
+        // GM Tools
+        const gmScenarioBtn = document.getElementById('gm-scenario');
+        const gmThreatBtn = document.getElementById('gm-threat');
+        const gmEvidenceBtn = document.getElementById('gm-evidence');
+
+        if (gmScenarioBtn) {
+            gmScenarioBtn.addEventListener('click', () => generateGMContent('scenarios'));
+        }
+
+        if (gmThreatBtn) {
+            gmThreatBtn.addEventListener('click', () => generateGMContent('threats'));
+        }
+
+        if (gmEvidenceBtn) {
+            gmEvidenceBtn.addEventListener('click', () => generateGMContent('evidence'));
+        }
+
+        // Modal controls
+        const closeModalBtn = document.getElementById('close-modal');
+        if (closeModalBtn) {
+            closeModalBtn.addEventListener('click', hideModal);
+        }
+
+        if (modal) {
+            modal.addEventListener('click', (e) => {
+                if (e.target === modal) hideModal();
+            });
+        }
+
+        // Keyboard shortcuts
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                hideModal();
+            }
+            if (e.key >= '1' && e.key <= '9') {
+                const systemKeys = Object.keys(buttons);
+                const index = parseInt(e.key) - 1;
+                if (systemKeys[index] && buttons[systemKeys[index]]) {
+                    setActiveSystem(systemKeys[index]);
+                }
+            }
+            // Category switching with keys
+            if (e.key === 'd' || e.key === 'D') switchCategory('disc');
+            if (e.key === 's' || e.key === 'S') switchCategory('stellar');
+            if (e.key === 'g' || e.key === 'G') switchCategory('galactic');
+        });
+
+        // Prevent context menu on visualization area for better UX
+        if (svg) {
+            svg.addEventListener('contextmenu', (e) => e.preventDefault());
+        }
+
+        // --- Initialization ---
+        function init() {
+            console.log('🚀 Initializing Eryxian Hyperstructure Observatory...');
+            
+            // Set up initial state
+            switchCategory('disc');
+            setActiveSystem('bobbing');
+            
+            // Initialize GM output with welcome message
+            if (gmOutput) {
+                gmOutput.innerHTML = `
+                    <div class="text-center text-gray-500">
+                        <p class="mb-2">🎮 <strong>Game Master Tools</strong></p>
+                        <p class="text-sm mb-3">Select any hyperstructure above, then click a tool button to generate campaign content.</p>
+                        <div class="flex justify-center gap-2 text-xs">
+                            <span class="px-2 py-1 bg-purple-900/30 text-purple-300 rounded">Scenarios</span>
+                            <span class="px-2 py-1 bg-red-900/30 text-red-300 rounded">Threats</span>
+                            <span class="px-2 py-1 bg-blue-900/30 text-blue-300 rounded">Evidence</span>
+                        </div>
+                    </div>
+                `;
+            }
+            
+            // Add physics validation warnings
+            console.log('✅ Physics validation system active');
+            console.log(`📊 Available systems: ${Object.keys(systems).length}`);
+            console.log('⌨️ Keyboard shortcuts: 1-9 for systems, D/S/G for categories, Esc for modals');
+            console.log('🌟 Eryxian Hyperstructure Observatory ready!');
+        }
+
+        // Error handling
+        window.addEventListener('error', (e) => {
+            console.error('Observatory Error:', e.error);
+            if (gmOutput) {
+                gmOutput.innerHTML = `
+                    <div class="text-center text-red-500">
+                        <p class="mb-2">⚠️ <strong>System Error</strong></p>
+                        <p class="text-sm">An error occurred. Please refresh the page.</p>
+                    </div>
+                `;
+            }
+        });
+
+        // Start the application
+        document.addEventListener('DOMContentLoaded', init);
+        
+        // Fallback initialization if DOMContentLoaded already fired
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', init);
+        } else {
+            init();
+        }
+    </script>
+</body>
+</html>
+                        

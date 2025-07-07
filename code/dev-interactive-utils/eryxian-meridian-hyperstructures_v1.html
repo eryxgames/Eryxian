@@ -1,0 +1,486 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Disc World Stellar System Schematics</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            overscroll-behavior: none;
+        }
+        .tab-button {
+            transition: all 0.3s ease;
+        }
+        .tab-button.active {
+            background-color: #4f46e5;
+            color: white;
+            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+        }
+        .info-box h3 {
+            font-size: 1.125rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: #c7d2fe;
+        }
+        .info-box p {
+            font-size: 0.875rem;
+            line-height: 1.5;
+            margin-bottom: 1rem;
+        }
+        .info-box .control-label {
+            font-size: 0.875rem;
+            font-weight: 500;
+            margin-bottom: 0.5rem;
+            display: block;
+        }
+        .logo {
+            display: block;
+            max-width: 200px;
+            height: auto;
+            margin: 0 auto 20px auto;
+            filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.3));
+        }        
+        .slider {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 100%;
+            height: 8px;
+            background: #d1d5db;
+            outline: none;
+            opacity: 0.7;
+            transition: opacity .2s;
+            border-radius: 9999px;
+        }
+        .slider:hover {
+            opacity: 1;
+        }
+        .slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 20px;
+            height: 20px;
+            background: #4f46e5;
+            cursor: pointer;
+            border-radius: 50%;
+        }
+        .slider::-moz-range-thumb {
+            width: 20px;
+            height: 20px;
+            background: #4f46e5;
+            cursor: pointer;
+            border-radius: 50%;
+        }
+        .pulsar-beam {
+            mix-blend-mode: screen;
+        }
+    </style>
+</head>
+<body class="bg-gray-900 text-gray-200 flex flex-col items-center justify-center min-h-screen p-4">
+
+    <div class="w-full max-w-7xl bg-gray-800 rounded-2xl shadow-2xl p-4 sm:p-6 lg:p-8">
+        <header class="text-center mb-6">
+            <img src="eryxian-dash-logo-sm.png" alt="Eryxian" class="logo">
+            <h1 class="text-2xl sm:text-3xl font-bold text-white">Artificial Stellar Systems for a Disc World Hyperstructure</h1>
+            <p class="text-sm sm:text-base text-gray-400 mt-2">Interactive schematics of theoretically plausible solutions.</p>
+        </header>
+
+        <div class="mb-6 flex flex-wrap justify-center gap-2 sm:gap-3">
+            <button id="btn-bobbing" class="tab-button active px-3 py-2 rounded-full text-xs sm:text-sm font-medium bg-gray-700 hover:bg-indigo-500">1. Bobbing Sun</button>
+            <button id="btn-wobbling" class="tab-button px-3 py-2 rounded-full text-xs sm:text-sm font-medium bg-gray-700 hover:bg-indigo-500">2. Wobbling Sun</button>
+            <button id="btn-twin" class="tab-button px-3 py-2 rounded-full text-xs sm:text-sm font-medium bg-gray-700 hover:bg-indigo-500">3. Twin Suns</button>
+            <button id="btn-reflectors" class="tab-button px-3 py-2 rounded-full text-xs sm:text-sm font-medium bg-gray-700 hover:bg-indigo-500">4. Orbital Reflectors</button>
+            <button id="btn-microsun" class="tab-button px-3 py-2 rounded-full text-xs sm:text-sm font-medium bg-gray-700 hover:bg-indigo-500">5. Orbiting Microsun</button>
+            <button id="btn-pulsar" class="tab-button px-3 py-2 rounded-full text-xs sm:text-sm font-medium bg-gray-700 hover:bg-indigo-500">6. Pulsar Lighthouse</button>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <div class="lg:col-span-2 bg-gray-900/50 rounded-xl flex items-center justify-center p-4 min-h-[300px] sm:min-h-[400px] lg:min-h-[500px] overflow-hidden">
+                <svg id="schematic-svg" class="w-full h-full" viewBox="0 0 800 600"></svg>
+            </div>
+
+            <div id="info-panel" class="bg-gray-800/50 rounded-xl p-6 max-h-[500px] overflow-y-auto">
+                <!-- Info content will be injected here by JS -->
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // --- DOM Elements ---
+        const svg = document.getElementById('schematic-svg');
+        const infoPanel = document.getElementById('info-panel');
+        const buttons = {
+            bobbing: document.getElementById('btn-bobbing'),
+            wobbling: document.getElementById('btn-wobbling'),
+            twin: document.getElementById('btn-twin'),
+            reflectors: document.getElementById('btn-reflectors'),
+            microsun: document.getElementById('btn-microsun'),
+            pulsar: document.getElementById('btn-pulsar'),
+        };
+
+        // --- State Management ---
+        let activeSystem = 'bobbing';
+        let animationFrameId;
+
+        // --- System Data (Now includes models from your notes) ---
+        const systems = {
+            bobbing: {
+                title: 'System 1: The Bobbing Sun',
+                description: `<p>A single, powerful artificial sun is positioned in the central hole of the disc. This is a mechanically simple and stable design.</p><h3>Gravity Solution</h3><p>The sun is held perfectly in the center by a network of <strong>Active Stabilization Thrusters</strong>. These plasma drives make constant, minute corrections to counteract gravitational drift towards the disc's inner edge.</p><h3>Day/Night Cycle</h3><p>A day/night cycle is created by making the sun "bob" vertically. As it rises above the disc's plane, it illuminates the top surface. As it sinks, it illuminates the bottom.</p><h3>Seasons</h3><p>Seasons are simulated by modulating the sun's energy output. A long-term cycle gradually changes the fusion reaction rate, altering the sun's brightness and color temperature.</p>`,
+                controls: `<label class="control-label">Day/Night Phase</label><input type="range" id="bobbing-slider" class="slider" min="-100" max="100" value="50"><label class="control-label mt-4">Seasonal Cycle</label><input type="range" id="season-slider" class="slider" min="0" max="100" value="50">`
+            },
+            wobbling: {
+                title: 'System 2: The Wobbling Sun',
+                description: `<p>This model creates a more "natural" feeling sky for inhabitants by having the sun appear to move within the central hole.</p><h3>Gravity Solution</h3><p>Like the Bobbing Sun, this system relies on <strong>Active Stabilization Thrusters</strong> to maintain its central position and prevent collisions with the disc.</p><h3>Day/Night Cycle</h3><p>The sun executes a small, tight circular orbit (a "wobble") within the disc's hole. For an observer, the sun appears to rise, travel across the sky, and set, creating a familiar day/night progression.</p><h3>Seasons</h3><p>The sun's wobble is slightly elliptical. When the sun is at the closest point in its orbit to a specific region of the disc, that area experiences summer. The opposite region simultaneously experiences winter.</p>`,
+                controls: `<p class="text-sm text-gray-400 text-center">Animation running...</p>`
+            },
+            twin: {
+                title: 'System 3: The Twin Suns',
+                description: `<p>This highly stable system uses redundancy and gravitational balance to its advantage.</p><h3>Gravity Solution</h3><p>Two smaller, identical suns are placed above and below the disc's center. They are gravitationally locked to each other, forming a stable binary pair with the disc world situated at their L1 Lagrange point. This makes the system passively stable.</p><h3>Day/Night Cycle</h3><p>The suns operate in an alternating cycle. While one sun is at full brightness (day), the other is dimmed to a low-power state (night).</p><h3>Seasons</h3><p>Each sun independently cycles its energy output. The "top" sun might be in its summer phase (brighter) while the "bottom" sun is in its winter phase (dimmer).</p>`,
+                controls: `<label class="control-label">Day/Night Control (Top/Bottom)</label><input type="range" id="twin-slider" class="slider" min="0" max="100" value="100"><label class="control-label mt-4">Seasonal Phase (Top Sun)</label><input type="range" id="twin-season-slider" class="slider" min="0" max="100" value="75">`
+            },
+            reflectors: {
+                title: 'System 4: Orbital Reflector Array',
+                description: `<p>This system uses no central sun. Instead, it relies on a distant host star and a synchronized array of massive orbital mirrors to illuminate the disc.</p><h3>Gravity Solution</h3><p>The disc's own artificial gravity (generated by internal density gradients) is the primary source of 'down'. The reflectors are in stable orbits, requiring minimal station-keeping.</p><h3>Day/Night Cycle</h3><p>The array of 12 mirrors rotates around the disc with a 24-hour period. As mirrors move into position to reflect starlight onto a region, it experiences 'day'. As they move out of alignment, 'night' falls.</p><h3>Seasons</h3><p>Seasons are controlled by subtly changing the angle of the mirrors. A steeper angle concentrates light for summer, while a shallower angle disperses it for winter.</p>`,
+                controls: `<label class="control-label">Mirror Angle (Season)</label><input type="range" id="reflector-slider" class="slider" min="-20" max="20" value="10"><p class="text-sm text-gray-400 text-center mt-4">Animation running...</p>`
+            },
+            microsun: {
+                title: 'System 5: Orbiting Microsun',
+                description: `<p>A single, compact artificial sun (a 'Microsun') orbits high above the disc, creating a moving spot of daylight.</p><h3>Gravity Solution</h3><p>This advanced model uses a central, non-visible singularity (a micro black hole) as a gravitational anchor. The disc's own mass distribution creates a complex gravitational field, and the Microsun occupies a stable Lagrange-point-like equilibrium, orbiting the center without falling.</p><h3>Day/Night Cycle</h3><p>The Microsun's 24-hour orbit creates a natural day/night cycle as the circle of daylight sweeps across the surface. This also produces realistic dawn and dusk terminator zones.</p><h3>Seasons</h3><p>The Microsun's orbit is not perfectly flat but has a slight inclination. This tilt is adjusted over a long cycle, moving the path of the sun 'north' or 'south' to create seasons for different regions of the disc.</p>`,
+                controls: `<p class="text-sm text-gray-400 text-center">Animation running...</p>`
+            },
+            pulsar: {
+                title: 'System 6: Pulsar Lighthouse',
+                description: `<p>The most exotic solution. A tiny, hyper-dense, rapidly rotating artificial pulsar sits at the disc's center. It emits two tightly focused beams of energy and light.</p><h3>Gravity Solution</h3><p>The artificial pulsar is held in place by immense magnetic fields generated by superconducting coils within the disc itself. Its mass is relatively small, so it doesn't pose a significant gravitational threat.</p><h3>Day/Night Cycle</h3><p>The "lighthouse" effect of the sweeping beams creates the day/night cycle. A region is plunged into intense daylight for the brief period the beam sweeps over it, followed by the darkness of night. The rotation speed determines the length of a 'day'.</p><h3>Seasons</h3><p>Seasons are managed by modulating the power of the beams. Higher energy output creates a hot 'summer', while lower output results in a cooler 'winter'.</p>`,
+                controls: `<label class="control-label">Rotation Speed</label><input type="range" id="pulsar-slider" class="slider" min="1" max="10" value="3"><label class="control-label mt-4">Beam Power (Season)</label><input type="range" id="pulsar-power-slider" class="slider" min="50" max="100" value="80">`
+            }
+        };
+
+        // --- Drawing Logic ---
+
+        function clearSVG() {
+            if (animationFrameId) cancelAnimationFrame(animationFrameId);
+            animationFrameId = null;
+            svg.innerHTML = '';
+        }
+
+        function drawBobbingSun() {
+            clearSVG();
+            const slider = document.getElementById('bobbing-slider');
+            const seasonSlider = document.getElementById('season-slider');
+            const disc = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+            disc.setAttribute('x', '100'); disc.setAttribute('y', '295'); disc.setAttribute('width', '600'); disc.setAttribute('height', '10'); disc.setAttribute('fill', '#4b5563'); disc.setAttribute('rx', '5');
+            svg.appendChild(disc);
+            const sun = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+            sun.setAttribute('cx', '400'); sun.setAttribute('r', '30');
+            svg.appendChild(sun);
+            const sunGlow = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+            sunGlow.setAttribute('cx', '400'); sunGlow.setAttribute('r', '45'); sunGlow.style.opacity = '0.3';
+            svg.insertBefore(sunGlow, sun);
+            const thrusters = [{ x1: 360, y1: 300, x2: 330, y2: 300 }, { x1: 440, y1: 300, x2: 470, y2: 300 }, { x1: 400, y1: 260, x2: 400, y2: 230 }, { x1: 400, y1: 340, x2: 400, y2: 370 }];
+            thrusters.forEach(t => {
+                const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+                line.setAttribute('stroke', '#6366f1'); line.setAttribute('stroke-width', '2'); line.setAttribute('stroke-dasharray', '4 4'); line.style.opacity = '0.6';
+                svg.appendChild(line);
+            });
+            function update() {
+                const bobValue = slider.value;
+                const seasonValue = seasonSlider.value / 100;
+                const yPos = 300 - bobValue;
+                sun.setAttribute('cy', yPos);
+                sunGlow.setAttribute('cy', yPos);
+                thrusters.forEach((t, i) => {
+                    const line = svg.querySelectorAll('line')[i];
+                    line.setAttribute('x1', 400 + (t.x1 - 400)); line.setAttribute('y1', yPos + (t.y1 - 300)); line.setAttribute('x2', 400 + (t.x2 - 400)); line.setAttribute('y2', yPos + (t.y2 - 300));
+                });
+                const b = Math.round(220 + (35 * (1 - seasonValue)));
+                const brightness = 0.8 + (0.2 * seasonValue);
+                const color = `rgba(255, 255, ${b}, ${brightness})`;
+                sun.setAttribute('fill', color);
+                sunGlow.setAttribute('fill', color);
+            }
+            slider.addEventListener('input', update);
+            seasonSlider.addEventListener('input', update);
+            update();
+        }
+
+        function drawWobblingSun() {
+            clearSVG();
+            const disc = document.createElementNS('http://www.w3.org/2000/svg', 'ellipse');
+            disc.setAttribute('cx', '400'); disc.setAttribute('cy', '300'); disc.setAttribute('rx', '350'); disc.setAttribute('ry', '100'); disc.setAttribute('fill', 'url(#discGradient)');
+            svg.appendChild(disc);
+            const hole = document.createElementNS('http://www.w3.org/2000/svg', 'ellipse');
+            hole.setAttribute('cx', '400'); hole.setAttribute('cy', '300'); hole.setAttribute('rx', '80'); hole.setAttribute('ry', '25'); hole.setAttribute('fill', '#111827');
+            svg.appendChild(hole);
+            const sun = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+            sun.setAttribute('r', '20'); sun.setAttribute('fill', 'rgba(255, 255, 220, 0.95)');
+            svg.appendChild(sun);
+            const sunGlow = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+            sunGlow.setAttribute('r', '30'); sunGlow.setAttribute('fill', 'rgba(255, 255, 220, 0.3)');
+            svg.appendChild(sunGlow);
+            const defs = document.createElementNS('http://www.w3.org/2000/svg', 'defs');
+            const gradient = document.createElementNS('http://www.w3.org/2000/svg', 'linearGradient');
+            gradient.id = 'discGradient'; gradient.setAttribute('x1', '0%'); gradient.setAttribute('y1', '0%'); gradient.setAttribute('x2', '100%'); gradient.setAttribute('y2', '0%');
+            const stop1 = document.createElementNS('http://www.w3.org/2000/svg', 'stop');
+            stop1.setAttribute('offset', '0%'); stop1.setAttribute('stop-color', '#a5b4fc');
+            const stop2 = document.createElementNS('http://www.w3.org/2000/svg', 'stop');
+            stop2.setAttribute('offset', '50%'); stop2.setAttribute('stop-color', '#4b5563');
+            const stop3 = document.createElementNS('http://www.w3.org/2000/svg', 'stop');
+            stop3.setAttribute('offset', '100%'); stop3.setAttribute('stop-color', '#1f2937');
+            gradient.appendChild(stop1); gradient.appendChild(stop2); gradient.appendChild(stop3);
+            defs.appendChild(gradient); svg.appendChild(defs);
+            let angle = 0;
+            function animate() {
+                angle += 0.01;
+                const seasonAngle = Math.sin(angle * 0.1) * 0.4 + 1.0;
+                const x = 400 + Math.cos(angle) * 60 * seasonAngle;
+                const y = 300 + Math.sin(angle) * 15;
+                sun.setAttribute('cx', x); sun.setAttribute('cy', y - 10);
+                sunGlow.setAttribute('cx', x); sunGlow.setAttribute('cy', y - 10);
+                if (Math.sin(angle) > 0) { svg.appendChild(sunGlow); svg.appendChild(sun); } 
+                else { svg.insertBefore(sunGlow, hole); svg.insertBefore(sun, hole); }
+                const lightPos = (x - 340) / 120;
+                stop1.setAttribute('offset', `${Math.max(0, lightPos - 0.5) * 100}%`);
+                stop2.setAttribute('offset', `${Math.max(0, Math.min(1, lightPos)) * 100}%`);
+                stop3.setAttribute('offset', `${Math.min(100, lightPos + 0.5) * 100}%`);
+                animationFrameId = requestAnimationFrame(animate);
+            }
+            animate();
+        }
+
+        function drawTwinSun() {
+            clearSVG();
+            const twinSlider = document.getElementById('twin-slider');
+            const seasonSlider = document.getElementById('twin-season-slider');
+            const disc = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+            disc.setAttribute('x', '100'); disc.setAttribute('y', '295'); disc.setAttribute('width', '600'); disc.setAttribute('height', '10'); disc.setAttribute('fill', '#4b5563'); disc.setAttribute('rx', '5');
+            svg.appendChild(disc);
+            const sunTop = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+            sunTop.setAttribute('cx', '400'); sunTop.setAttribute('cy', '150'); sunTop.setAttribute('r', '25');
+            svg.appendChild(sunTop);
+            const sunTopGlow = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+            sunTopGlow.setAttribute('cx', '400'); sunTopGlow.setAttribute('cy', '150'); sunTopGlow.setAttribute('r', '35');
+            svg.insertBefore(sunTopGlow, sunTop);
+            const sunBottom = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+            sunBottom.setAttribute('cx', '400'); sunBottom.setAttribute('cy', '450'); sunBottom.setAttribute('r', '25');
+            svg.appendChild(sunBottom);
+            const sunBottomGlow = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+            sunBottomGlow.setAttribute('cx', '400'); sunBottomGlow.setAttribute('cy', '450'); sunBottomGlow.setAttribute('r', '35');
+            svg.insertBefore(sunBottomGlow, sunBottom);
+            const gravityLine = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+            gravityLine.setAttribute('x1', '400'); gravityLine.setAttribute('y1', '150'); gravityLine.setAttribute('x2', '400'); gravityLine.setAttribute('y2', '450'); gravityLine.setAttribute('stroke', '#93c5fd'); gravityLine.setAttribute('stroke-width', '2'); gravityLine.setAttribute('stroke-dasharray', '5 5'); gravityLine.style.opacity = '0.5';
+            svg.insertBefore(gravityLine, sunTop);
+            function update() {
+                const dayNightValue = twinSlider.value / 100;
+                const seasonValue = seasonSlider.value / 100;
+                const topBrightness = dayNightValue;
+                const bottomBrightness = 1 - dayNightValue;
+                const topSeasonMod = 0.7 + 0.3 * seasonValue;
+                const bottomSeasonMod = 0.7 + 0.3 * (1 - seasonValue);
+                const topColor = `rgba(255, 255, 220, ${topBrightness * topSeasonMod})`;
+                const bottomColor = `rgba(255, 255, 220, ${bottomBrightness * bottomSeasonMod})`;
+                sunTop.setAttribute('fill', topColor); sunTopGlow.setAttribute('fill', topColor); sunTopGlow.style.opacity = 0.4 * topBrightness * topSeasonMod;
+                sunBottom.setAttribute('fill', bottomColor); sunBottomGlow.setAttribute('fill', bottomColor); sunBottomGlow.style.opacity = 0.4 * bottomBrightness * bottomSeasonMod;
+            }
+            twinSlider.addEventListener('input', update);
+            seasonSlider.addEventListener('input', update);
+            update();
+        }
+        
+        function drawReflectors() {
+            clearSVG();
+            const slider = document.getElementById('reflector-slider');
+            const disc = document.createElementNS('http://www.w3.org/2000/svg', 'ellipse');
+            disc.setAttribute('cx', '400'); disc.setAttribute('cy', '300'); disc.setAttribute('rx', '150'); disc.setAttribute('ry', '50'); disc.setAttribute('fill', '#4b5563');
+            svg.appendChild(disc);
+
+            const distantSun = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+            distantSun.setAttribute('cx', '50'); distantSun.setAttribute('cy', '50'); distantSun.setAttribute('r', '15'); distantSun.setAttribute('fill', 'rgba(255, 255, 240, 0.9)');
+            svg.appendChild(distantSun);
+
+            const mirrors = [];
+            for (let i = 0; i < 12; i++) {
+                const mirror = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+                mirror.setAttribute('width', '40');
+                mirror.setAttribute('height', '5');
+                mirror.setAttribute('fill', '#e5e7eb');
+                svg.appendChild(mirror);
+                mirrors.push(mirror);
+
+                const lightBeam = document.createElementNS('http://www.w3.org/2000/svg', 'polygon');
+                lightBeam.setAttribute('fill', 'rgba(255, 255, 220, 0.2)');
+                svg.appendChild(lightBeam);
+            }
+
+            let angleOffset = 0;
+            function animate() {
+                angleOffset += 0.005;
+                const seasonAngle = parseFloat(slider.value);
+
+                mirrors.forEach((mirror, i) => {
+                    const angle = (i / 12) * 2 * Math.PI + angleOffset;
+                    const x = 400 + Math.cos(angle) * 300;
+                    const y = 300 + Math.sin(angle) * 120;
+                    
+                    const angleToSun = Math.atan2(y - 50, x - 50);
+                    const mirrorAngle = angleToSun + Math.PI / 2 + (seasonAngle * Math.PI / 180);
+                    
+                    mirror.setAttribute('transform', `translate(${x}, ${y}) rotate(${mirrorAngle * 180 / Math.PI})`);
+
+                    const lightBeam = svg.querySelectorAll('polygon')[i];
+                    if (x > 250 && x < 550 && y < 300) {
+                        const mx1 = x - 20 * Math.cos(mirrorAngle);
+                        const my1 = y - 20 * Math.sin(mirrorAngle);
+                        const mx2 = x + 20 * Math.cos(mirrorAngle);
+                        const my2 = y + 20 * Math.sin(mirrorAngle);
+                        
+                        const targetAngle = Math.atan2(300-y, 400-x);
+                        const px1 = 400 + Math.cos(targetAngle - 0.1) * 150;
+                        const py1 = 300 + Math.sin(targetAngle - 0.1) * 50;
+                        const px2 = 400 + Math.cos(targetAngle + 0.1) * 150;
+                        const py2 = 300 + Math.sin(targetAngle + 0.1) * 50;
+
+                        lightBeam.setAttribute('points', `${mx1},${my1} ${mx2},${my2} ${px2},${py2} ${px1},${py1}`);
+                        lightBeam.style.display = 'block';
+                    } else {
+                        lightBeam.style.display = 'none';
+                    }
+                });
+
+                animationFrameId = requestAnimationFrame(animate);
+            }
+            slider.addEventListener('input', () => {}); // for immediate update on drag
+            animate();
+        }
+
+        function drawOrbitingMicrosun() {
+            clearSVG();
+            const disc = document.createElementNS('http://www.w3.org/2000/svg', 'ellipse');
+            disc.setAttribute('cx', '400'); disc.setAttribute('cy', '300'); disc.setAttribute('rx', '350'); disc.setAttribute('ry', '100'); disc.setAttribute('fill', '#374151');
+            svg.appendChild(disc);
+
+            const singularity = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+            singularity.setAttribute('cx', '400'); singularity.setAttribute('cy', '300'); singularity.setAttribute('r', '3'); singularity.setAttribute('fill', '#fbcfe8');
+            svg.appendChild(singularity);
+            
+            const orbitPath = document.createElementNS('http://www.w3.org/2000/svg', 'ellipse');
+            orbitPath.setAttribute('cx', '400'); orbitPath.setAttribute('cy', '300'); orbitPath.setAttribute('rx', '250'); orbitPath.setAttribute('ry', '75'); orbitPath.setAttribute('fill', 'none'); orbitPath.setAttribute('stroke', '#4f46e5'); orbitPath.setAttribute('stroke-dasharray', '5 5'); orbitPath.style.opacity = '0.5';
+            svg.appendChild(orbitPath);
+
+            const microsun = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+            microsun.setAttribute('r', '15'); microsun.setAttribute('fill', 'rgba(255, 255, 200, 1)');
+            svg.appendChild(microsun);
+            
+            const daylight = document.createElementNS('http://www.w3.org/2000/svg', 'ellipse');
+            daylight.setAttribute('rx', '80'); daylight.setAttribute('ry', '40'); daylight.setAttribute('fill', 'rgba(255, 255, 220, 0.25)');
+            daylight.style.filter = 'blur(10px)';
+            svg.appendChild(daylight);
+
+            let angle = 0;
+            function animate() {
+                angle += 0.01;
+                const x = 400 + Math.cos(angle) * 250;
+                const y = 300 + Math.sin(angle) * 75;
+                
+                microsun.setAttribute('cx', x); microsun.setAttribute('cy', y);
+                daylight.setAttribute('cx', x); daylight.setAttribute('cy', y);
+                
+                if (Math.sin(angle) > 0) {
+                    svg.appendChild(daylight); svg.appendChild(microsun);
+                } else {
+                    svg.insertBefore(daylight, singularity); svg.insertBefore(microsun, singularity);
+                }
+
+                animationFrameId = requestAnimationFrame(animate);
+            }
+            animate();
+        }
+
+        function drawPulsar() {
+            clearSVG();
+            const speedSlider = document.getElementById('pulsar-slider');
+            const powerSlider = document.getElementById('pulsar-power-slider');
+            
+            const disc = document.createElementNS('http://www.w3.org/2000/svg', 'ellipse');
+            disc.setAttribute('cx', '400'); disc.setAttribute('cy', '300'); disc.setAttribute('rx', '380'); disc.setAttribute('ry', '120'); disc.setAttribute('fill', '#1f2937');
+            svg.appendChild(disc);
+            
+            const pulsarCore = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+            pulsarCore.setAttribute('cx', '400'); pulsarCore.setAttribute('cy', '300'); pulsarCore.setAttribute('r', '10'); pulsarCore.setAttribute('fill', 'white');
+            svg.appendChild(pulsarCore);
+
+            const beam1 = document.createElementNS('http://www.w3.org/2000/svg', 'polygon');
+            beam1.setAttribute('class', 'pulsar-beam');
+            svg.appendChild(beam1);
+
+            const beam2 = document.createElementNS('http://www.w3.org/2000/svg', 'polygon');
+            beam2.setAttribute('class', 'pulsar-beam');
+            svg.appendChild(beam2);
+
+            let angle = 0;
+            function animate() {
+                const speed = speedSlider.value / 100;
+                const power = powerSlider.value / 100;
+                angle += speed;
+
+                const beamWidth = 0.2;
+                const beamLength = 500;
+                
+                const p1x = 400 + beamLength * Math.cos(angle);
+                const p1y = 300 + beamLength * Math.sin(angle);
+                const p2x = 400 + beamLength * Math.cos(angle + beamWidth);
+                const p2y = 300 + beamLength * Math.sin(angle + beamWidth);
+                beam1.setAttribute('points', `400,300 ${p1x},${p1y} ${p2x},${p2y}`);
+                beam1.setAttribute('fill', `rgba(191, 219, 254, ${power * 0.7})`);
+
+                const p3x = 400 + beamLength * Math.cos(angle + Math.PI);
+                const p3y = 300 + beamLength * Math.sin(angle + Math.PI);
+                const p4x = 400 + beamLength * Math.cos(angle + Math.PI + beamWidth);
+                const p4y = 300 + beamLength * Math.sin(angle + Math.PI + beamWidth);
+                beam2.setAttribute('points', `400,300 ${p3x},${p3y} ${p4x},${p4y}`);
+                beam2.setAttribute('fill', `rgba(191, 219, 254, ${power * 0.7})`);
+                
+                animationFrameId = requestAnimationFrame(animate);
+            }
+            speedSlider.addEventListener('input', ()=>{});
+            powerSlider.addEventListener('input', ()=>{});
+            animate();
+        }
+
+        // --- Event Handling & Initialization ---
+        function setActiveSystem(systemName) {
+            clearSVG();
+            activeSystem = systemName;
+            
+            for (const key in buttons) {
+                buttons[key].classList.remove('active');
+            }
+            buttons[systemName].classList.add('active');
+
+            const systemData = systems[systemName];
+            infoPanel.innerHTML = `<div class="info-box"><h3>${systemData.title}</h3>${systemData.description}<div class="mt-6">${systemData.controls}</div></div>`;
+
+            const drawFunctions = {
+                bobbing: drawBobbingSun,
+                wobbling: drawWobblingSun,
+                twin: drawTwinSun,
+                reflectors: drawReflectors,
+                microsun: drawOrbitingMicrosun,
+                pulsar: drawPulsar
+            };
+            if (drawFunctions[systemName]) {
+                drawFunctions[systemName]();
+            }
+        }
+
+        for (const key in buttons) {
+            buttons[key].addEventListener('click', () => setActiveSystem(key));
+        }
+
+        // Initial load
+        setActiveSystem('bobbing');
+    </script>
+</body>
+</html>

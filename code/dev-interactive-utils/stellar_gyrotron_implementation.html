@@ -1,0 +1,615 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Stellar Gyrotron - Eryxian Hyperstructure</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            overscroll-behavior: none;
+        }
+        .physics-panel {
+            background: rgba(17, 24, 39, 0.95);
+            backdrop-filter: blur(10px);
+        }
+        .warning-glow {
+            box-shadow: 0 0 20px rgba(239, 68, 68, 0.3);
+        }
+        .energy-beam {
+            mix-blend-mode: screen;
+            filter: blur(2px);
+        }
+        .trajectory-path {
+            stroke-dasharray: 5,5;
+            stroke-dashoffset: 0;
+            animation: dash 2s linear infinite;
+        }
+        @keyframes dash {
+            to { stroke-dashoffset: -10; }
+        }
+        .relativistic-warning {
+            background: linear-gradient(45deg, #dc2626, #f59e0b);
+            color: white;
+            padding: 8px 16px;
+            border-radius: 8px;
+            font-weight: 600;
+            text-shadow: 0 1px 2px rgba(0,0,0,0.5);
+        }
+    </style>
+</head>
+<body class="bg-gray-900 text-gray-200">
+    <div class="min-h-screen flex flex-col">
+        <!-- Header -->
+        <header class="bg-gray-800 p-6 border-b border-gray-700">
+            <div class="max-w-7xl mx-auto">
+                <h1 class="text-3xl font-bold text-white mb-2">Stellar Gyrotron</h1>
+                <p class="text-gray-400">Relativistic Orbital Accelerator • Archaeological Reconstruction</p>
+                <div class="flex items-center gap-4 mt-4">
+                    <span class="px-3 py-1 bg-red-900 text-red-200 rounded-full text-sm">
+                        Threat Level: 9/10
+                    </span>
+                    <span class="px-3 py-1 bg-purple-900 text-purple-200 rounded-full text-sm">
+                        Class III Hyperstructure
+                    </span>
+                    <span class="px-3 py-1 bg-blue-900 text-blue-200 rounded-full text-sm">
+                        Archaeological Evidence: SG-1, SG-2, SG-3
+                    </span>
+                </div>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <div class="flex-1 flex">
+            <!-- Control Panel -->
+            <div class="w-80 bg-gray-800 p-6 border-r border-gray-700 overflow-y-auto">
+                <div class="space-y-6">
+                    <!-- Injection Parameters -->
+                    <div class="bg-gray-900 rounded-lg p-4">
+                        <h3 class="text-lg font-semibold mb-4 text-blue-300">Injection Parameters</h3>
+                        
+                        <div class="space-y-4">
+                            <div>
+                                <label class="block text-sm font-medium mb-2">Initial Velocity (km/s)</label>
+                                <input type="range" id="initial-velocity" min="100" max="10000" value="1000" 
+                                       class="w-full h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer">
+                                <div class="flex justify-between text-xs text-gray-400 mt-1">
+                                    <span>100</span>
+                                    <span id="velocity-display">1000</span>
+                                    <span>10,000</span>
+                                </div>
+                            </div>
+
+                            <div>
+                                <label class="block text-sm font-medium mb-2">Spacecraft Mass (tons)</label>
+                                <input type="range" id="spacecraft-mass" min="100" max="100000" value="10000" 
+                                       class="w-full h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer">
+                                <div class="flex justify-between text-xs text-gray-400 mt-1">
+                                    <span>100</span>
+                                    <span id="mass-display">10,000</span>
+                                    <span>100,000</span>
+                                </div>
+                            </div>
+
+                            <div>
+                                <label class="block text-sm font-medium mb-2">Orbital Radius (AU)</label>
+                                <input type="range" id="orbital-radius" min="1" max="50" value="10" 
+                                       class="w-full h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer">
+                                <div class="flex justify-between text-xs text-gray-400 mt-1">
+                                    <span>1</span>
+                                    <span id="radius-display">10</span>
+                                    <span>50</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Electromagnetic Field -->
+                    <div class="bg-gray-900 rounded-lg p-4">
+                        <h3 class="text-lg font-semibold mb-4 text-green-300">Electromagnetic Field</h3>
+                        
+                        <div class="space-y-4">
+                            <div>
+                                <label class="block text-sm font-medium mb-2">Field Strength (Tesla)</label>
+                                <input type="range" id="field-strength" min="0.1" max="10" value="1" step="0.1"
+                                       class="w-full h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer">
+                                <div class="flex justify-between text-xs text-gray-400 mt-1">
+                                    <span>0.1</span>
+                                    <span id="field-display">1.0</span>
+                                    <span>10.0</span>
+                                </div>
+                            </div>
+
+                            <div>
+                                <label class="block text-sm font-medium mb-2">Acceleration Segments</label>
+                                <input type="range" id="segments" min="4" max="32" value="12" 
+                                       class="w-full h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer">
+                                <div class="flex justify-between text-xs text-gray-400 mt-1">
+                                    <span>4</span>
+                                    <span id="segments-display">12</span>
+                                    <span>32</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Physics Display -->
+                    <div class="bg-gray-900 rounded-lg p-4">
+                        <h3 class="text-lg font-semibold mb-4 text-yellow-300">Physics Calculations</h3>
+                        
+                        <div class="space-y-3 text-sm">
+                            <div class="flex justify-between">
+                                <span>Final Velocity:</span>
+                                <span id="final-velocity" class="font-mono">0.15c</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span>Lorentz Factor:</span>
+                                <span id="lorentz-factor" class="font-mono">1.01</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span>Kinetic Energy:</span>
+                                <span id="kinetic-energy" class="font-mono">1.2×10²⁰ J</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span>Acceleration Time:</span>
+                                <span id="acceleration-time" class="font-mono">2.3 years</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span>Orbital Period:</span>
+                                <span id="orbital-period" class="font-mono">31.6 years</span>
+                            </div>
+                        </div>
+
+                        <div id="relativistic-warning" class="mt-4 hidden">
+                            <div class="relativistic-warning">
+                                ⚠️ Relativistic Effects Active
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- GM Tools -->
+                    <div class="bg-gray-900 rounded-lg p-4">
+                        <h3 class="text-lg font-semibold mb-4 text-purple-300">GM Tools</h3>
+                        
+                        <div class="space-y-3">
+                            <button id="generate-scenario" class="w-full bg-purple-600 hover:bg-purple-700 text-white py-2 px-4 rounded-lg transition-colors">
+                                Generate Scenario
+                            </button>
+                            <button id="threat-assessment" class="w-full bg-red-600 hover:bg-red-700 text-white py-2 px-4 rounded-lg transition-colors">
+                                Threat Assessment
+                            </button>
+                            <button id="archaeological-evidence" class="w-full bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded-lg transition-colors">
+                                Archaeological Evidence
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Visualization Area -->
+            <div class="flex-1 flex flex-col">
+                <!-- Simulation Display -->
+                <div class="flex-1 bg-gray-900 relative overflow-hidden">
+                    <svg id="gyrotron-svg" class="w-full h-full" viewBox="0 0 1200 800">
+                        <!-- Background Grid -->
+                        <defs>
+                            <pattern id="grid" width="50" height="50" patternUnits="userSpaceOnUse">
+                                <path d="M 50 0 L 0 0 0 50" fill="none" stroke="#374151" stroke-width="1"/>
+                            </pattern>
+                            <radialGradient id="starGradient" cx="50%" cy="50%" r="50%">
+                                <stop offset="0%" style="stop-color:#FFF3CD;stop-opacity:1" />
+                                <stop offset="70%" style="stop-color:#FFE066;stop-opacity:0.8" />
+                                <stop offset="100%" style="stop-color:#FFD700;stop-opacity:0.3" />
+                            </radialGradient>
+                            <radialGradient id="spacecraftGradient" cx="50%" cy="50%" r="50%">
+                                <stop offset="0%" style="stop-color:#60A5FA;stop-opacity:1" />
+                                <stop offset="100%" style="stop-color:#1E40AF;stop-opacity:0.8" />
+                            </radialGradient>
+                        </defs>
+                        
+                        <rect width="100%" height="100%" fill="url(#grid)" opacity="0.3"/>
+                        
+                        <!-- Star -->
+                        <circle id="central-star" cx="600" cy="400" r="30" fill="url(#starGradient)"/>
+                        
+                        <!-- Orbital Path -->
+                        <ellipse id="orbital-path" cx="600" cy="400" rx="200" ry="200" 
+                                 fill="none" stroke="#4F46E5" stroke-width="2" stroke-dasharray="5,5" opacity="0.5"/>
+                        
+                        <!-- Stator Ring Segments -->
+                        <g id="stator-ring"></g>
+                        
+                        <!-- Rotor Arms -->
+                        <g id="rotor-arms"></g>
+                        
+                        <!-- Spacecraft -->
+                        <circle id="spacecraft" cx="800" cy="400" r="8" fill="url(#spacecraftGradient)"/>
+                        
+                        <!-- Trajectory Trail -->
+                        <path id="trajectory-trail" fill="none" stroke="#60A5FA" stroke-width="2" opacity="0.7"/>
+                        
+                        <!-- Energy Beams -->
+                        <g id="energy-beams"></g>
+                        
+                        <!-- Labels -->
+                        <g id="labels" class="text-xs fill-gray-300">
+                            <text x="600" y="380" text-anchor="middle" font-weight="bold">Central Star</text>
+                            <text x="600" y="280" text-anchor="middle">Stator Ring</text>
+                        </g>
+                    </svg>
+                </div>
+
+                <!-- Status Bar -->
+                <div class="bg-gray-800 p-4 border-t border-gray-700">
+                    <div class="flex justify-between items-center">
+                        <div class="flex items-center gap-6">
+                            <div class="text-sm">
+                                <span class="text-gray-400">Status:</span>
+                                <span id="system-status" class="text-green-400 font-medium">Operational</span>
+                            </div>
+                            <div class="text-sm">
+                                <span class="text-gray-400">Orbits Completed:</span>
+                                <span id="orbits-completed" class="text-blue-400 font-medium">0</span>
+                            </div>
+                            <div class="text-sm">
+                                <span class="text-gray-400">Current Velocity:</span>
+                                <span id="current-velocity" class="text-yellow-400 font-medium">1000 km/s</span>
+                            </div>
+                        </div>
+                        <div class="flex gap-2">
+                            <button id="start-simulation" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg">
+                                Start Simulation
+                            </button>
+                            <button id="reset-simulation" class="bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded-lg">
+                                Reset
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Info Modal -->
+        <div id="info-modal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50">
+            <div class="bg-gray-800 rounded-lg p-6 max-w-2xl max-h-[80vh] overflow-y-auto">
+                <div class="flex justify-between items-center mb-4">
+                    <h3 id="modal-title" class="text-xl font-bold text-white"></h3>
+                    <button id="close-modal" class="text-gray-400 hover:text-white">✕</button>
+                </div>
+                <div id="modal-content" class="text-gray-300"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Physics Constants
+        const PHYSICS = {
+            G: 6.67430e-11,      // Gravitational constant
+            c: 299792458,        // Speed of light (m/s)
+            AU: 1.496e11,        // Astronomical unit (m)
+            SOLAR_MASS: 1.989e30 // Solar mass (kg)
+        };
+
+        // Simulation State
+        let simulation = {
+            running: false,
+            time: 0,
+            angle: 0,
+            velocity: 1000000, // m/s
+            orbits: 0,
+            particles: []
+        };
+
+        // DOM Elements
+        const elements = {
+            initialVelocity: document.getElementById('initial-velocity'),
+            spacecraftMass: document.getElementById('spacecraft-mass'),
+            orbitalRadius: document.getElementById('orbital-radius'),
+            fieldStrength: document.getElementById('field-strength'),
+            segments: document.getElementById('segments'),
+            
+            velocityDisplay: document.getElementById('velocity-display'),
+            massDisplay: document.getElementById('mass-display'),
+            radiusDisplay: document.getElementById('radius-display'),
+            fieldDisplay: document.getElementById('field-display'),
+            segmentsDisplay: document.getElementById('segments-display'),
+            
+            finalVelocity: document.getElementById('final-velocity'),
+            lorentzFactor: document.getElementById('lorentz-factor'),
+            kineticEnergy: document.getElementById('kinetic-energy'),
+            accelerationTime: document.getElementById('acceleration-time'),
+            orbitalPeriod: document.getElementById('orbital-period'),
+            
+            relativisticWarning: document.getElementById('relativistic-warning'),
+            currentVelocity: document.getElementById('current-velocity'),
+            systemStatus: document.getElementById('system-status'),
+            orbitsCompleted: document.getElementById('orbits-completed'),
+            
+            svg: document.getElementById('gyrotron-svg'),
+            spacecraft: document.getElementById('spacecraft'),
+            orbitalPath: document.getElementById('orbital-path'),
+            trajectoryTrail: document.getElementById('trajectory-trail'),
+            
+            startButton: document.getElementById('start-simulation'),
+            resetButton: document.getElementById('reset-simulation'),
+            
+            modal: document.getElementById('info-modal'),
+            modalTitle: document.getElementById('modal-title'),
+            modalContent: document.getElementById('modal-content'),
+            closeModal: document.getElementById('close-modal')
+        };
+
+        // Physics Calculations
+        class StellarGyrotronPhysics {
+            static calculateOrbitalVelocity(radius, stellarMass) {
+                return Math.sqrt(PHYSICS.G * stellarMass / radius);
+            }
+
+            static calculateLorentzFactor(velocity) {
+                const beta = velocity / PHYSICS.c;
+                return 1 / Math.sqrt(1 - beta * beta);
+            }
+
+            static calculateRelativisticKineticEnergy(mass, velocity) {
+                const gamma = this.calculateLorentzFactor(velocity);
+                return (gamma - 1) * mass * PHYSICS.c * PHYSICS.c;
+            }
+
+            static calculateAccelerationTime(finalVelocity, initialVelocity, segments) {
+                // Simplified model: assumes constant acceleration per segment
+                const deltaV = finalVelocity - initialVelocity;
+                const accelerationPerSegment = deltaV / segments;
+                // Assuming 1 acceleration per orbit, and multiple orbits needed
+                const orbitsNeeded = segments;
+                const orbitalPeriod = this.calculateOrbitalPeriod(10 * PHYSICS.AU, PHYSICS.SOLAR_MASS);
+                return orbitsNeeded * orbitalPeriod / (365.25 * 24 * 3600); // Convert to years
+            }
+
+            static calculateOrbitalPeriod(radius, stellarMass) {
+                return 2 * Math.PI * Math.sqrt(radius * radius * radius / (PHYSICS.G * stellarMass));
+            }
+        }
+
+        // Update displays
+        function updateDisplays() {
+            const initialVel = parseFloat(elements.initialVelocity.value);
+            const mass = parseFloat(elements.spacecraftMass.value) * 1000; // Convert to kg
+            const radius = parseFloat(elements.orbitalRadius.value);
+            const fieldStrength = parseFloat(elements.fieldStrength.value);
+            const segments = parseInt(elements.segments.value);
+
+            // Update input displays
+            elements.velocityDisplay.textContent = initialVel.toLocaleString();
+            elements.massDisplay.textContent = (mass/1000).toLocaleString();
+            elements.radiusDisplay.textContent = radius;
+            elements.fieldDisplay.textContent = fieldStrength.toFixed(1);
+            elements.segmentsDisplay.textContent = segments;
+
+            // Calculate final velocity (simplified model)
+            const energyPerSegment = 0.5 * mass * (initialVel * 1000) * (initialVel * 1000) * 0.1; // 10% increase per segment
+            const finalVel = initialVel * 1000 * Math.sqrt(1 + segments * 0.1);
+            
+            const lorentzFactor = StellarGyrotronPhysics.calculateLorentzFactor(finalVel);
+            const kineticEnergy = StellarGyrotronPhysics.calculateRelativisticKineticEnergy(mass, finalVel);
+            const accelerationTime = StellarGyrotronPhysics.calculateAccelerationTime(finalVel, initialVel * 1000, segments);
+            const orbitalPeriod = StellarGyrotronPhysics.calculateOrbitalPeriod(radius * PHYSICS.AU, PHYSICS.SOLAR_MASS);
+
+            // Update physics displays
+            elements.finalVelocity.textContent = (finalVel / PHYSICS.c).toFixed(3) + 'c';
+            elements.lorentzFactor.textContent = lorentzFactor.toFixed(2);
+            elements.kineticEnergy.textContent = kineticEnergy.toExponential(2) + ' J';
+            elements.accelerationTime.textContent = accelerationTime.toFixed(1) + ' years';
+            elements.orbitalPeriod.textContent = (orbitalPeriod / (365.25 * 24 * 3600)).toFixed(1) + ' years';
+
+            // Show relativistic warning if needed
+            if (finalVel / PHYSICS.c > 0.1) {
+                elements.relativisticWarning.classList.remove('hidden');
+            } else {
+                elements.relativisticWarning.classList.add('hidden');
+            }
+
+            // Update visualization
+            updateVisualization();
+        }
+
+        // Update visualization
+        function updateVisualization() {
+            const radius = parseFloat(elements.orbitalRadius.value);
+            const segments = parseInt(elements.segments.value);
+            
+            // Update orbital path
+            const pathRadius = 100 + radius * 10;
+            elements.orbitalPath.setAttribute('rx', pathRadius);
+            elements.orbitalPath.setAttribute('ry', pathRadius);
+
+            // Update stator ring segments
+            const statorRing = document.getElementById('stator-ring');
+            statorRing.innerHTML = '';
+            
+            for (let i = 0; i < segments; i++) {
+                const angle = (i / segments) * 2 * Math.PI;
+                const x = 600 + Math.cos(angle) * (pathRadius + 50);
+                const y = 400 + Math.sin(angle) * (pathRadius + 50);
+                
+                const segment = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+                segment.setAttribute('x', x - 15);
+                segment.setAttribute('y', y - 5);
+                segment.setAttribute('width', 30);
+                segment.setAttribute('height', 10);
+                segment.setAttribute('fill', '#6366F1');
+                segment.setAttribute('rx', 2);
+                segment.setAttribute('transform', `rotate(${angle * 180 / Math.PI} ${x} ${y})`);
+                
+                statorRing.appendChild(segment);
+            }
+
+            // Update rotor arms (simplified - just show a few)
+            const rotorArms = document.getElementById('rotor-arms');
+            rotorArms.innerHTML = '';
+            
+            for (let i = 0; i < 4; i++) {
+                const angle = (i / 4) * 2 * Math.PI + simulation.time * 0.1;
+                const x = 600 + Math.cos(angle) * (pathRadius - 30);
+                const y = 400 + Math.sin(angle) * (pathRadius - 30);
+                
+                const arm = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+                arm.setAttribute('cx', x);
+                arm.setAttribute('cy', y);
+                arm.setAttribute('r', 8);
+                arm.setAttribute('fill', '#10B981');
+                arm.setAttribute('opacity', '0.7');
+                
+                rotorArms.appendChild(arm);
+            }
+        }
+
+        // Animation loop
+        function animate() {
+            if (simulation.running) {
+                simulation.time += 0.02;
+                simulation.angle += 0.05;
+                
+                // Update spacecraft position
+                const radius = 100 + parseFloat(elements.orbitalRadius.value) * 10;
+                const x = 600 + Math.cos(simulation.angle) * radius;
+                const y = 400 + Math.sin(simulation.angle) * radius;
+                
+                elements.spacecraft.setAttribute('cx', x);
+                elements.spacecraft.setAttribute('cy', y);
+                
+                // Update current velocity display
+                const progress = (simulation.time % 10) / 10;
+                const currentVel = 1000 + progress * 9000;
+                elements.currentVelocity.textContent = Math.round(currentVel).toLocaleString() + ' km/s';
+                
+                // Update orbits counter
+                const orbits = Math.floor(simulation.time / 6.28);
+                elements.orbitsCompleted.textContent = orbits;
+                
+                // Update visualization
+                updateVisualization();
+            }
+            
+            requestAnimationFrame(animate);
+        }
+
+        // GM Tools
+        const gmTools = {
+            scenarios: [
+                {
+                    title: "Dormant Discovery",
+                    content: "The party's ship detects massive gravitational anomalies in an 'empty' system. Investigation reveals the cold, dark remains of a Stellar Gyrotron's stator ring. The central star is missing - launched eons ago to an unknown destination. What secrets lie in the abandoned control systems?"
+                },
+                {
+                    title: "Active Threat",
+                    content: "Long-range sensors detect a rogue star moving at 0.3c toward populated space. It's not a star - it's a payload from an ancient Stellar Gyrotron, and it will arrive in 200 years. The party must find the original launch facility and determine if the trajectory can be altered."
+                },
+                {
+                    title: "Reactivation Protocol",
+                    content: "Corporate archaeologists have partially reactivated a Stellar Gyrotron. They're using it to launch mining operations to distant galaxies, but the gravitational stresses are destabilizing nearby inhabited systems. The party must choose between stopping the operation or evacuating billions."
+                }
+            ],
+            
+            threats: [
+                {
+                    title: "Gravitational Disruption",
+                    content: "Active Gyrotrons create massive gravitational waves that can destabilize planetary orbits within 50 light-years. Inhabited worlds may experience climate chaos, tidal disasters, or orbital decay."
+                },
+                {
+                    title: "Relativistic Payload",
+                    content: "Objects accelerated to >0.1c become relativistic kinetic weapons. Even a small asteroid at such speeds could sterilize a planet or shatter a moon. The energy release would be equivalent to thousands of fusion bombs."
+                },
+                {
+                    title: "Automated Defenses",
+                    content: "Ancient Gyrotrons may have active defense systems designed to protect against interference. These could include particle beam weapons, gravity wave emitters, or swarms of hunter-killer drones programmed to eliminate 'unauthorized' vessels."
+                }
+            ],
+            
+            evidence: [
+                {
+                    title: "Orbital Anomalies",
+                    content: "Kuiper Belt objects in unnatural resonances. Comets with trajectories that trace back to empty space. Asteroid clusters showing signs of having been subjected to intense electromagnetic radiation - the fossil evidence of ancient particle beams."
+                },
+                {
+                    title: "Exotic Materials",
+                    content: "Fragments of room-temperature superconductors, materials with impossible isotope ratios, and crystalline structures that could only form under extreme magnetic fields. These materials show atomic-level precision in their construction."
+                },
+                {
+                    title: "Gravitational Echoes",
+                    content: "Sensitive gravitational wave detectors can map the 'scars' left in spacetime by ancient Gyrotron operations. These signatures persist for millions of years, creating a fossilized record of the device's activity."
+                }
+            ]
+        };
+
+        function showModal(title, content) {
+            elements.modalTitle.textContent = title;
+            elements.modalContent.innerHTML = content;
+            elements.modal.classList.remove('hidden');
+            elements.modal.classList.add('flex');
+        }
+
+        function hideModal() {
+            elements.modal.classList.add('hidden');
+            elements.modal.classList.remove('flex');
+        }
+
+        // Event Listeners
+        elements.initialVelocity.addEventListener('input', updateDisplays);
+        elements.spacecraftMass.addEventListener('input', updateDisplays);
+        elements.orbitalRadius.addEventListener('input', updateDisplays);
+        elements.fieldStrength.addEventListener('input', updateDisplays);
+        elements.segments.addEventListener('input', updateDisplays);
+
+        elements.startButton.addEventListener('click', () => {
+            simulation.running = !simulation.running;
+            elements.startButton.textContent = simulation.running ? 'Stop Simulation' : 'Start Simulation';
+            elements.startButton.className = simulation.running ? 
+                'bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg' :
+                'bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg';
+            elements.systemStatus.textContent = simulation.running ? 'Active' : 'Standby';
+            elements.systemStatus.className = simulation.running ? 'text-red-400 font-medium' : 'text-green-400 font-medium';
+        });
+
+        elements.resetButton.addEventListener('click', () => {
+            simulation.running = false;
+            simulation.time = 0;
+            simulation.angle = 0;
+            simulation.orbits = 0;
+            elements.startButton.textContent = 'Start Simulation';
+            elements.startButton.className = 'bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg';
+            elements.systemStatus.textContent = 'Standby';
+            elements.systemStatus.className = 'text-green-400 font-medium';
+            elements.orbitsCompleted.textContent = '0';
+            elements.currentVelocity.textContent = '1000 km/s';
+            updateDisplays();
+        });
+
+        // GM Tool Events
+        document.getElementById('generate-scenario').addEventListener('click', () => {
+            const scenario = gmTools.scenarios[Math.floor(Math.random() * gmTools.scenarios.length)];
+            showModal(scenario.title, `<p>${scenario.content}</p>`);
+        });
+
+        document.getElementById('threat-assessment').addEventListener('click', () => {
+            const threat = gmTools.threats[Math.floor(Math.random() * gmTools.threats.length)];
+            showModal(threat.title, `<p>${threat.content}</p>`);
+        });
+
+        document.getElementById('archaeological-evidence').addEventListener('click', () => {
+            const evidence = gmTools.evidence[Math.floor(Math.random() * gmTools.evidence.length)];
+            showModal(evidence.title, `<p>${evidence.content}</p>`);
+        });
+
+        elements.closeModal.addEventListener('click', hideModal);
+        elements.modal.addEventListener('click', (e) => {
+            if (e.target === elements.modal) hideModal();
+        });
+
+        // Initialize
+        updateDisplays();
+        animate();
+    </script>
+</body>
+</html>
