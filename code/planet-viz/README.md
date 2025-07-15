@@ -18,14 +18,14 @@ This project leverages simple procedural generation and custom shaders to provid
 #### Atmospherics & Effects
 - **Dynamic Atmosphere**: A volumetric-style atmosphere with a realistic glow that reacts to the sun's position.
 - **Procedural Clouds**: A moving, distorting cloud layer with simulated weather systems.
-- **Concentric Planetary Rings**: A customizable ring system featuring:
+- **Concentric Planetary Rings**: A customizable ring system featuring (needs improvements):
     - Realistic concentric stripes and gaps (like the Cassini Division).
     - Adjustable particle density and ring width.
     - Accurate shadows cast by the planet onto the rings.
 
 #### Orbital Systems
 - **Moons**: Add up to 8 moons with randomized orbits.
-- **Space Traffic**: Simulate orbital traffic with hundreds of small, moving particles.
+- **Space Traffic**: Simulate orbital traffic with hundreds of small, moving particles. (from v5+)
 - **Trajectory Visualization**: Toggleable orbital paths for all moons.
 
 #### Advanced Controls & Visualization
