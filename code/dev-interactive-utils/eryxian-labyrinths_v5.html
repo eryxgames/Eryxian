@@ -1,0 +1,498 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Eryxian Labyrinth Research Interface v5.0</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; overscroll-behavior: none; background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%); }
+        .glass-effect { background: rgba(31, 41, 55, 0.7); backdrop-filter: blur(12px); border: 1px solid rgba(75, 85, 99, 0.3); }
+        .main-tab { transition: all 0.3s ease; border-bottom: 2px solid transparent; }
+        .main-tab.active { border-bottom-color: #818cf8; color: #e0e7ff; text-shadow: 0 0 8px rgba(129, 140, 248, 0.5); }
+        .info-box h3 { font-size: 1.25rem; font-weight: 600; margin-bottom: 0.75rem; color: #c7d2fe; border-bottom: 1px solid #4a5568; padding-bottom: 0.5rem; text-shadow: 0 0 10px rgba(199, 210, 254, 0.3); }
+        .info-box h4 { font-size: 0.875rem; font-weight: 700; color: #a5b4fc; margin-top: 1rem; margin-bottom: 0.25rem; }
+        .info-box p, .info-box li { font-size: 0.875rem; line-height: 1.6; }
+        .info-box ul { list-style-type: '› '; padding-left: 1rem; margin-bottom: 1rem; }
+        .schematic-btn { transition: all 0.3s ease; background-color: rgba(75, 85, 99, 0.3); }
+        .schematic-btn:hover { background-color: rgba(99, 102, 241, 0.3); }
+        .schematic-btn.active { background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%); color: white; box-shadow: 0 8px 15px -8px rgba(79, 70, 229, 0.5); transform: translateY(-1px); }
+        .gm-output, .simulation-window { background: rgba(17, 24, 39, 0.8); backdrop-filter: blur(8px); border: 1px solid rgba(55, 65, 81, 0.5); transition: all 0.3s ease; }
+        .btn-primary { background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%); transition: all 0.3s ease; box-shadow: 0 4px 12px rgba(79, 70, 229, 0.4); }
+        .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(79, 70, 229, 0.6); }
+        .btn-secondary { background-color: rgba(75, 85, 99, 0.4); border: 1px solid rgba(129, 140, 248, 0.3); transition: all 0.3s ease; }
+        .btn-secondary:hover { background-color: rgba(99, 102, 241, 0.3); }
+        .threat-indicator { border-left: 4px solid; padding: 0.5rem 1rem; margin-top: 1rem; border-radius: 0 0.375rem 0.375rem 0; }
+        .threat-low { border-color: #10b981; background: rgba(16, 185, 129, 0.1); }
+        .threat-medium { border-color: #f59e0b; background: rgba(245, 158, 11, 0.1); }
+        .threat-high { border-color: #ef4444; background: rgba(239, 68, 68, 0.1); }
+        .threat-extreme { border-color: #dc2626; background: rgba(220, 38, 38, 0.15); box-shadow: 0 0 20px rgba(220, 38, 38, 0.2); }
+        .physics-warning { background: linear-gradient(45deg, #dc2626, #f59e0b); color: white; padding: 2px 8px; border-radius: 9999px; font-size: 0.7rem; font-weight: 600; text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5); animation: glow 2s ease-in-out infinite alternate; display: inline-block; }
+        @keyframes glow { from { box-shadow: 0 0 5px rgba(220, 38, 38, 0.5); } to { box-shadow: 0 0 15px rgba(220, 38, 38, 0.8); } }
+        .custom-select, .custom-checkbox { background-color: rgba(31, 41, 55, 0.8); border: 1px solid #4a5568; }
+        .sim-log { font-family: 'Courier New', Courier, monospace; white-space: pre-wrap; word-wrap: break-word; }
+        .sim-log p { margin-bottom: 0.5rem; }
+        .log-time { color: #6ee7b7; } .log-alert { color: #f87171; font-weight: bold; } .log-action { color: #facc15; } .log-info { color: #93c5fd; } .log-system { color: #a78bfa; font-style: italic; } .log-probe { color: #c4b5fd; }
+        .logo { height: 4rem; width: auto; filter: drop-shadow(0 0 10px rgba(129, 140, 248, 0.6)); transition: all 0.3s ease; }
+        .logo:hover { filter: drop-shadow(0 0 15px rgba(165, 180, 252, 0.8)); transform: scale(1.05); }
+        .main-header-grid { display: flex; justify-content: space-between; align-items: center; }
+        .header-column { flex: 1; }
+        @media (max-width: 768px) {
+            .main-header-grid { flex-direction: column; gap: 1rem; }
+            .header-column { flex-basis: 100%; text-align: center !important; }
+            .header-column a { justify-content: center; }
+        }
+    </style>
+</head>
+<body class="bg-gray-900 text-gray-200 flex flex-col items-center justify-center min-h-screen p-4">
+
+    <div class="w-full max-w-7xl glass-effect rounded-2xl shadow-2xl p-4 sm:p-6 lg:p-8">
+<header class="mb-6">
+    <div class="main-header-grid mb-4 flex-wrap">
+        <div class="text-left header-column">
+            <a href="https://eryxian.com" target="_blank" class="text-blue-400 hover:text-blue-300 text-sm transition-colors duration-200 flex items-center gap-1">
+                🌐 Eryxian.com
+            </a>
+            <a href="https://github.com/eryxgames/Eryxian/wiki" target="_blank" class="text-blue-400 hover:text-blue-300 text-sm transition-colors duration-200 flex items-center gap-1 mt-1">
+                📚 Universe Wiki
+            </a>
+        </div>
+        
+        <!-- This is the logo container, now without the 'header-column' class -->
+        <div class="logo-glow order-first md:order-none">
+            <img src="https://raw.githubusercontent.com/eryxgames/Eryxian/main/eryxian-dash-logo-sm.png" alt="Eryxian Research Interface" class="logo">
+        </div>
+
+        <div class="text-right header-column">
+            <a href="https://github.com/eryxgames/Eryxian/wiki/Eryxian-Labyrinths" target="_blank" class="text-purple-400 hover:text-purple-300 text-sm transition-colors duration-200 flex items-center gap-1 justify-end">
+                🔬 Labyrinths Incidents Research
+            </a>
+        </div>
+    </div>
+    <div class="text-center">
+        <h1 class="text-3xl sm:text-4xl font-bold text-white mb-2 bg-gradient-to-r from-blue-400 via-purple-400 to-pink-400 bg-clip-text text-transparent">Eryxian Labyrinth Research Interface</h1>
+        <p class="text-sm sm:text-base text-gray-400 mt-2">Field Anomaly Classification & GM Toolkit v5.0</p>
+    </div>
+</header>
+
+        <div class="border-b border-gray-700 mb-6">
+            <nav class="flex justify-center -mb-px space-x-4 sm:space-x-8">
+                <button data-tab="viewer" class="main-tab active text-gray-400 hover:text-white whitespace-nowrap py-4 px-1 font-medium text-sm">Classification Viewer</button>
+                <button data-tab="generator" class="main-tab text-gray-400 hover:text-white whitespace-nowrap py-4 px-1 font-medium text-sm">GM Toolkit</button>
+                <button data-tab="simulator" class="main-tab text-gray-400 hover:text-white whitespace-nowrap py-4 px-1 font-medium text-sm">Interactive Simulation</button>
+            </nav>
+        </div>
+
+        <div id="content-viewer" class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <div class="lg:col-span-2 glass-effect rounded-xl flex items-center justify-center p-4 min-h-[400px] lg:min-h-[500px] overflow-hidden">
+                <svg id="schematic-svg" class="w-full h-full" viewBox="0 0 500 400"></svg>
+            </div>
+            <div class="glass-effect rounded-xl p-6">
+                 <div class="flex items-center gap-2 mb-4">
+                    <input type="checkbox" id="wiki-sync-viewer" class="wiki-sync-checkbox custom-checkbox w-4 h-4 rounded">
+                    <label for="wiki-sync-viewer" class="wiki-sync-label text-sm text-gray-400">Sync with Live Wiki Data</label>
+                </div>
+                <div id="schematic-buttons" class="grid grid-cols-2 gap-2 mb-4"></div>
+                <div id="info-panel" class="info-box max-h-[420px] overflow-y-auto pr-2"></div>
+            </div>
+        </div>
+
+        <div id="content-generator" class="hidden">
+             <div class="gm-output rounded-lg p-6">
+                <div class="flex justify-between items-start mb-4 flex-wrap gap-4">
+                    <h3 class="text-lg font-semibold text-purple-300">Anomaly Generator & GM Tools</h3>
+                    <div class="flex gap-4 items-center flex-wrap">
+                        <div class="flex items-center gap-2">
+                             <label for="location-select" class="text-sm font-medium text-gray-400">Location:</label>
+                             <select id="location-select" class="custom-select text-sm rounded-md py-1 px-2">
+                                 <option value="surface">Surface</option>
+                                 <option value="orbital">Low Orbit</option>
+                                 <option value="space">Deep Space</option>
+                             </select>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <input type="checkbox" id="wiki-sync-generator" class="wiki-sync-checkbox custom-checkbox w-4 h-4 rounded">
+                            <label for="wiki-sync-generator" class="wiki-sync-label text-sm text-gray-400">Sync with Live Wiki Data</label>
+                        </div>
+                    </div>
+                </div>
+                <div class="flex justify-center gap-2 flex-wrap mb-6">
+                    <button id="gm-brief" class="btn-primary text-white px-4 py-2 rounded-lg text-sm font-semibold">Generate Mission Brief</button>
+                    <button id="gm-scenario" class="btn-secondary text-white px-3 py-1 rounded-lg text-xs">Hook</button>
+                    <button id="gm-threat" class="btn-secondary text-white px-3 py-1 rounded-lg text-xs">Threat</button>
+                    <button id="gm-evidence" class="btn-secondary text-white px-3 py-1 rounded-lg text-xs">Evidence</button>
+                </div>
+                <div id="generator-output" class="text-sm text-gray-300 min-h-[250px] transition-all duration-300 bg-black/20 p-4 rounded-md">
+                    Select a generator tool to begin...
+                </div>
+            </div>
+        </div>
+        
+        <div id="content-simulator" class="hidden grid-cols-1 md:grid-cols-2 gap-6">
+            <div class="simulation-window rounded-lg p-6">
+                <h3 class="text-lg font-semibold text-purple-300 mb-2">Simulation: The Threshold Gate Paradox</h3>
+                <p class="text-sm text-gray-400 mb-4">Investigating Incident Report: New Eden Settlement.</p>
+                <div id="paradox-log" class="sim-log text-sm min-h-[200px] bg-black/30 p-4 rounded-md mb-4 overflow-y-auto max-h-[300px]"></div>
+                <div id="paradox-choices" class="flex gap-4 flex-wrap justify-center"></div>
+            </div>
+            <div class="simulation-window rounded-lg p-6">
+                <h3 class="text-lg font-semibold text-purple-300 mb-2">Simulation: Labyrinth Probe Explorer</h3>
+                <p class="text-sm text-gray-400 mb-4">Minimalist probe data feed from a generated anomaly.</p>
+                <div id="probe-log" class="sim-log text-sm min-h-[200px] bg-black/30 p-4 rounded-md mb-4 overflow-y-auto max-h-[300px]"></div>
+                <div id="probe-choices" class="flex gap-4 flex-wrap justify-center"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // --- GLOBAL STATE & CONFIG ---
+        const WIKI_URL = 'https://raw.githubusercontent.com/wiki/eryxgames/Eryxian/Eryxian-Labyrinths-Research-Data.md';
+        let liveLabyrinthTypes = {};
+        let liveArtifacts = [];
+        let currentLabyrinthTypes = {};
+        
+        const randItem = (arr) => arr && arr.length > 0 ? arr[Math.floor(Math.random() * arr.length)] : null;
+
+        // --- DOM Elements ---
+        let DOM = {};
+
+        // --- DRAWING FUNCTIONS ---
+        function clearSVG() {
+            if (window.animationFrameId) cancelAnimationFrame(window.animationFrameId);
+            if (DOM.svg) {
+                DOM.svg.innerHTML = '';
+                const defs = document.createElementNS('http://www.w3.org/2000/svg', 'defs');
+                const glowFilter = document.createElementNS('http://www.w3.org/2000/svg', 'filter');
+                glowFilter.id = 'glow';
+                glowFilter.innerHTML = `<feGaussianBlur stdDeviation="3.5" result="coloredBlur"></feGaussianBlur><feMerge><feMergeNode in="coloredBlur"></feMergeNode><feMergeNode in="SourceGraphic"></feMergeNode></feMerge>`;
+                defs.appendChild(glowFilter);
+                DOM.svg.appendChild(defs);
+            }
+        }
+        function drawSpatial() {
+            clearSVG();
+            const paths = [ "M100 100 H400 V300 H100 L250 200 Z", "M150 150 L350 150 L350 250 L150 250 Z", "M250 200 L450 200 L450 350 L250 350 V200" ];
+            paths.forEach((d, i) => {
+                const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+                path.setAttribute('d', d); path.setAttribute('fill', `rgba(129, 140, 248, ${0.05 + i*0.05})`); path.setAttribute('stroke', `rgba(199, 210, 254, ${0.4 + i*0.2})`); path.setAttribute('stroke-width', '2'); path.style.filter = 'url(#glow)';
+                DOM.svg.appendChild(path);
+            });
+        }
+        function drawTemporal() {
+            clearSVG();
+            const clockFace = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+            clockFace.setAttribute('cx', '250'); clockFace.setAttribute('cy', '200'); clockFace.setAttribute('r', '150'); clockFace.setAttribute('fill', 'rgba(165, 180, 252, 0.1)'); clockFace.setAttribute('stroke', '#a5b4fc'); clockFace.setAttribute('stroke-width', '1');
+            DOM.svg.appendChild(clockFace);
+            let time = 0;
+            function animate() {
+                time += 0.01;
+                if(DOM.svg.children.length > 50) DOM.svg.removeChild(DOM.svg.children[1]);
+                const hand = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+                hand.setAttribute('x1', '250'); hand.setAttribute('y1', '200'); hand.setAttribute('x2', 250 + 120 * Math.cos(time * 2)); hand.setAttribute('y2', 200 + 120 * Math.sin(time * 2));
+                hand.setAttribute('stroke', '#c7d2fe'); hand.setAttribute('stroke-width', '2'); hand.style.opacity = (DOM.svg.children.length-1) / 50;
+                DOM.svg.appendChild(hand);
+                window.animationFrameId = requestAnimationFrame(animate);
+            }
+            animate();
+        }
+        function drawQuantum() {
+            clearSVG();
+            const box = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+            box.setAttribute('x', '175'); box.setAttribute('y', '125'); box.setAttribute('width', '150'); box.setAttribute('height', '150'); box.setAttribute('stroke', '#c7d2fe'); box.setAttribute('stroke-width', '2'); box.setAttribute('fill', 'rgba(129, 140, 248, 0.1)');
+            DOM.svg.appendChild(box);
+            const particle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+            particle.setAttribute('r', '6'); particle.setAttribute('fill', '#e0e7ff');
+            DOM.svg.appendChild(particle);
+            let t = 0;
+            function animate() {
+                t += 0.02;
+                particle.setAttribute('cx', 250 + Math.sin(t*1.5) * 60); particle.setAttribute('cy', 200 + Math.cos(t*2) * 40); particle.style.opacity = 0.5 + Math.sin(t*3)*0.5;
+                box.setAttribute('stroke-dasharray', `${5 + Math.sin(t)*4} ${5 - Math.sin(t)*4}`);
+                window.animationFrameId = requestAnimationFrame(animate);
+            }
+            animate();
+        }
+        function drawThermo() {
+            clearSVG();
+            const container = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+            container.setAttribute('x', '50'); container.setAttribute('y', '50'); container.setAttribute('width', '400'); container.setAttribute('height', '300'); container.setAttribute('fill', 'rgba(55, 65, 81, 0.2)'); container.setAttribute('stroke', '#6b7280'); container.setAttribute('stroke-width', '1');
+            DOM.svg.appendChild(container);
+            const hotParticles = [], coldParticles = [];
+            for (let i = 0; i < 50; i++) {
+                const p = { x: 50 + Math.random() * 400, y: 50 + Math.random() * 300, vx: (Math.random() - 0.5), vy: (Math.random() - 0.5) };
+                const c = document.createElementNS('http://www.w3.org/2000/svg', 'circle'); c.setAttribute('r', '3');
+                if (i < 25) { c.setAttribute('fill', '#f87171'); hotParticles.push({ ...p, el: c }); } else { c.setAttribute('fill', '#60a5fa'); coldParticles.push({ ...p, el: c }); }
+                DOM.svg.appendChild(c);
+            }
+            const divider = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+            divider.setAttribute('x1', '250'); divider.setAttribute('y1', '50'); divider.setAttribute('x2', '250'); divider.setAttribute('y2', '350'); divider.setAttribute('stroke', 'white'); divider.setAttribute('stroke-width', '2'); divider.setAttribute('stroke-dasharray', '5 5');
+            DOM.svg.appendChild(divider);
+            function animate() {
+                hotParticles.forEach(p => { p.x += p.vx; p.y += p.vy; if (p.x < 50 || p.x > 250) p.vx *= -1; if (p.y < 50 || p.y > 350) p.vy *= -1; p.el.setAttribute('cx', p.x); p.el.setAttribute('cy', p.y); });
+                coldParticles.forEach(p => { p.x += p.vx; p.y += p.vy; if (p.x < 250 || p.x > 450) p.vx *= -1; if (p.y < 50 || p.y > 350) p.vy *= -1; p.el.setAttribute('cx', p.x); p.el.setAttribute('cy', p.y); });
+                window.animationFrameId = requestAnimationFrame(animate);
+            }
+            animate();
+        }
+        function drawSignal() {
+            clearSVG();
+            const head = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+            head.setAttribute('d', 'M200 200 Q 250 150 300 200 T 400 200 Q 350 250 300 200 T 200 200'); head.setAttribute('fill', 'none'); head.setAttribute('stroke', '#e0e7ff'); head.setAttribute('stroke-width', '2');
+            DOM.svg.appendChild(head);
+            const dataStreams = [];
+            for(let i=0; i<20; i++) {
+                const s = document.createElementNS('http://www.w3.org/2000/svg', 'path'); s.setAttribute('fill', 'none'); s.setAttribute('stroke', `rgba(165, 180, 252, ${Math.random() * 0.5 + 0.3})`); s.setAttribute('stroke-width', '1.5');
+                DOM.svg.appendChild(s); dataStreams.push({el: s, offset: Math.random() * 100});
+            }
+            let t = 0;
+            function animate() {
+                t += 0.01;
+                dataStreams.forEach(s => s.el.setAttribute('d', `M50 ${50 + (s.offset + t*20) % 300} C 150 ${50 + (s.offset + t*20) % 300 + Math.sin(t + s.offset) * 20}, 350 ${50 + (s.offset + t*20) % 300 + Math.cos(t + s.offset) * 20}, 450 ${50 + (s.offset + t*20) % 300}`));
+                window.animationFrameId = requestAnimationFrame(animate);
+            }
+            animate();
+        }
+        const drawFuncs = { spatial: drawSpatial, temporal: drawTemporal, quantum: drawQuantum, thermo: drawThermo, signal: drawSignal, default: drawSpatial };
+        
+        // --- DATA ---
+        const missionData = {
+            objectives: ["Investigate", "Retrieve", "Rescue", "Contain", "Destroy", "Stabilize"],
+            subjects: ["a research team", "a high-value artifact", "a missing operative", "an unstable energy source", "a rival faction's asset"],
+            locations: { surface: ["abandoned mining outpost", "crashed colony ship", "ancient Eryxian ritual site"], orbital: ["a derelict research station", "a defensive satellite", "a space elevator terminus"], space: ["a deep space probe", "a rogue asteroid colony", "a ghost ship"] },
+            factions: ["The Stellar Concord", "Terran Ascendancy Mandate (TAM)", "Fractured Humanity Conglomerate", "Pyran Ascendancy", "Eryxian Natives"],
+            diseases: ["Causal Rot", "Geometric Cancer", "Temporal Arteritis", "Dimensional Dementia"]
+        };
+        const defaultLabyrinthTypes = {
+            spatial: {
+                name: "Spatial", title: "Architectural Labyrinth (Non-Euclidean)", threat: 4, scenarios: ["A research team is lost inside; their last transmission was 'the map is lying'."], threats: ["Permanent entrapment due to unsolvable topology."], evidence: ["Nav-logs show a ship traveling in a straight line for 10km but ending up at its starting point."],
+                description: "<h4>Primary Paradox:</h4><p>Violation of Euclidean geometry. Manifolds are locally folded, creating impossible connections.</p><h4>Known Variants:</h4><ul><li>Penrose Stairways</li><li>Tesseract Chambers</li></ul><h4>Containment:</h4><p>Uncontained. Standard mapping is useless.</p>"
+            },
+            temporal: {
+                name: "Temporal", title: "Temporal Labyrinth (Causal Anomaly)", threat: 7, warning: "High Risk", scenarios: ["An explorer emerges claiming to be from 20 years in the future."], threats: ["Rapid aging to death in seconds."], evidence: ["A weapon that is simultaneously rusted and brand new."],
+                description: "<h4>Primary Paradox:</h4><p>Violation of linear time progression and causality.</p><h4>Known Variants:</h4><ul><li>Déjà Vu Loops</li><li>Stasis Fields</li></ul><h4>Containment:</h4><p>Partially contained, but causal contamination is a constant risk.</p>"
+            },
+            quantum: {
+                name: "Quantum", title: "Quantum Labyrinth (Macro-State Anomaly)", threat: 5, scenarios: ["A rival faction wants to collapse the Labyrinth into a specific, favorable state."], threats: ["Accidentally observing a lethal state into existence."], evidence: ["Video logs that change every time they are played."],
+                description: "<h4>Primary Paradox:</h4><p>Quantum weirdness manifests at classical scales.</p><h4>Known Variants:</h4><ul><li>Cheshire Walls</li><li>Entangled Rooms</li></ul><h4>Containment:</h4><p>Uncontained. The 'Observer Effect' makes study difficult and dangerous.</p>"
+            },
+            thermo: {
+                name: "Thermo", title: "Thermodynamic Labyrinth (Entropic Anomaly)", threat: 6, scenarios: ["The Labyrinth is siphoning heat from the surrounding region, causing a localized ice age."], threats: ["Flash freezing or incineration in adjacent corridors."], evidence: ["A perpetually burning fire in a vacuum-sealed chamber."],
+                description: "<h4>Primary Paradox:</h4><p>Localized violation of the Second Law of Thermodynamics.</p><h4>Known Variants:</h4><ul><li>Perpetual Motion Chambers</li><li>Reassembly Forges</li></ul><h4>Containment:</h4><p>Contained by thermal insulation, but leaks can cause catastrophic environmental shifts.</p>"
+            },
+            signal: {
+                name: "Signal", title: "Signal Labyrinth (Informational Anomaly)", threat: 8, warning: "Extreme Risk", scenarios: ["The Labyrinth has infected the team's comms officer."], threats: ["Irreversible insanity from exposure to a logical paradox."], evidence: ["A computer core that melted down after trying to compute 'the last digit of pi'."],
+                description: "<h4>Primary Paradox:</h4><p>Information that has no discernible physical source or violates logical principles.</p><h4>Known Variants:</h4><ul><li>Basilisk Stare</li><li>Logic Bombs</li></ul><h4>Containment:</h4><p>Requires total network isolation ('air gapping').</p>"
+            }
+        };
+        const defaultArtifacts = [ { id: 'TAE-001', name: 'Causal Loop Crystal' }, { id: 'RDM-001', name: 'Null-State Alloy' } ];
+        currentLabyrinthTypes = defaultLabyrinthTypes;
+
+        // --- WIKI PARSER & FETCHER ---
+        function parseWikiData(markdown) {
+            const dataRegion = markdown.split('<!-- ERYXIAN-LABYRINTHS-DATA-START -->')[1]?.split('<!-- ERYXIAN-LABYRINTHS-DATA-END -->')[0];
+            if (!dataRegion) throw new Error("Could not find data block comments in wiki content.");
+
+            const [classificationsBlock, artifactsBlock] = dataRegion.split('## Labyrinth Artifact Catalog');
+
+            const parsedLabyrinths = {};
+            const labBlocks = classificationsBlock.split('### Labyrinth:').slice(1);
+            for (const block of labBlocks) {
+                const lines = block.trim().split('\n');
+                const name = lines[0].trim().toLowerCase();
+                if (!name) continue;
+                const labData = { name: lines[0].trim(), scenarios:[], threats:[], evidence:[], variants:[] };
+                let currentList = null, isDescription = false;
+                for (let i = 1; i < lines.length; i++) {
+                    const line = lines[i];
+                    if (line.startsWith('> Description:')) { isDescription = true; labData.description = ''; continue; }
+                    if (isDescription) { labData.description += line.replace(/^>\s?/, '') + '\n'; continue; }
+                    const simplePropMatch = line.match(/^\*\s+([^:]+):\s*(.*)/);
+                    if (simplePropMatch) {
+                        isDescription = false;
+                        const key = simplePropMatch[1].trim(), value = simplePropMatch[2].trim();
+                        if (['scenarios', 'threats', 'evidence', 'variants'].includes(key)) { currentList = key; labData[key] = labData[key] || []; }
+                        else { labData[key] = value; currentList = null; }
+                    } else if (currentList && line.match(/^\s+\*\s/)) { labData[currentList].push(line.replace(/^\s+\*\s+/, '').trim()); }
+                }
+                if (labData.description && labData.warning) labData.description += `<span class='physics-warning'>${labData.warning}</span>`;
+                parsedLabyrinths[name] = labData;
+            }
+
+            const parsedArtifacts = [];
+            if(artifactsBlock) {
+                const tableRegex = /### Class [^\n]+\n\n\| Item ID.*?\|\n\|-.*-\|\n((?:\|.*\|.*\n)+)/g;
+                let match;
+                while ((match = tableRegex.exec(artifactsBlock)) !== null) {
+                    match[1].trim().split('\n').forEach(row => {
+                        const cols = row.split('|').map(c => c.trim()).filter(c => c);
+                        if (cols.length > 1) parsedArtifacts.push({ id: cols[0], name: cols[1] });
+                    });
+                }
+            }
+            if (Object.keys(parsedLabyrinths).length > 0) liveLabyrinthTypes = parsedLabyrinths; else throw new Error("No Labyrinth types found.");
+            if (parsedArtifacts.length > 0) liveArtifacts = parsedArtifacts;
+        }
+
+        async function fetchWikiData() {
+            setSyncStatus('syncing');
+            try {
+                const response = await fetch(WIKI_URL);
+                if (!response.ok) throw new Error(`Network response: ${response.statusText}`);
+                parseWikiData(await response.text());
+                currentLabyrinthTypes = liveLabyrinthTypes;
+                setSyncStatus('synced');
+            } catch (error) {
+                console.error('Wiki Sync Error:', error);
+                currentLabyrinthTypes = defaultLabyrinthTypes;
+                setSyncStatus('failed');
+            } finally {
+                setupViewer();
+            }
+        }
+        
+        function setSyncStatus(status) {
+            const labels = document.querySelectorAll('.wiki-sync-label');
+            const checkboxes = document.querySelectorAll('.wiki-sync-checkbox');
+            let text, colorClass, isChecked, isDisabled;
+            switch(status) {
+                case 'syncing': text = 'Syncing...'; colorClass = 'text-yellow-400'; isChecked = true; isDisabled = true; break;
+                case 'synced': text = `Synced (${Object.keys(liveLabyrinthTypes).length} types, ${liveArtifacts.length} artifacts)`; colorClass = 'text-green-400'; isChecked = true; isDisabled = false; break;
+                case 'failed': text = 'Sync Failed (Using Default)'; colorClass = 'text-red-400'; isChecked = false; isDisabled = false; break;
+                default: text = 'Sync with Live Wiki Data'; colorClass = 'text-gray-400'; isChecked = false; isDisabled = false;
+            }
+            labels.forEach(l => { l.textContent = text; l.className = `wiki-sync-label text-sm ${colorClass}`; });
+            checkboxes.forEach(c => { c.checked = isChecked; c.disabled = isDisabled; });
+        }
+        
+        // --- VIEWER & GENERATOR LOGIC ---
+        function setupViewer() {
+            DOM.schematicButtonsContainer.innerHTML = '';
+            const typeKeys = Object.keys(currentLabyrinthTypes);
+            if (typeKeys.length === 0) return;
+            typeKeys.forEach(key => {
+                const btn = document.createElement('button');
+                btn.id = `btn-${key}`; btn.className = 'schematic-btn text-xs sm:text-sm font-medium py-2 px-3 rounded-md'; btn.textContent = currentLabyrinthTypes[key].name;
+                btn.addEventListener('click', () => selectLabyrinthType(key));
+                DOM.schematicButtonsContainer.appendChild(btn);
+            });
+            selectLabyrinthType(typeKeys[0]);
+        }
+
+        function selectLabyrinthType(typeKey) {
+            const type = currentLabyrinthTypes[typeKey];
+            if (!type) { console.error(`Type ${typeKey} not found.`); return; }
+            document.querySelectorAll('.schematic-btn').forEach(b => b.classList.remove('active'));
+            document.getElementById(`btn-${typeKey}`)?.classList.add('active');
+            const threatLevels = {1:'low',2:'low',3:'low',4:'medium',5:'medium',6:'medium',7:'high',8:'high',9:'extreme',10:'extreme'};
+            const threatClass = threatLevels[type.threat] || 'low';
+            DOM.infoPanel.innerHTML = `<h3>${type.title}</h3>${type.description || '<p>No description available.</p>'}<div class="threat-indicator threat-${threatClass}"><p class="text-sm font-semibold">Threat Level: ${type.threat}/10</p></div>`;
+            (drawFuncs[typeKey] || drawFuncs.default)();
+        }
+
+        function generateGMContent(contentType) {
+            const typeKey = randItem(Object.keys(currentLabyrinthTypes));
+            const typeData = currentLabyrinthTypes[typeKey];
+            let contentList = typeData[contentType];
+            if (!contentList || contentList.length === 0) { DOM.generatorOutput.innerHTML = `<p class="text-gray-500">No '${contentType}' data for ${typeData.name} Labyrinth. Update the wiki!</p>`; return; }
+            const randomItem = randItem(contentList);
+            const titles = { scenarios: '🎲 Scenario Hook', threats: '⚠️ Threat Assessment', evidence: '🔍 Field Evidence' };
+            DOM.generatorOutput.innerHTML = `<div class="border-l-4 border-purple-500 pl-4"><h4 class="font-semibold text-purple-300 mb-2">${titles[contentType]}</h4><p class="text-gray-300 leading-relaxed">${randomItem}</p></div>`;
+        }
+        
+        function generateMissionBrief() {
+            const labTypeKey = randItem(Object.keys(currentLabyrinthTypes));
+            const labyrinth = currentLabyrinthTypes[labTypeKey];
+            const artifactSource = liveArtifacts.length > 0 ? liveArtifacts : defaultArtifacts;
+            const artifact = randItem(artifactSource);
+            DOM.generatorOutput.innerHTML = `<h4 class="text-lg font-bold text-purple-300 mb-2 border-b border-purple-800 pb-1">MISSION BRIEFING</h4> <p><strong>Objective:</strong> ${randItem(missionData.objectives)} <strong class="text-yellow-300">${artifact.name} (${artifact.id})</strong>.</p> <p><strong>Location:</strong> A <strong class="text-yellow-300">${randItem(missionData.locations[DOM.locationSelect.value])}</strong>.</p> <p><strong>Anomaly Type:</strong> <strong class="text-yellow-300">${labyrinth.title}</strong>.</p> <p><strong>Primary Threat:</strong> <strong class="text-red-400">${randItem(labyrinth.threats) || "Unknown"}</strong></p> <p><strong>Complication:</strong> <strong class="text-yellow-300">${randItem(missionData.factions)}</strong> is also on-site.</p> <p><strong>Further Analysis:</strong> Anomaly shows signs of <strong class="text-red-400">${randItem(missionData.diseases)}</strong>.</p>`;
+        }
+
+        // --- SIMULATOR LOGIC ---
+        let paradoxState = {};
+        function startParadoxSim() {
+            paradoxState = { step: 0 };
+            DOM.paradoxLog.innerHTML = '';
+            updateParadoxLog('log-system', 'SIMULATION START: Threshold Gate Anomaly...');
+            updateParadoxLog('log-time', '[10:55:00] Preparing Maintenance Drone D-7 for launch at [11:00:00].');
+            setTimeout(() => {
+                updateParadoxLog('log-alert', '[10:59:01] ALERT: Maintenance Drone D-7 emerges from Gate.');
+                updateParadoxLog('log-info', '[10:59:02] Identical to drone D-7. Causal violation detected. Orders?');
+                renderParadoxChoices();
+            }, 500);
+        }
+        function updateParadoxLog(type, text) { DOM.paradoxLog.innerHTML += `<p><span class="${type}">${text}</span></p>`; DOM.paradoxLog.scrollTop = DOM.paradoxLog.scrollHeight; }
+        function renderParadoxChoices() {
+            DOM.paradoxChoices.innerHTML = '';
+            if (paradoxState.step === 0) {
+                DOM.paradoxChoices.innerHTML = `<button data-choice="send" class="btn-primary text-white px-4 py-2 rounded-lg text-sm">Proceed</button> <button data-choice="abort" class="btn-secondary text-white px-4 py-2 rounded-lg text-sm">Abort</button> <button data-choice="mark" class="btn-secondary text-white px-4 py-2 rounded-lg text-sm">Mark & Send</button>`;
+            } else {
+                DOM.paradoxChoices.innerHTML = `<button data-choice="restart" class="btn-primary text-white px-4 py-2 rounded-lg text-sm">Run Again</button>`;
+            }
+        }
+
+        let probeState = {};
+        function startProbeSim() { probeState = { currentNodeId: 'node-0' }; DOM.probeLog.innerHTML = ''; updateProbeLog('log-system', `Launching deep exploration probe...`); renderProbeNode(); }
+        function generateProbeNode(nodeId) {
+            const typeKey = randItem(Object.keys(currentLabyrinthTypes)); const typeData = currentLabyrinthTypes[typeKey];
+            if (nodeId === 'node-0') return { description: 'Initial entry point. The air hums with anomalous energy.', choices: { 'Proceed cautiously': 'node-1' } };
+            if(Math.random() < 0.3) return { description: `${randItem(typeData.threats) || "Catastrophic failure"}. Probe sensors overload. Signal lost.`, choices: {} };
+            return { description: `Probe detects: ${randItem(typeData.evidence) || "strange readings"}.`, choices: { 'Go Left': `node-${Math.random()}`, 'Go Right': `node-${Math.random()}` } };
+        }
+        function renderProbeNode() {
+            const node = generateProbeNode(probeState.currentNodeId); updateProbeLog('log-probe', `[NODE ${probeState.currentNodeId.substring(0,6)}] ${node.description}`); DOM.probeChoices.innerHTML = '';
+            if (Object.keys(node.choices).length === 0) DOM.probeChoices.innerHTML = `<button data-choice="restart" class="btn-primary text-white px-4 py-2 rounded-lg text-sm">Launch New Probe</button>`;
+            else Object.entries(node.choices).forEach(([text, targetNodeId]) => { const btn = document.createElement('button'); btn.className = 'btn-secondary text-white px-4 py-2 rounded-lg text-sm'; btn.textContent = text; btn.dataset.target = targetNodeId; DOM.probeChoices.appendChild(btn); });
+        }
+        function updateProbeLog(type, text) { DOM.probeLog.innerHTML += `<p><span class="${type}">${text}</span></p>`; DOM.probeLog.scrollTop = DOM.probeLog.scrollHeight; }
+
+        // --- INITIALIZATION ---
+        document.addEventListener('DOMContentLoaded', () => {
+            DOM = {
+                svg: document.getElementById('schematic-svg'), infoPanel: document.getElementById('info-panel'), schematicButtonsContainer: document.getElementById('schematic-buttons'), generatorOutput: document.getElementById('generator-output'),
+                locationSelect: document.getElementById('location-select'), paradoxLog: document.getElementById('paradox-log'), paradoxChoices: document.getElementById('paradox-choices'), probeLog: document.getElementById('probe-log'), probeChoices: document.getElementById('probe-choices'),
+                allTabs: document.querySelectorAll('.main-tab'), allContent: document.querySelectorAll('[id^="content-"]'), allSyncCheckboxes: document.querySelectorAll('.wiki-sync-checkbox')
+            };
+            
+            DOM.allTabs.forEach(tab => tab.addEventListener('click', e => {
+                const targetTab = e.target.dataset.tab;
+                DOM.allTabs.forEach(t => t.classList.remove('active')); e.target.classList.add('active');
+                DOM.allContent.forEach(c => { c.classList.add('hidden'); c.classList.remove('grid'); });
+                const targetContent = document.getElementById(`content-${targetTab}`);
+                targetContent.classList.remove('hidden');
+                if(targetTab === 'viewer' || targetTab === 'simulator') targetContent.classList.add('grid');
+                if(targetTab === 'viewer' && Object.keys(currentLabyrinthTypes).length > 0) selectLabyrinthType(document.querySelector('.schematic-btn.active')?.id.replace('btn-', '') || Object.keys(currentLabyrinthTypes)[0]);
+                if(targetTab === 'simulator') { startParadoxSim(); startProbeSim(); }
+            }));
+
+            DOM.allSyncCheckboxes.forEach(checkbox => checkbox.addEventListener('change', e => {
+                if (e.target.checked) fetchWikiData();
+                else { currentLabyrinthTypes = defaultLabyrinthTypes; setSyncStatus('default'); setupViewer(); }
+            }));
+
+            document.getElementById('gm-brief').addEventListener('click', generateMissionBrief);
+            document.getElementById('gm-scenario').addEventListener('click', () => generateGMContent('scenarios'));
+            document.getElementById('gm-threat').addEventListener('click', () => generateGMContent('threats'));
+            document.getElementById('gm-evidence').addEventListener('click', () => generateGMContent('evidence'));
+
+            DOM.paradoxChoices.addEventListener('click', e => {
+                if (e.target.dataset.choice === 'restart') { startParadoxSim(); return; } const choice = e.target.dataset.choice; if (!choice) return;
+                paradoxState.step = 1; updateParadoxLog('log-action', `[DECISION] ${e.target.textContent}`);
+                switch(choice) {
+                    case 'send': updateParadoxLog('log-info', '[11:00:00] Drone enters Gate. Loop closed. Event self-consistent.'); break;
+                    case 'abort': updateParadoxLog('log-alert', '[11:00:00] Drone wrenched from grasp, flies into Gate. Labyrinth enforces consistency.'); break;
+                    case 'mark': updateParadoxLog('log-info', '[10:59:30] Mark appears on emerged drone. Labyrinth enforces consistency retroactively.'); break;
+                }
+                updateParadoxLog('log-system', 'SIMULATION COMPLETE.'); renderParadoxChoices();
+            });
+
+            DOM.probeChoices.addEventListener('click', e => {
+                if (e.target.dataset.choice === 'restart') { startProbeSim(); return; } const choice = e.target.dataset.target; if (!choice) return;
+                probeState.currentNodeId = choice; renderProbeNode();
+            });
+
+            setupViewer();
+        });
+    </script>
+</body>
+</html>
