@@ -194,139 +194,176 @@ function clearSVG() {
 
 // --- Spatial Labyrinth Functions ---
 
-function drawSpatial_Interactive() {
+function drawSpatial_Interactive() { // Hyperspace Slicer with Ghost Geometry & Reversible Rotation
     clearSVG();
-    const mainPath = document.createElementNS('http://www.w3.org/2000/svg', 'path');
-    mainPath.setAttribute('d', "M100 100 H400 V300 H100 L250 200 Z");
-    mainPath.setAttribute('fill', `rgba(129, 140, 248, 0.1)`);
-    mainPath.setAttribute('stroke', `rgba(199, 210, 254, 0.6)`);
-    mainPath.setAttribute('stroke-width', '2');
-    mainPath.setAttribute('stroke-linejoin', 'round');
-    mainPath.style.filter = 'url(#glow)';
-    DOM.svg.appendChild(mainPath);
-
-    addTrackedListener(DOM.svg, 'mousemove', (e) => {
-        const rect = DOM.svg.getBoundingClientRect();
-        const viewBox = DOM.svg.viewBox.baseVal;
-        const mouseX = (e.clientX - rect.left) * (viewBox.width / rect.width);
-        const mouseY = (e.clientY - rect.top) * (viewBox.height / rect.height);
-        mainPath.setAttribute('d', `M100 100 H400 V300 H100 L${mouseX} ${mouseY} Z`);
-    });
-}
-
-function drawSpatial_Variant1() { // Gravity Well
-    clearSVG();
-    const shapes = [];
-    const initialPoints = [
-        [{x:100,y:100}, {x:400,y:100}, {x:400,y:300}, {x:100,y:300}, {x:250, y:200}],
-        [{x:150,y:150}, {x:350,y:150}, {x:350,y:250}, {x:150,y:250}]
-    ];
-
-    initialPoints.forEach((points, i) => {
-        const polygon = document.createElementNS('http://www.w3.org/2000/svg', 'polygon');
-        polygon.setAttribute('fill', `rgba(129, 140, 248, ${0.1 - i*0.05})`);
-        polygon.setAttribute('stroke', `rgba(199, 210, 254, ${0.6 - i*0.2})`);
-        polygon.setAttribute('stroke-width', '2');
-        DOM.svg.appendChild(polygon);
-        shapes.push({ el: polygon, initial: points });
-    });
-
-    const updatePoints = (mx, my) => {
-        shapes.forEach(shape => {
-            const newPoints = shape.initial.map(p => {
-                const dx = p.x - mx;
-                const dy = p.y - my;
-                const dist = Math.sqrt(dx * dx + dy * dy);
-                if (dist < 150) {
-                    const falloff = (150 - dist) / 150;
-                    const strength = 50 * Math.pow(falloff, 2);
-                    const angle = Math.atan2(dy, dx);
-                    return { x: p.x + Math.cos(angle) * strength, y: p.y + Math.sin(angle) * strength };
-                }
-                return p;
-            }).map(p => `${p.x},${p.y}`).join(' ');
-            shape.el.setAttribute('points', newPoints);
-        });
-    };
-    
-    updatePoints(-999, -999);
-
-    addTrackedListener(DOM.svg, 'mousemove', e => {
-        const rect = DOM.svg.getBoundingClientRect();
-        const viewBox = DOM.svg.viewBox.baseVal;
-        const mouseX = (e.clientX - rect.left) * (viewBox.width / rect.width);
-        const mouseY = (e.clientY - rect.top) * (viewBox.height / rect.height);
-        updatePoints(mouseX, mouseY);
-    });
-}
-
-function drawSpatial_Variant2() { // Interactive Tesseract
-    clearSVG();
-    const size = 80;
     const center_x = 250, center_y = 200;
-    let rotXW = 0, rotYW = 0;
+    let sliceW = 0;
+    let rotation = { xy: 0.01, zw: 0.02, xw: 0.03 };
+    let rotationDirection = 1; // NEW: State variable for rotation direction (1 = forward, -1 = backward)
 
-    const vertices = [];
-    for (let i = 0; i < 16; i++) {
-        vertices.push({
-            x: (i & 1 ? 1 : -1), y: (i & 2 ? 1 : -1),
-            z: (i & 4 ? 1 : -1), w: (i & 8 ? 1 : -1)
-        });
-    }
+    const vertices = Array.from({length: 16}, (_, i) => ({ x:(i&1?-1:1), y:(i&2?-1:1), z:(i&4?-1:1), w:(i&8?-1:1) }));
+    const edges = [[0,1],[0,2],[0,4],[0,8],[1,3],[1,5],[1,9],[2,3],[2,6],[2,10],[3,7],[3,11],[4,5],[4,6],[4,12],[5,7],[5,13],[6,7],[6,14],[7,15],[8,9],[8,10],[8,12],[9,11],[9,13],[10,11],[10,14],[11,15],[12,13],[12,14],[13,15],[14,15]];
 
-    const edges = [
-        [0,1],[0,2],[0,4],[0,8],[1,3],[1,5],[1,9],[2,3],[2,6],[2,10],[3,7],[3,11],
-        [4,5],[4,6],[4,12],[5,7],[5,13],[6,7],[6,14],[7,15],[8,9],[8,10],[8,12],
-        [9,11],[9,13],[10,11],[10,14],[11,15],[12,13],[12,14],[13,15],[14,15]
-    ];
-    
-    const edgeElements = edges.map(() => {
+    const ghostLines = edges.map(() => {
         const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
-        line.setAttribute('stroke', 'rgba(199, 210, 254, 0.7)');
-        line.setAttribute('stroke-width', '1.5');
+        line.setAttribute('stroke', 'rgba(75, 85, 99, 0.9)');
+        line.setAttribute('stroke-width', '2');
+        line.setAttribute('stroke-dasharray', '2 4');
         DOM.svg.appendChild(line);
         return line;
     });
 
+    const sliceShape = document.createElementNS('http://www.w3.org/2000/svg', 'polygon');
+    sliceShape.setAttribute('fill', 'rgba(129, 140, 248, 0.25)');
+    sliceShape.setAttribute('stroke', 'rgba(224, 231, 255, 1)');
+    sliceShape.setAttribute('stroke-width', '2');
+    sliceShape.style.filter = 'url(#glow)';
+    DOM.svg.appendChild(sliceShape);
+
     addTrackedListener(DOM.svg, 'mousemove', e => {
         const rect = DOM.svg.getBoundingClientRect();
-        rotYW = ((e.clientX - rect.left) / rect.width - 0.5) * Math.PI;
-        rotXW = ((e.clientY - rect.top) / rect.height - 0.5) * Math.PI;
+        sliceW = ((e.clientY - rect.top) / rect.height) * 2.2 - 1.1;
+    });
+
+    // NEW: Click listener to reverse direction
+    addTrackedListener(DOM.svg, 'click', () => {
+        rotationDirection *= -1; // Invert the direction
     });
 
     function animate() {
-        const angleXW = rotXW; const angleYW = rotYW;
+        // MODIFIED: Apply direction to rotation increments
+        rotation.xy += 0.002 * rotationDirection;
+        rotation.zw += 0.003 * rotationDirection;
+        rotation.xw += 0.004 * rotationDirection;
+
+        const r = (a) => ({ c: Math.cos(a), s: Math.sin(a) });
+        let r_xy = r(rotation.xy), r_zw = r(rotation.zw), r_xw = r(rotation.xw);
         
-        const projected = vertices.map(v => {
-            // Rotate in 4D
-            let x = v.x, y = v.y, z = v.z, w = v.w;
-            let tempX, tempW, tempY;
+        const rotatedVertices = vertices.map(v => {
+            let x=v.x, y=v.y, z=v.z, w=v.w;
+            [x,y] = [x*r_xy.c - y*r_xy.s, x*r_xy.s + y*r_xy.c];
+            [z,w] = [z*r_zw.c - w*r_zw.s, z*r_zw.s + w*r_zw.c];
+            [x,w] = [x*r_xw.c - w*r_xw.s, x*r_xw.s + w*r_xw.c];
+            return {x,y,z,w};
+        });
+        
+        const intersectionPoints = [];
+        let ghostLineIndex = 0;
+        const scale = 250; // Use a variable for scale for easy adjustment
 
-            // Rotate on XW plane
-            tempX = x * Math.cos(angleXW) - w * Math.sin(angleXW);
-            tempW = x * Math.sin(angleXW) + w * Math.cos(angleXW);
-            x = tempX; w = tempW;
+        edges.forEach(edge => {
+            const v1 = rotatedVertices[edge[0]];
+            const v2 = rotatedVertices[edge[1]];
             
-            // Rotate on YW plane
-            tempY = y * Math.cos(angleYW) - w * Math.sin(angleYW);
-            tempW = y * Math.sin(angleYW) + w * Math.cos(angleYW);
-            y = tempY; w = tempW;
+            const p1_2d = { p: 1.5/(4 - v1.z), x: v1.x, y: v1.y };
+            const p2_2d = { p: 1.5/(4 - v2.z), x: v2.x, y: v2.y };
 
-            // Project 4D to 3D, then 3D to 2D
-            const perspective = 1 / (3 - w);
-            x *= perspective; y *= perspective; z *= perspective;
-            
-            return {
-                x: x * size + center_x,
-                y: y * size + center_y
-            };
+            if ((v1.w < sliceW && v2.w > sliceW) || (v1.w > sliceW && v2.w < sliceW)) {
+                const t = (sliceW - v1.w) / (v2.w - v1.w);
+                const ix = v1.x + t * (v2.x - v1.x), iy = v1.y + t * (v2.y - v1.y), iz = v1.z + t * (v2.z - v1.z);
+                const p = 1.5 / (4 - iz);
+                intersectionPoints.push({ x: ix*p*scale + center_x, y: iy*p*scale + center_y });
+            } else if (v1.w > sliceW && v2.w > sliceW) {
+                if(ghostLineIndex < ghostLines.length) {
+                    const line = ghostLines[ghostLineIndex++];
+                    line.setAttribute('x1', p1_2d.x * p1_2d.p * scale + center_x);
+                    line.setAttribute('y1', p1_2d.y * p1_2d.p * scale + center_y);
+                    line.setAttribute('x2', p2_2d.x * p2_2d.p * scale + center_x);
+                    line.setAttribute('y2', p2_2d.y * p2_2d.p * scale + center_y);
+                    line.style.display = 'block';
+                }
+            }
         });
 
-        edges.forEach((edge, i) => {
-            const p1 = projected[edge[0]];
-            const p2 = projected[edge[1]];
-            edgeElements[i].setAttribute('x1', p1.x); edgeElements[i].setAttribute('y1', p1.y);
-            edgeElements[i].setAttribute('x2', p2.x); edgeElements[i].setAttribute('y2', p2.y);
+        for (let i = ghostLineIndex; i < ghostLines.length; i++) ghostLines[i].style.display = 'none';
+
+        if (intersectionPoints.length > 2) {
+            const centroid = intersectionPoints.reduce((a, p) => ({x:a.x+p.x, y:a.y+p.y}), {x:0, y:0});
+            centroid.x /= intersectionPoints.length; centroid.y /= intersectionPoints.length;
+            intersectionPoints.sort((a,b) => Math.atan2(a.y-centroid.y, a.x-centroid.x) - Math.atan2(b.y-centroid.y, b.x-centroid.x));
+            sliceShape.setAttribute('points', intersectionPoints.map(p => `${p.x},${p.y}`).join(' '));
+        } else {
+            sliceShape.setAttribute('points', '');
+        }
+
+        window.animationFrameId = requestAnimationFrame(animate);
+    }
+    animate();
+}
+
+function drawSpatial_Variant1() { // Unfolding Tesseract Net with Enhanced Visuals
+    clearSVG();
+    const center_x = 250, center_y = 200;
+    let unfoldFactor = 0;
+    let rotation = { xy: 0, xz: 0, yz: 0 };
+    let rotationMode = 0;
+    let t = 0;
+
+    const rotationProfiles = [
+        { xy: 0.005, xz: 0.003, yz: 0 },         // Smooth Tumble
+        { xy: 0, xz: 0, yz: 0.01 },              // Flat Spin
+        { xy: 0.008, xz: 0, yz: 0 },              // Top-down Spin
+        { xy: 0, xz: 0.007, yz: 0.007 }          // Diagonal Spin
+    ];
+    
+    addTrackedListener(DOM.svg, 'click', () => {
+        rotationMode = (rotationMode + 1) % rotationProfiles.length;
+    });
+
+    const cubeVertices = Array.from({length: 8}, (_, i) => ({ x: (i&1?0.5:-0.5), y: (i&2?0.5:-0.5), z: (i&4?0.5:-0.5) }));
+    const cubeEdges = [[0,1],[0,2],[0,4],[1,3],[1,5],[2,3],[2,6],[3,7],[4,5],[4,6],[5,7],[6,7]];
+    const netOffsets = [ {x:0,y:0,z:0}, {x:1,y:0,z:0}, {x:-1,y:0,z:0}, {x:0,y:1,z:0}, {x:0,y:-1,z:0}, {x:0,y:0,z:1}, {x:0,y:0,z:-1}, {x:2,y:0,z:0} ];
+    
+    const cubes = netOffsets.map(() => cubeEdges.map(() => {
+        const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+        line.style.filter = 'url(#glow)'; // Apply glow to all
+        DOM.svg.appendChild(line);
+        return line;
+    }));
+    
+    addTrackedListener(DOM.svg, 'mousemove', e => {
+        const rect = DOM.svg.getBoundingClientRect();
+        unfoldFactor = (e.clientX - rect.left) / rect.width;
+        rotation.yz = ((e.clientY - rect.top) / rect.height - 0.5) * Math.PI * (1 - unfoldFactor); // Dampen manual rotation when unfolded
+    });
+
+    function animate() {
+        t++;
+        const profile = rotationProfiles[rotationMode];
+        rotation.xy += profile.xy; rotation.xz += profile.xz;
+        // The yz rotation is a combination of profile and mouse for more dynamic control
+        let currentYz = rotation.yz + (profile.yz * t);
+
+        netOffsets.forEach((offset, cubeIndex) => {
+            const interpolatedOffset = {
+                x: offset.x * unfoldFactor,
+                y: offset.y * unfoldFactor,
+                z: offset.z * unfoldFactor,
+            };
+            const dist = Math.sqrt(interpolatedOffset.x**2 + interpolatedOffset.y**2 + interpolatedOffset.z**2);
+            const styleFactor = 0.5 + Math.min(dist * 0.5, 0.5); // Factor from 0.5 to 1.0 based on distance
+
+            const projected = cubeVertices.map(v => {
+                let x = v.x + interpolatedOffset.x, y = v.y + interpolatedOffset.y, z = v.z + interpolatedOffset.z;
+                const r = (a) => ({ c: Math.cos(a), s: Math.sin(a) });
+                let r_xy = r(rotation.xy), r_xz = r(rotation.xz), r_yz = r(currentYz);
+                [x,y] = [x*r_xy.c - y*r_xy.s, x*r_xy.s + y*r_xy.c];
+                [x,z] = [x*r_xz.c - z*r_xz.s, x*r_xz.s + z*r_xz.c];
+                [y,z] = [y*r_yz.c - z*r_yz.s, y*r_yz.s + z*r_yz.c];
+
+                const perspective = 1.5 / (4 - z);
+                // Scaling factor
+                return { x: x * perspective * 220 + center_x, y: y * perspective * 220 + center_y };
+            });
+
+            cubeEdges.forEach((edge, edgeIndex) => {
+                const p1 = projected[edge[0]], p2 = projected[edge[1]];
+                const line = cubes[cubeIndex][edgeIndex];
+                line.setAttribute('x1', p1.x); line.setAttribute('y1', p1.y);
+                line.setAttribute('x2', p2.x); line.setAttribute('y2', p2.y);
+                line.setAttribute('stroke', `rgba(199, 210, 254, ${0.5 + styleFactor * 0.5})`);
+                line.setAttribute('stroke-width', 0.5 + styleFactor);
+            });
         });
 
         window.animationFrameId = requestAnimationFrame(animate);
@@ -334,59 +371,156 @@ function drawSpatial_Variant2() { // Interactive Tesseract
     animate();
 }
 
-function drawSpatial_Variant3() { // Inverse Geometry Portal
+function drawSpatial_Variant2() { // Nested 5D Penteract
     clearSVG();
-    const portal = { x: 250, y: 200, r: 100 };
-    const gridLines = [];
+    const center_x = 250, center_y = 200;
+    let rot = { xw: 0, yw: 0, zw: 0.1, xy: 0.2, yz: 0.3 };
 
-    // Create a grid of polylines
-    for (let i = 0; i <= 10; i++) {
-        // Horizontal
-        const hLine = document.createElementNS('http://www.w3.org/2000/svg', 'polyline');
-        hLine.setAttribute('fill', 'none'); hLine.setAttribute('stroke', 'rgba(165, 180, 252, 0.3)'); hLine.setAttribute('stroke-width', '1');
-        DOM.svg.appendChild(hLine);
-        gridLines.push({ type: 'h', pos: i * 40, el: hLine, points: [] });
+    const createTesseract = (size) => {
+        const vertices = [];
+        for (let i = 0; i < 16; i++) {
+            vertices.push({
+                x: (i & 1 ? size : -size), y: (i & 2 ? size : -size),
+                z: (i & 4 ? size : -size), w: (i & 8 ? size : -size)
+            });
+        }
+        const edges = [
+            [0,1],[0,2],[0,4],[0,8],[1,3],[1,5],[1,9],[2,3],[2,6],[2,10],[3,7],[3,11],
+            [4,5],[4,6],[4,12],[5,7],[5,13],[6,7],[6,14],[7,15],[8,9],[8,10],[8,12],
+            [9,11],[9,13],[10,11],[10,14],[11,15],[12,13],[12,14],[13,15],[14,15]
+        ];
+        return { vertices, edges };
+    };
 
-        // Vertical
-        const vLine = document.createElementNS('http://www.w3.org/2000/svg', 'polyline');
-        vLine.setAttribute('fill', 'none'); vLine.setAttribute('stroke', 'rgba(165, 180, 252, 0.3)'); vLine.setAttribute('stroke-width', '1');
-        DOM.svg.appendChild(vLine);
-        gridLines.push({ type: 'v', pos: i * 50, el: vLine, points: [] });
-    }
+    const tesseractOuter = createTesseract(1);
+    const tesseractInner = createTesseract(0.5);
+    
+    const allEdges = [
+        ...tesseractOuter.edges,
+        ...tesseractInner.edges,
+        ...Array.from({length: 16}, (_, i) => [i, i]) // Placeholder for connectors
+    ];
 
+    const edgeElements = allEdges.map((edge, i) => {
+        const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+        if (i < tesseractOuter.edges.length) { // Outer
+            line.setAttribute('stroke', 'rgba(199, 210, 254, 0.7)'); line.setAttribute('stroke-width', '1.5');
+        } else if (i < tesseractOuter.edges.length + tesseractInner.edges.length) { // Inner
+            line.setAttribute('stroke', 'rgba(165, 180, 252, 0.9)'); line.setAttribute('stroke-width', '1');
+        } else { // Connectors
+            line.setAttribute('stroke', 'rgba(129, 140, 248, 1)'); line.setAttribute('stroke-width', '2'); line.style.filter = 'url(#glow)';
+        }
+        DOM.svg.appendChild(line);
+        return line;
+    });
+    
     addTrackedListener(DOM.svg, 'mousemove', e => {
         const rect = DOM.svg.getBoundingClientRect();
-        const viewBox = DOM.svg.viewBox.baseVal;
-        portal.x = (e.clientX - rect.left) * (viewBox.width / rect.width);
-        portal.y = (e.clientY - rect.top) * (viewBox.height / rect.height);
-        const dx = portal.x - 250; const dy = portal.y - 200;
-        portal.r = 150 - Math.sqrt(dx*dx + dy*dy) * 0.5; // Radius shrinks as mouse moves away from center
+        rot.yw = ((e.clientX - rect.left) / rect.width - 0.5) * Math.PI;
+        rot.xw = ((e.clientY - rect.top) / rect.height - 0.5) * Math.PI;
     });
 
     let t = 0;
     function animate() {
         t += 0.01;
-        const radius = portal.r * (1 + Math.sin(t) * 0.1);
+        const project = (v, scale, rotationOffset) => {
+            let x=v.x, y=v.y, z=v.z, w=v.w;
+            const r = (r, a, b) => { let c=Math.cos(r), s=Math.sin(r); return { c:c, s:s }; };
+            
+            let r_xw = r(rot.xw + rotationOffset, x, w), r_yw = r(rot.yw + rotationOffset, y, w), r_zw = r(rot.zw, z, w);
+            let r_xy = r(rot.xy, x, y), r_yz = r(rot.yz, y, z);
+            
+            [x,w] = [x*r_xw.c - w*r_xw.s, x*r_xw.s + w*r_xw.c];
+            [y,w] = [y*r_yw.c - w*r_yw.s, y*r_yw.s + w*r_yw.c];
+            [z,w] = [z*r_zw.c - w*r_zw.s, z*r_zw.s + w*r_zw.c];
+            [x,y] = [x*r_xy.c - y*r_xy.s, x*r_xy.s + y*r_xy.c];
+            [y,z] = [y*r_yz.c - z*r_yz.s, y*r_yz.s + z*r_yz.c];
+
+            const perspective = 1.5 / (4 - w);
+            return { x: x * perspective * scale + center_x, y: y * perspective * scale + center_y, w: w };
+        };
+        // Changing the scale of tesseract on screen
+        const p_outer = tesseractOuter.vertices.map(v => project(v, 270, 0));
+        const p_inner = tesseractInner.vertices.map(v => project(v, 240, Math.sin(t*0.5)*0.5));
+        
+        edgeElements.forEach((el, i) => {
+            if (i < 32) { // Outer tesseract
+                const edge = tesseractOuter.edges[i];
+                el.setAttribute('x1', p_outer[edge[0]].x); el.setAttribute('y1', p_outer[edge[0]].y);
+                el.setAttribute('x2', p_outer[edge[1]].x); el.setAttribute('y2', p_outer[edge[1]].y);
+            } else if (i < 64) { // Inner tesseract
+                const edge = tesseractInner.edges[i - 32];
+                el.setAttribute('x1', p_inner[edge[0]].x); el.setAttribute('y1', p_inner[edge[0]].y);
+                el.setAttribute('x2', p_inner[edge[1]].x); el.setAttribute('y2', p_inner[edge[1]].y);
+            } else { // Connectors
+                const vertexIndex = i - 64;
+                el.setAttribute('x1', p_outer[vertexIndex].x); el.setAttribute('y1', p_outer[vertexIndex].y);
+                el.setAttribute('x2', p_inner[vertexIndex].x); el.setAttribute('y2', p_inner[vertexIndex].y);
+                const avgW = (p_outer[vertexIndex].w + p_inner[vertexIndex].w) / 2;
+                el.style.opacity = Math.max(0.1, (avgW + 1) / 2); // Dim lines that are "further away" in 4D
+            }
+        });
+        
+        rot.xy += 0.001; rot.yz += 0.002; rot.zw += 0.003;
+        window.animationFrameId = requestAnimationFrame(animate);
+    }
+    animate();
+}
+
+function drawSpatial_Variant3() { // Interactive Inverse Geometry Portal
+    clearSVG();
+    const portal = { x: 250, y: 200, r: 100, vx: 0.3, vy: 0.2 };
+    let isPortalLocked = false;
+    const gridLines = [];
+
+    const portalVisual = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+    portalVisual.setAttribute('cx', portal.x); portalVisual.setAttribute('cy', portal.y);
+    portalVisual.setAttribute('fill', 'none'); portalVisual.setAttribute('stroke', '#818cf8');
+    portalVisual.setAttribute('stroke-width', '2'); portalVisual.style.filter = 'url(#glow)';
+    
+    for (let i = 0; i <= 10; i++) {
+        [{type:'h', pos: i*40, step:10}, {type:'v', pos: i*50, step:8}].forEach(spec => {
+            const line = document.createElementNS('http://www.w3.org/2000/svg', 'polyline');
+            line.setAttribute('fill', 'none'); line.setAttribute('stroke', 'rgba(165, 180, 252, 0.3)'); line.setAttribute('stroke-width', '1');
+            DOM.svg.appendChild(line);
+            gridLines.push({ type: spec.type, pos: spec.pos, el: line, step: spec.step });
+        });
+    }
+    DOM.svg.appendChild(portalVisual); // Add portal on top
+
+    addTrackedListener(DOM.svg, 'mousemove', e => {
+        if (isPortalLocked) return;
+        const rect = DOM.svg.getBoundingClientRect();
+        const viewBox = DOM.svg.viewBox.baseVal;
+        portal.x = (e.clientX - rect.left) * (viewBox.width / rect.width);
+        portal.y = (e.clientY - rect.top) * (viewBox.height / rect.height);
+    });
+
+    addTrackedListener(DOM.svg, 'click', () => { isPortalLocked = !isPortalLocked; });
+
+    let t = 0;
+    function animate() {
+        t += 0.015;
+        if (isPortalLocked) {
+            portal.x = 250 + Math.sin(t * 0.7) * 100;
+            portal.y = 200 + Math.cos(t * 0.5) * 80;
+        }
+
+        const radius = 100 * (1 + Math.sin(t * 2) * 0.15);
         const r2 = radius * radius;
         
+        portalVisual.setAttribute('cx', portal.x); portalVisual.setAttribute('cy', portal.y);
+        portalVisual.setAttribute('r', radius);
+
         gridLines.forEach(line => {
             let pointsStr = '';
             for (let i = 0; i <= 50; i++) {
-                const p = {};
-                if (line.type === 'h') { p.x = i * 10; p.y = line.pos; }
-                else { p.x = line.pos; p.y = i * 8; }
-                
-                // Inverse transform
-                const dx = p.x - portal.x;
-                const dy = p.y - portal.y;
+                const p = (line.type === 'h') ? {x: i * line.step, y: line.pos} : {x: line.pos, y: i * line.step};
+                const dx = p.x - portal.x, dy = p.y - portal.y;
                 const d2 = dx * dx + dy * dy;
-                
-                if (d2 === 0) continue; // Avoid division by zero at center
+                if (d2 < 0.1) continue;
                 const factor = r2 / d2;
-                
-                const finalX = portal.x + dx * factor;
-                const finalY = portal.y + dy * factor;
-                pointsStr += `${finalX},${finalY} `;
+                pointsStr += `${portal.x + dx * factor},${portal.y + dy * factor} `;
             }
             line.el.setAttribute('points', pointsStr);
         });
