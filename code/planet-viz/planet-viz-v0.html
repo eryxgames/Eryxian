@@ -1,0 +1,506 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Advanced Sci-Fi Planet Generator</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #000005;
+            color: #e0e0e0;
+            overflow: hidden;
+        }
+        #container {
+            width: 100vw;
+            height: 100vh;
+            position: fixed;
+            top: 0;
+            left: 0;
+        }
+        canvas { display: block; }
+        .ui-panel {
+            position: fixed;
+            top: 1rem;
+            left: 1rem;
+            z-index: 10;
+            background-color: rgba(10, 10, 30, 0.75);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(0, 191, 255, 0.3);
+            border-radius: 0.5rem;
+            padding: 1.5rem;
+            box-shadow: 0 0 30px rgba(0, 191, 255, 0.15);
+            width: 300px;
+            max-height: calc(100vh - 2rem);
+            overflow-y: auto;
+        }
+        .ui-section { margin-bottom: 1.5rem; }
+        .ui-label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+            color: #00bfff;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-size: 0.8rem;
+        }
+        .control-button {
+            background-color: transparent;
+            border: 1px solid rgba(0, 191, 255, 0.5);
+            color: #00bfff;
+            padding: 0.5rem 1rem;
+            margin-right: 0.5rem;
+            margin-bottom: 0.5rem;
+            border-radius: 0.25rem;
+            cursor: pointer;
+            transition: background-color 0.3s, color 0.3s;
+        }
+        .control-button:hover { background-color: rgba(0, 191, 255, 0.2); }
+        .control-button.active {
+            background-color: #00bfff;
+            color: #0a0a1a;
+            font-weight: bold;
+        }
+        select, input[type="range"] {
+            width: 100%;
+            background-color: rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(0, 191, 255, 0.5);
+            border-radius: 0.25rem;
+            padding: 0.5rem;
+            color: #e0e0e0;
+        }
+        select option { background-color: #0a0a1a; }
+        .switch {
+            position: relative;
+            display: inline-block;
+            width: 50px;
+            height: 24px;
+        }
+        .switch input { opacity: 0; width: 0; height: 0; }
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0,0,0,0.3);
+            transition: .4s;
+            border-radius: 24px;
+            border: 1px solid rgba(0, 191, 255, 0.5);
+        }
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 16px;
+            width: 16px;
+            left: 4px;
+            bottom: 3px;
+            background-color: #00bfff;
+            transition: .4s;
+            border-radius: 50%;
+        }
+        input:checked + .slider { background-color: #00bfff; }
+        input:checked + .slider:before {
+            transform: translateX(26px);
+            background-color: #0a0a1a;
+        }
+    </style>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;700&display=swap" rel="stylesheet">
+</head>
+<body>
+
+    <div id="container"></div>
+
+    <div class="ui-panel">
+        <div class="ui-section">
+            <label class="ui-label" for="planet-type">Planet Type</label>
+            <select id="planet-type">
+                <option value="terran">Terran</option>
+                <option value="desert">Desert</option>
+                <option value="gas">Gas Giant</option>
+                <option value="ice">Ice World</option>
+            </select>
+        </div>
+
+        <div class="ui-section">
+            <label class="ui-label">Display Mode</label>
+            <div>
+                <button id="btn-solid" class="control-button active">Texture</button>
+                <button id="btn-grid" class="control-button">Lat/Long Grid</button>
+                <button id="btn-points" class="control-button">Point Cloud</button>
+            </div>
+        </div>
+
+        <div class="ui-section">
+            <label class="ui-label">Enhancements</label>
+            <div class="flex items-center justify-between mb-2">
+                <span>Rings</span>
+                <label class="switch">
+                    <input type="checkbox" id="toggle-rings">
+                    <span class="slider"></span>
+                </label>
+            </div>
+            <div class="flex items-center justify-between">
+                <span>Day/Night Cycle</span>
+                <label class="switch">
+                    <input type="checkbox" id="toggle-day-night" checked>
+                    <span class="slider"></span>
+                </label>
+            </div>
+        </div>
+
+        <div class="ui-section">
+            <label class="ui-label" for="moon-slider">Moons: <span id="moon-count">0</span></label>
+            <input type="range" id="moon-slider" min="0" max="5" value="0" step="1">
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/simplex-noise/2.4.0/simplex-noise.min.js"></script>
+
+    <script type="module">
+        // --- SCENE GLOBALS ---
+        let scene, camera, renderer, controls, clock;
+        let sunLight;
+        let planetGroup, atmosphere, stars, rings, latLongGrid;
+        let currentPlanetObject;
+        const moons = [];
+        const simplex = new SimplexNoise();
+
+        // --- CONFIG ---
+        const PLANET_RADIUS = 5;
+        const planetTypes = {
+            terran: { color: 0x5b9aa0, landColor: 0x3e6b4f, atmosphereColor: new THREE.Color(0x87ceeb) },
+            desert: { color: 0xb58a62, landColor: 0x8a5a3a, atmosphereColor: new THREE.Color(0xf4a460) },
+            gas: { color: 0xf0e68c, atmosphereColor: new THREE.Color(0xffdead) },
+            ice: { color: 0xe0ffff, atmosphereColor: new THREE.Color(0xf0ffff) }
+        };
+
+        // --- TEXTURE GENERATION ---
+        function generateTexture(type, size = 512) {
+            const canvas = document.createElement('canvas');
+            canvas.width = size;
+            canvas.height = size / 2;
+            const ctx = canvas.getContext('2d');
+            const config = planetTypes[type];
+
+            // Base color
+            ctx.fillStyle = `#${config.color.toString(16).padStart(6, '0')}`;
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            // Add landmasses for terran/desert
+            if (type === 'terran' || type === 'desert') {
+                ctx.fillStyle = `#${config.landColor.toString(16).padStart(6, '0')}`;
+                for (let i = 0; i < canvas.width; i++) {
+                    for (let j = 0; j < canvas.height; j++) {
+                        const noise = simplex.noise2D(i / 100, j / 100);
+                        if (noise > 0.3) {
+                            ctx.fillRect(i, j, 1, 1);
+                        }
+                    }
+                }
+            }
+            // Add swirls for gas giant
+            if (type === 'gas') {
+                 for (let i = 0; i < 20; i++) {
+                    ctx.fillStyle = `rgba(255, 255, 255, ${Math.random() * 0.2})`;
+                    ctx.beginPath();
+                    ctx.ellipse(Math.random() * size, Math.random() * size / 2, Math.random() * size / 4, Math.random() * size / 20, Math.random() * Math.PI * 2, 0, Math.PI * 2);
+                    ctx.fill();
+                }
+            }
+            return new THREE.CanvasTexture(canvas);
+        }
+        
+        function generateDisplacementMap(size = 512) {
+             const canvas = document.createElement('canvas');
+            canvas.width = size;
+            canvas.height = size / 2;
+            const ctx = canvas.getContext('2d');
+            const imageData = ctx.createImageData(canvas.width, canvas.height);
+            for (let i = 0; i < imageData.data.length; i += 4) {
+                const x = (i / 4) % canvas.width;
+                const y = Math.floor((i / 4) / canvas.width);
+                const noise = (simplex.noise2D(x / 100, y / 100) + 1) * 0.5; // Normalize to 0-1
+                const value = noise * 255;
+                imageData.data[i] = value;
+                imageData.data[i+1] = value;
+                imageData.data[i+2] = value;
+                imageData.data[i+3] = 255;
+            }
+            ctx.putImageData(imageData, 0, 0);
+            return new THREE.CanvasTexture(canvas);
+        }
+
+        function generateRingTexture(size = 512) {
+            const canvas = document.createElement('canvas');
+            canvas.width = 2;
+            canvas.height = size;
+            const ctx = canvas.getContext('2d');
+            const gradient = ctx.createLinearGradient(0, 0, 0, size);
+
+            for (let i = 0; i < 1; i += 0.02) {
+                 gradient.addColorStop(i, `rgba(180, 160, 140, ${Math.random() * 0.5})`);
+                 if (Math.random() > 0.7) { // Gaps
+                      gradient.addColorStop(i + 0.01, 'rgba(0,0,0,0)');
+                 }
+            }
+            ctx.fillStyle = gradient;
+            ctx.fillRect(0, 0, 2, size);
+            return new THREE.CanvasTexture(canvas);
+        }
+
+
+        // --- OBJECT CREATION ---
+        function createPlanet(type) {
+            if (currentPlanetObject) planetGroup.remove(currentPlanetObject);
+            if (atmosphere) planetGroup.remove(atmosphere);
+
+            const config = planetTypes[type];
+            const geometry = new THREE.SphereGeometry(PLANET_RADIUS, 64, 64);
+            const material = new THREE.MeshPhongMaterial({
+                map: generateTexture(type),
+                shininess: type === 'ice' ? 100 : 10,
+            });
+
+            if (type === 'terran' || type === 'desert') {
+                material.displacementMap = generateDisplacementMap();
+                material.displacementScale = 0.2;
+            }
+
+            currentPlanetObject = new THREE.Mesh(geometry, material);
+            currentPlanetObject.castShadow = true;
+            currentPlanetObject.receiveShadow = true;
+            planetGroup.add(currentPlanetObject);
+            
+            // Atmosphere
+            const atmosphereGeometry = new THREE.SphereGeometry(PLANET_RADIUS + 0.4, 64, 64);
+            const atmosphereMaterial = new THREE.MeshBasicMaterial({
+                color: config.atmosphereColor,
+                transparent: true,
+                opacity: 0.2
+            });
+            atmosphere = new THREE.Mesh(atmosphereGeometry, atmosphereMaterial);
+            planetGroup.add(atmosphere);
+
+            updateDisplayMode(document.querySelector('.control-button.active').id.replace('btn-', ''));
+        }
+
+        function createLatLongGrid() {
+            const gridGroup = new THREE.Group();
+            const material = new THREE.LineBasicMaterial({ color: 0x00bfff, transparent: true, opacity: 0.5 });
+
+            // Latitudes
+            for (let i = -8; i <= 8; i++) {
+                const radius = Math.cos(i * 10 * Math.PI / 180) * (PLANET_RADIUS + 0.05);
+                const y = Math.sin(i * 10 * Math.PI / 180) * (PLANET_RADIUS + 0.05);
+                const geometry = new THREE.RingGeometry(radius, radius, 128);
+                const ring = new THREE.LineLoop(geometry.deleteAttribute('normal'), material);
+                ring.position.y = y;
+                ring.rotation.x = Math.PI / 2;
+                gridGroup.add(ring);
+            }
+
+            // Longitudes
+            for (let i = 0; i < 12; i++) {
+                const geometry = new THREE.CircleGeometry(PLANET_RADIUS + 0.05, 128);
+                const circle = new THREE.LineLoop(geometry.deleteAttribute('normal'), material);
+                circle.rotation.y = i * 30 * Math.PI / 180;
+                gridGroup.add(circle);
+            }
+            return gridGroup;
+        }
+
+        function updateMoons(count) {
+            while (moons.length > count) {
+                const moonToRemove = moons.pop();
+                scene.remove(moonToRemove.pivot);
+            }
+            while (moons.length < count) {
+                const moonGeo = new THREE.SphereGeometry(Math.random() * 0.2 + 0.1, 16, 16);
+                const moonMat = new THREE.MeshPhongMaterial({ color: 0xcccccc });
+                const moonMesh = new THREE.Mesh(moonGeo, moonMat);
+                moonMesh.receiveShadow = true;
+
+                const pivot = new THREE.Group();
+                const distance = PLANET_RADIUS + 2 + Math.random() * 5;
+                const angle = Math.random() * Math.PI * 2;
+                moonMesh.position.set(distance, 0, 0);
+                
+                pivot.add(moonMesh);
+                pivot.rotation.y = angle;
+                pivot.rotation.x = (Math.random() - 0.5) * 0.5; // Inclination
+                
+                scene.add(pivot);
+                moons.push({
+                    pivot: pivot,
+                    speed: Math.random() * 0.005 + 0.002
+                });
+            }
+            document.getElementById('moon-count').textContent = count;
+        }
+
+        function toggleRings(visible) {
+            if (visible && !rings) {
+                const ringGeo = new THREE.RingGeometry(PLANET_RADIUS + 1, PLANET_RADIUS + 3, 128);
+                const pos = ringGeo.attributes.position;
+                const v3 = new THREE.Vector3();
+                for (let i = 0; i < pos.count; i++){
+                    v3.fromBufferAttribute(pos, i);
+                    ringGeo.attributes.uv.setXY(i, v3.length() < PLANET_RADIUS + 2 ? 0 : 1, 1);
+                }
+
+                const ringMat = new THREE.MeshPhongMaterial({
+                    map: generateRingTexture(),
+                    side: THREE.DoubleSide,
+                    transparent: true,
+                    opacity: 0.8
+                });
+                rings = new THREE.Mesh(ringGeo, ringMat);
+                rings.rotation.x = Math.PI * 0.4;
+                rings.receiveShadow = true;
+                planetGroup.add(rings);
+            } else if (!visible && rings) {
+                planetGroup.remove(rings);
+                rings.geometry.dispose();
+                rings.material.dispose();
+                rings = null;
+            }
+        }
+        
+        function updateDisplayMode(mode) {
+             if (latLongGrid) latLongGrid.visible = false;
+             if (currentPlanetObject) currentPlanetObject.visible = false;
+
+             if (mode === 'solid') {
+                if (currentPlanetObject) currentPlanetObject.visible = true;
+             } else if (mode === 'grid') {
+                 if (currentPlanetObject) currentPlanetObject.visible = true;
+                 if (latLongGrid) latLongGrid.visible = true;
+             } else if (mode === 'points') {
+                // For simplicity, we just change material, but a dedicated points object is better
+                if (currentPlanetObject.type === 'Mesh') {
+                    currentPlanetObject.material = new THREE.PointsMaterial({
+                        color: 0x00bfff,
+                        size: 0.05
+                    });
+                     // This is a hacky conversion. A proper implementation would create a new Points object.
+                     const points = new THREE.Points(currentPlanetObject.geometry, currentPlanetObject.material);
+                     planetGroup.remove(currentPlanetObject);
+                     currentPlanetObject = points;
+                     planetGroup.add(currentPlanetObject);
+                }
+                currentPlanetObject.visible = true;
+             }
+        }
+
+        // --- MAIN ---
+        function init() {
+            clock = new THREE.Clock();
+            const container = document.getElementById('container');
+            scene = new THREE.Scene();
+            camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 2000);
+            camera.position.set(0, 5, 15);
+
+            renderer = new THREE.WebGLRenderer({ antialias: true });
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            renderer.setPixelRatio(window.devicePixelRatio);
+            renderer.shadowMap.enabled = true;
+            container.appendChild(renderer.domElement);
+
+            sunLight = new THREE.DirectionalLight(0xffffff, 1.5);
+            sunLight.position.set(20, 5, 10);
+            sunLight.castShadow = true;
+            scene.add(sunLight);
+            const ambientLight = new THREE.AmbientLight(0x404040, 0.2);
+            scene.add(ambientLight);
+
+            planetGroup = new THREE.Group();
+            scene.add(planetGroup);
+            
+            latLongGrid = createLatLongGrid();
+            planetGroup.add(latLongGrid);
+
+            createPlanet('terran');
+            
+            // Starfield
+            const starGeo = new THREE.BufferGeometry();
+            const starVertices = [];
+            for (let i = 0; i < 10000; i++) {
+                const x = (Math.random() - 0.5) * 2000;
+                const y = (Math.random() - 0.5) * 2000;
+                const z = (Math.random() - 0.5) * 2000;
+                starVertices.push(x, y, z);
+            }
+            starGeo.setAttribute('position', new THREE.Float32BufferAttribute(starVertices, 3));
+            stars = new THREE.Points(starGeo, new THREE.PointsMaterial({ color: 0xffffff, size: 0.7 }));
+            scene.add(stars);
+
+            controls = new THREE.OrbitControls(camera, renderer.domElement);
+            controls.enableDamping = true;
+            controls.minDistance = 8;
+            controls.maxDistance = 50;
+
+            setupUI();
+            window.addEventListener('resize', onWindowResize);
+        }
+
+        function setupUI() {
+            document.getElementById('planet-type').addEventListener('change', (e) => {
+                createPlanet(e.target.value);
+            });
+            document.getElementById('moon-slider').addEventListener('input', (e) => {
+                updateMoons(parseInt(e.target.value));
+            });
+            document.getElementById('toggle-rings').addEventListener('change', (e) => {
+                toggleRings(e.target.checked);
+            });
+            document.getElementById('toggle-day-night').addEventListener('change', (e) => {
+                sunLight.intensity = e.target.checked ? 1.5 : 0;
+                scene.getObjectByName("ambientLight").intensity = e.target.checked ? 0.2 : 0.8;
+            });
+            
+            const displayButtons = document.querySelectorAll('.control-button');
+            displayButtons.forEach(button => {
+                button.addEventListener('click', () => {
+                    displayButtons.forEach(btn => btn.classList.remove('active'));
+                    button.classList.add('active');
+                    updateDisplayMode(button.id.replace('btn-', ''));
+                });
+            });
+        }
+
+        function onWindowResize() {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        }
+
+        function animate() {
+            requestAnimationFrame(animate);
+            const delta = clock.getDelta();
+
+            planetGroup.rotation.y += 0.05 * delta;
+            if (stars) stars.rotation.y += 0.01 * delta;
+
+            moons.forEach(moon => {
+                moon.pivot.rotation.y += moon.speed;
+                moon.pivot.children[0].rotation.y += 0.01;
+            });
+
+            controls.update();
+            renderer.render(scene, camera);
+        }
+
+        init();
+        animate();
+    </script>
+</body>
+</html>

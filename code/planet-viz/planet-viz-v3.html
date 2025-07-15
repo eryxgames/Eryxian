@@ -1,0 +1,1799 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Advanced Sci-Fi Planet Generator v3.0</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #000005;
+            color: #e0e0e0;
+            overflow: hidden;
+        }
+        #container {
+            width: 100vw;
+            height: 100vh;
+            position: fixed;
+            top: 0;
+            left: 0;
+        }
+        canvas { display: block; }
+        .ui-panel {
+            position: fixed;
+            top: 1rem;
+            left: 1rem;
+            z-index: 10;
+            background-color: rgba(10, 10, 30, 0.85);
+            backdrop-filter: blur(15px);
+            border: 1px solid rgba(0, 191, 255, 0.4);
+            border-radius: 0.75rem;
+            padding: 1.5rem;
+            box-shadow: 0 0 40px rgba(0, 191, 255, 0.2);
+            width: 340px;
+            max-height: calc(100vh - 2rem);
+            overflow-y: auto;
+            transition: transform 0.3s ease-in-out;
+        }
+        .ui-panel.hidden {
+            transform: translateX(-110%);
+        }
+        
+        .shader-editor {
+            position: fixed;
+            top: 1rem;
+            right: 1rem;
+            z-index: 10;
+            background-color: rgba(10, 10, 30, 0.85);
+            backdrop-filter: blur(15px);
+            border: 1px solid rgba(255, 100, 0, 0.4);
+            border-radius: 0.75rem;
+            padding: 1.5rem;
+            box-shadow: 0 0 40px rgba(255, 100, 0, 0.2);
+            width: 400px;
+            max-height: calc(100vh - 2rem);
+            overflow-y: auto;
+            transition: transform 0.3s ease-in-out;
+        }
+        .shader-editor.hidden {
+            transform: translateX(110%);
+        }
+        
+        #toggle-ui-button {
+            position: fixed;
+            top: 1rem;
+            left: 1rem;
+            z-index: 11;
+            background-color: rgba(10, 10, 30, 0.85);
+            border: 1px solid rgba(0, 191, 255, 0.4);
+            color: #00bfff;
+            width: 40px;
+            height: 40px;
+            border-radius: 0.5rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        #toggle-shader-button {
+            position: fixed;
+            top: 1rem;
+            right: 1rem;
+            z-index: 11;
+            background-color: rgba(10, 10, 30, 0.85);
+            border: 1px solid rgba(255, 100, 0, 0.4);
+            color: #ff6400;
+            width: 40px;
+            height: 40px;
+            border-radius: 0.5rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .ui-section { margin-bottom: 1.5rem; }
+        .ui-label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+            color: #00bfff;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-size: 0.8rem;
+        }
+        .shader-label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+            color: #ff6400;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-size: 0.8rem;
+        }
+        .control-button-group {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0.5rem;
+        }
+        .control-button {
+            background-color: transparent;
+            border: 1px solid rgba(0, 191, 255, 0.5);
+            color: #00bfff;
+            padding: 0.5rem;
+            border-radius: 0.25rem;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-align: center;
+            font-size: 0.875rem;
+        }
+        .control-button:hover { 
+            background-color: rgba(0, 191, 255, 0.2);
+            transform: translateY(-1px);
+        }
+        .control-button.active {
+            background-color: #00bfff;
+            color: #0a0a1a;
+            font-weight: bold;
+        }
+        .shader-button {
+            background-color: transparent;
+            border: 1px solid rgba(255, 100, 0, 0.5);
+            color: #ff6400;
+            padding: 0.5rem;
+            border-radius: 0.25rem;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-align: center;
+            font-size: 0.875rem;
+            width: 100%;
+            margin-bottom: 0.5rem;
+        }
+        .shader-button:hover { 
+            background-color: rgba(255, 100, 0, 0.2);
+            transform: translateY(-1px);
+        }
+        select, input[type="range"], input[type="text"], input[type="number"] {
+            width: 100%;
+            background-color: rgba(0, 0, 0, 0.4);
+            border: 1px solid rgba(0, 191, 255, 0.5);
+            border-radius: 0.25rem;
+            padding: 0.5rem;
+            color: #e0e0e0;
+        }
+        select option { background-color: #0a0a1a; }
+        
+        textarea {
+            width: 100%;
+            height: 200px;
+            background-color: rgba(0, 0, 0, 0.6);
+            border: 1px solid rgba(255, 100, 0, 0.5);
+            border-radius: 0.25rem;
+            padding: 0.5rem;
+            color: #e0e0e0;
+            font-family: 'Courier New', monospace;
+            font-size: 0.8rem;
+            resize: vertical;
+        }
+        
+        .switch-container {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 0.75rem;
+        }
+        .switch {
+            position: relative;
+            display: inline-block;
+            width: 50px;
+            height: 24px;
+        }
+        .switch input { opacity: 0; width: 0; height: 0; }
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background-color: rgba(0,0,0,0.3);
+            transition: .4s;
+            border-radius: 24px;
+            border: 1px solid rgba(0, 191, 255, 0.5);
+        }
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 16px; width: 16px;
+            left: 4px; bottom: 3px;
+            background-color: #00bfff;
+            transition: .4s;
+            border-radius: 50%;
+        }
+        input:checked + .slider { background-color: #00bfff; }
+        input:checked + .slider:before {
+            transform: translateX(26px);
+            background-color: #0a0a1a;
+        }
+        
+        .preset-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+        }
+        
+        .preset-button {
+            background-color: transparent;
+            border: 1px solid rgba(0, 191, 255, 0.3);
+            color: #00bfff;
+            padding: 0.5rem;
+            border-radius: 0.25rem;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-align: center;
+            font-size: 0.75rem;
+        }
+        .preset-button:hover { 
+            background-color: rgba(0, 191, 255, 0.1);
+            border-color: rgba(0, 191, 255, 0.6);
+        }
+        
+        .info-panel {
+            position: fixed;
+            bottom: 1rem;
+            left: 1rem;
+            background-color: rgba(10, 10, 30, 0.85);
+            backdrop-filter: blur(15px);
+            border: 1px solid rgba(100, 255, 100, 0.4);
+            border-radius: 0.5rem;
+            padding: 1rem;
+            color: #64ff64;
+            font-size: 0.8rem;
+            max-width: 300px;
+        }
+        
+        .color-picker {
+            width: 100%;
+            height: 40px;
+            border: 1px solid rgba(0, 191, 255, 0.5);
+            border-radius: 0.25rem;
+            background-color: rgba(0, 0, 0, 0.3);
+            cursor: pointer;
+        }
+    </style>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;700&display=swap" rel="stylesheet">
+</head>
+<body>
+
+    <div id="container"></div>
+
+    <button id="toggle-ui-button" title="Toggle UI">
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12h18M3 6h18M3 18h18"/></svg>
+    </button>
+
+    <button id="toggle-shader-button" title="Toggle Shader Editor">
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14,2 14,8 20,8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10,9 9,9 8,9"/></svg>
+    </button>
+
+    <div class="ui-panel" id="ui-panel">
+        <div class="ui-section">
+            <label class="ui-label">Planet Presets</label>
+            <div class="preset-grid">
+                <button class="preset-button" onclick="loadPreset('earth')">Earth-like</button>
+                <button class="preset-button" onclick="loadPreset('mars')">Mars-like</button>
+                <button class="preset-button" onclick="loadPreset('jupiter')">Jupiter-like</button>
+                <button class="preset-button" onclick="loadPreset('titan')">Titan-like</button>
+                <button class="preset-button" onclick="loadPreset('volcanic')">Volcanic</button>
+                <button class="preset-button" onclick="loadPreset('crystal')">Crystal</button>
+            </div>
+        </div>
+        
+        <div class="ui-section">
+            <label class="ui-label" for="planet-type">Planet Type</label>
+            <select id="planet-type">
+                <option value="terran">Terran</option>
+                <option value="desert">Desert</option>
+                <option value="gas">Gas Giant</option>
+                <option value="ice">Ice World</option>
+                <option value="volcanic">Volcanic</option>
+                <option value="crystal">Crystal</option>
+                <option value="toxic">Toxic</option>
+                <option value="oceanic">Oceanic</option>
+            </select>
+        </div>
+        
+        <div class="ui-section">
+            <label class="ui-label" for="planet-size">Planet Size: <span id="planet-size-label">5.0</span></label>
+            <input type="range" id="planet-size" min="1" max="15" value="5" step="0.1">
+        </div>
+
+        <div class="ui-section">
+            <label class="ui-label">Display Mode</label>
+            <div class="control-button-group">
+                <button id="btn-shader" class="control-button active">Shaded</button>
+                <button id="btn-grid" class="control-button">Lat/Long Grid</button>
+                <button id="btn-heightmap" class="control-button">Heightmap</button>
+                <button id="btn-uvgrid" class="control-button">UV Grid</button>
+                <button id="btn-points" class="control-button">Point Cloud</button>
+                <button id="btn-wireframe" class="control-button">Wireframe</button>
+            </div>
+        </div>
+
+        <div class="ui-section">
+            <label class="ui-label">Atmosphere & Effects</label>
+            <div class="switch-container">
+                <span>Atmosphere Glow</span>
+                <label class="switch"><input type="checkbox" id="toggle-atmosphere"><span class="slider"></span></label>
+            </div>
+            <div class="switch-container">
+                <span>Rings</span>
+                <label class="switch"><input type="checkbox" id="toggle-rings"><span class="slider"></span></label>
+            </div>
+            <div class="switch-container">
+                <span>Clouds</span>
+                <label class="switch"><input type="checkbox" id="toggle-clouds" checked><span class="slider"></span></label>
+            </div>
+            <div class="switch-container">
+                <span>Weather Systems</span>
+                <label class="switch"><input type="checkbox" id="toggle-weather"><span class="slider"></span></label>
+            </div>
+        </div>
+
+        <div class="ui-section">
+            <label class="ui-label">Lighting</label>
+            <label class="ui-label" for="sun-intensity" style="font-size:0.7rem; text-transform:none;">Sun Intensity: <span id="sun-intensity-label">1.5</span></label>
+            <input type="range" id="sun-intensity" min="0.1" max="3.0" value="1.5" step="0.1">
+            
+            <label class="ui-label" for="ambient-light" style="font-size:0.7rem; text-transform:none;">Ambient Light: <span id="ambient-light-label">0.3</span></label>
+            <input type="range" id="ambient-light" min="0.0" max="1.0" value="0.3" step="0.1">
+            
+            <label class="ui-label" for="sun-color" style="font-size:0.7rem; text-transform:none;">Sun Color</label>
+            <input type="color" id="sun-color" value="#ffffff" class="color-picker">
+        </div>
+
+        <div class="ui-section">
+            <label class="ui-label">Moons & Satellites</label>
+            <label class="ui-label" for="moon-slider" style="font-size:0.7rem; text-transform:none;">Count: <span id="moon-count">0</span></label>
+            <input type="range" id="moon-slider" min="0" max="8" value="0" step="1">
+            <div class="switch-container">
+                <span>Show Trajectories</span>
+                <label class="switch"><input type="checkbox" id="toggle-trajectories"><span class="slider"></span></label>
+            </div>
+            <div class="switch-container">
+                <span>Tidal Lock</span>
+                <label class="switch"><input type="checkbox" id="toggle-tidal-lock"><span class="slider"></span></label>
+            </div>
+        </div>
+
+        <div class="ui-section">
+            <label class="ui-label">Animation</label>
+            <label class="ui-label" for="rotation-speed" style="font-size:0.7rem; text-transform:none;">Rotation Speed: <span id="rotation-speed-label">0.1</span></label>
+            <input type="range" id="rotation-speed" min="0.0" max="1.0" value="0.1" step="0.01">
+            
+            <div class="switch-container">
+                <span>Auto Rotate Camera</span>
+                <label class="switch"><input type="checkbox" id="toggle-auto-rotate"><span class="slider"></span></label>
+            </div>
+        </div>
+
+        <div class="ui-section">
+            <label class="ui-label">Export/Import</label>
+            <button class="shader-button" onclick="exportScene()">Export Scene</button>
+            <input type="file" id="import-file" accept=".json" style="display: none;" onchange="importScene(event)">
+            <button class="shader-button" onclick="document.getElementById('import-file').click()">Import Scene</button>
+        </div>
+    </div>
+
+    <div class="shader-editor hidden" id="shader-editor">
+        <div class="ui-section">
+            <label class="shader-label">Shader Editor</label>
+            <select id="shader-type">
+                <option value="planet">Planet Surface</option>
+                <option value="atmosphere">Atmosphere</option>
+                <option value="ring">Ring System</option>
+                <option value="cloud">Cloud Layer</option>
+            </select>
+        </div>
+        
+        <div class="ui-section">
+            <label class="shader-label">Shader Presets</label>
+            <button class="shader-button" onclick="loadShaderPreset('realistic')">Realistic</button>
+            <button class="shader-button" onclick="loadShaderPreset('stylized')">Stylized</button>
+            <button class="shader-button" onclick="loadShaderPreset('neon')">Neon</button>
+            <button class="shader-button" onclick="loadShaderPreset('minimal')">Minimal</button>
+        </div>
+        
+        <div class="ui-section">
+            <label class="shader-label">Vertex Shader</label>
+            <textarea id="vertex-shader" placeholder="Enter vertex shader code..."></textarea>
+        </div>
+        
+        <div class="ui-section">
+            <label class="shader-label">Fragment Shader</label>
+            <textarea id="fragment-shader" placeholder="Enter fragment shader code..."></textarea>
+        </div>
+        
+        <div class="ui-section">
+            <label class="shader-label">Shader Parameters</label>
+            <div id="shader-params">
+                <!-- Dynamic shader parameters will be populated here -->
+            </div>
+        </div>
+        
+        <div class="ui-section">
+            <button class="shader-button" onclick="applyShader()">Apply Shader</button>
+            <button class="shader-button" onclick="exportShader()">Export Shader</button>
+            <input type="file" id="import-shader-file" accept=".json" style="display: none;" onchange="importShader(event)">
+            <button class="shader-button" onclick="document.getElementById('import-shader-file').click()">Import Shader</button>
+        </div>
+    </div>
+
+    <div class="info-panel">
+        <div><strong>Controls:</strong></div>
+        <div>• Mouse: Rotate camera</div>
+        <div>• Scroll: Zoom in/out</div>
+        <div>• Space: Pause/Resume</div>
+        <div>• R: Reset camera</div>
+        <div><strong>Performance:</strong> <span id="fps-counter">60 FPS</span></div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/simplex-noise/3.0.1/simplex-noise.min.js"></script>
+
+    <script type="module">
+        // --- SHADER DEFINITIONS ---
+        const shaderLibrary = {
+            planet: {
+                realistic: {
+                    vertex: `
+                        varying vec2 vUv;
+                        varying vec3 vNormal;
+                        varying vec3 vPosition;
+                        varying vec3 vWorldPosition;
+                        
+                        void main() {
+                            vUv = uv;
+                            vPosition = position;
+                            vNormal = normalize(normalMatrix * normal);
+                            vWorldPosition = (modelMatrix * vec4(position, 1.0)).xyz;
+                            gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+                        }
+                    `,
+                    fragment: `
+                        uniform sampler2D tSurface;
+                        uniform sampler2D tNight;
+                        uniform sampler2D tClouds;
+                        uniform sampler2D tNormal;
+                        uniform vec3 uSunDirection;
+                        uniform vec3 uSunColor;
+                        uniform float uSunIntensity;
+                        uniform float uAmbientLight;
+                        uniform bool uHasClouds;
+                        uniform float uTime;
+                        uniform float uRoughness;
+                        uniform float uMetallic;
+                        
+                        varying vec2 vUv;
+                        varying vec3 vNormal;
+                        varying vec3 vWorldPosition;
+                        
+                        void main() {
+                            vec4 surfaceColor = texture2D(tSurface, vUv);
+                            vec3 normal = normalize(vNormal);
+                            
+                            // Enhanced lighting calculation
+                            float NdotL = max(0.0, dot(normal, uSunDirection));
+                            float lightIntensity = NdotL * uSunIntensity;
+                            float smoothLight = smoothstep(0.0, 0.2, lightIntensity);
+                            
+                            // Night lights
+                            vec4 nightColor = texture2D(tNight, vUv);
+                            float nightIntensity = smoothstep(0.1, 0.0, lightIntensity);
+                            
+                            // Fresnel effect
+                            float fresnel = pow(1.0 - max(0.0, dot(normal, normalize(-vWorldPosition))), 2.0);
+                            
+                            // Combine day and night
+                            vec3 dayNightColor = surfaceColor.rgb * (smoothLight + uAmbientLight) + 
+                                               nightColor.rgb * nightIntensity * nightColor.a;
+                            
+                            // Add atmospheric scattering
+                            vec3 atmosphereColor = mix(dayNightColor, uSunColor * 0.3, fresnel * 0.3);
+                            
+                            vec3 finalColor = atmosphereColor;
+
+                            // Cloud layer
+                            if (uHasClouds) {
+                                vec2 cloudUv = vUv + vec2(uTime * 0.01, 0.0);
+                                vec4 cloudColor = texture2D(tClouds, cloudUv);
+                                vec3 litClouds = cloudColor.rgb * (lightIntensity * 1.2 + 0.15); 
+                                finalColor = mix(finalColor, litClouds, cloudColor.a * 0.8);
+                            }
+                            
+                            gl_FragColor = vec4(finalColor, 1.0);
+                        }
+                    `
+                },
+                stylized: {
+                    vertex: `
+                        varying vec2 vUv;
+                        varying vec3 vNormal;
+                        varying vec3 vPosition;
+                        
+                        void main() {
+                            vUv = uv;
+                            vPosition = position;
+                            vNormal = normalize(normalMatrix * normal);
+                            gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+                        }
+                    `,
+                    fragment: `
+                        uniform sampler2D tSurface;
+                        uniform vec3 uSunDirection;
+                        uniform vec3 uSunColor;
+                        uniform float uTime;
+                        
+                        varying vec2 vUv;
+                        varying vec3 vNormal;
+                        
+                        void main() {
+                            vec4 surfaceColor = texture2D(tSurface, vUv);
+                            float lightIntensity = max(0.0, dot(vNormal, uSunDirection));
+                            
+                            // Toon shading
+                            float toonShade = step(0.5, lightIntensity);
+                            
+                            // Animated color shift
+                            vec3 colorShift = vec3(
+                                sin(uTime * 0.5) * 0.2,
+                                cos(uTime * 0.3) * 0.2,
+                                sin(uTime * 0.7) * 0.2
+                            );
+                            
+                            vec3 finalColor = (surfaceColor.rgb + colorShift) * (toonShade * 0.8 + 0.2);
+                            
+                            gl_FragColor = vec4(finalColor, 1.0);
+                        }
+                    `
+                },
+                neon: {
+                    vertex: `
+                        varying vec2 vUv;
+                        varying vec3 vNormal;
+                        varying vec3 vPosition;
+                        
+                        void main() {
+                            vUv = uv;
+                            vPosition = position;
+                            vNormal = normalize(normalMatrix * normal);
+                            gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+                        }
+                    `,
+                    fragment: `
+                        uniform sampler2D tSurface;
+                        uniform vec3 uSunDirection;
+                        uniform float uTime;
+                        
+                        varying vec2 vUv;
+                        varying vec3 vNormal;
+                        
+                        void main() {
+                            vec4 surfaceColor = texture2D(tSurface, vUv);
+                            float lightIntensity = max(0.0, dot(vNormal, uSunDirection));
+                            
+                            // Neon glow effect
+                            vec3 neonColors = vec3(
+                                sin(uTime * 2.0 + vUv.y * 10.0) * 0.5 + 0.5,
+                                sin(uTime * 1.5 + vUv.x * 8.0) * 0.5 + 0.5,
+                                sin(uTime * 2.5 + (vUv.x + vUv.y) * 6.0) * 0.5 + 0.5
+                            );
+                            
+                            vec3 finalColor = mix(surfaceColor.rgb, neonColors, 0.7) * (lightIntensity + 0.3);
+                            
+                            gl_FragColor = vec4(finalColor, 1.0);
+                        }
+                    `
+                }
+            },
+            atmosphere: {
+                realistic: {
+                    vertex: `
+                        varying vec3 vNormal;
+                        varying vec3 vPosition;
+                        void main() {
+                            vNormal = normalize(normalMatrix * normal);
+                            vPosition = position;
+                            gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+                        }
+                    `,
+                    fragment: `
+                        uniform vec3 uSunDirection;
+                        uniform vec3 uAtmosphereColor;
+                        uniform float uAtmosphereIntensity;
+                        varying vec3 vNormal;
+                        varying vec3 vPosition;
+                        
+                        void main() {
+                            float intensity = pow(1.0 - abs(dot(vNormal, normalize(vPosition))), 2.0);
+                            vec3 atmosphere = uAtmosphereColor * intensity * uAtmosphereIntensity;
+                            gl_FragColor = vec4(atmosphere, intensity * 0.6);
+                        }
+                    `
+                }
+            },
+            ring: {
+                realistic: {
+                    vertex: `
+                        varying vec2 vUv;
+                        varying vec3 vWorldPosition;
+                        void main() {
+                            vUv = uv;
+                            vec4 worldPosition = modelMatrix * vec4(position, 1.0);
+                            vWorldPosition = worldPosition.xyz;
+                            gl_Position = projectionMatrix * viewMatrix * worldPosition;
+                        }
+                    `,
+                    fragment: `
+                        uniform sampler2D tRing;
+                        uniform vec3 uPlanetPosition;
+                        uniform float uPlanetRadius;
+                        uniform vec3 uSunDirection;
+                        uniform float uTime;
+                        
+                        varying vec2 vUv;
+                        varying vec3 vWorldPosition;
+                        
+                        void main() {
+                            vec2 animatedUv = vUv + vec2(uTime * 0.005, 0.0);
+                            vec4 ringColor = texture2D(tRing, animatedUv);
+                            
+                            // Shadow calculation
+                            vec3 fromPlanetToPoint = vWorldPosition - uPlanetPosition;
+                            float distToPlanetCenterPlane = dot(fromPlanetToPoint, uSunDirection);
+                            vec3 pointOnSunRayClosestToPlanetCenter = fromPlanetToPoint - distToPlanetCenterPlane * uSunDirection;
+                            float dist = length(pointOnSunRayClosestToPlanetCenter);
+                            
+                            float shadow = 1.0;
+                            if (dist < uPlanetRadius && distToPlanetCenterPlane > 0.0) {
+                                shadow = smoothstep(uPlanetRadius - 0.3, uPlanetRadius + 0.3, dist);
+                            }
+                            
+                            // Ring particle effect
+                            float particle = sin(vUv.x * 200.0 + uTime * 2.0) * 0.1 + 0.9;
+                            
+                            gl_FragColor = vec4(ringColor.rgb * shadow * particle, ringColor.a);
+                        }
+                    `
+                }
+            }
+        };
+
+        // --- SCENE GLOBALS ---
+        let scene, camera, renderer, controls, clock;
+        let sun, sunLight, ambientLight, atmosphereLight;
+        let planetGroup, stars, rings, atmosphere;
+        let moons = [];
+        let currentShaderType = 'planet';
+        let isPaused = false;
+        let frameCount = 0;
+        let lastTime = performance.now();
+        
+        const simplex = createSimplexNoise();
+        let planetRadius = 5.0;
+        let blankTexture;
+        let rotationSpeed = 0.1;
+        let sunIntensity = 1.5;
+        let ambientLightIntensity = 0.3;
+        let sunColor = new THREE.Color(0xffffff);
+
+        // Display mode objects
+        let planetMesh, latLongGrid, heightmapMesh, uvGridMesh, pointsCloud, wireframeMesh;
+
+        // --- ENHANCED TEXTURE GENERATION ---
+        function generateTexture(type, size = 1024) {
+            const canvas = document.createElement('canvas');
+            canvas.width = size;
+            canvas.height = size / 2;
+            const ctx = canvas.getContext('2d');
+            
+            const configs = {
+                terran: { 
+                    baseColor: '#2e5984', 
+                    landColor: '#4a7c59',
+                    detailColor: '#6b8e23',
+                    waterLevel: 0.55 
+                },
+                desert: { 
+                    baseColor: '#c19a6b', 
+                    landColor: '#8b5a2b',
+                    detailColor: '#daa520',
+                    waterLevel: 0.8 
+                },
+                ice: { 
+                    baseColor: '#e0ffff', 
+                    landColor: '#b0e0e6',
+                    detailColor: '#87ceeb',
+                    waterLevel: 0.3 
+                },
+                volcanic: {
+                    baseColor: '#8b0000',
+                    landColor: '#ff4500',
+                    detailColor: '#ff6347',
+                    waterLevel: 0.9
+                },
+                crystal: {
+                    baseColor: '#4169e1',
+                    landColor: '#9370db',
+                    detailColor: '#8a2be2',
+                    waterLevel: 0.6
+                },
+                toxic: {
+                    baseColor: '#32cd32',
+                    landColor: '#9acd32',
+                    detailColor: '#7cfc00',
+                    waterLevel: 0.4
+                },
+                oceanic: {
+                    baseColor: '#0066cc',
+                    landColor: '#4682b4',
+                    detailColor: '#87ceeb',
+                    waterLevel: 0.2
+                },
+                gas: {}
+            };
+            
+            const config = configs[type];
+
+            if (type === 'gas') {
+                // Enhanced gas giant generation
+                const bandColors = [
+                    { r: 210, g: 180, b: 140 },
+                    { r: 180, g: 160, b: 120 },
+                    { r: 200, g: 170, b: 130 },
+                    { r: 160, g: 140, b: 110 }
+                ];
+                
+                for (let j = 0; j < canvas.height; j++) {
+                    const y = j / canvas.height;
+                    const warp = simplex.noise2D(y * 20, 0.5) * 0.15;
+                    const bandIndex = Math.floor(((y + warp) * 4) % bandColors.length);
+                    const n = (simplex.noise2D((y + warp) * 8, 0) + 1) * 0.5;
+                    
+                    const color1 = bandColors[bandIndex];
+                    const color2 = bandColors[(bandIndex + 1) % bandColors.length];
+                    const finalColor = {
+                        r: color1.r + (color2.r - color1.r) * n,
+                        g: color1.g + (color2.g - color1.g) * n,
+                        b: color1.b + (color2.b - color1.b) * n
+                    };
+                    
+                    ctx.fillStyle = `rgb(${Math.floor(finalColor.r)}, ${Math.floor(finalColor.g)}, ${Math.floor(finalColor.b)})`;
+                    ctx.fillRect(0, j, canvas.width, 1);
+                }
+                
+                // Add storms and features
+                for (let i = 0; i < 10; i++) {
+                    const stormColor = `rgba(255, 230, 200, ${Math.random() * 0.6 + 0.4})`;
+                    ctx.fillStyle = stormColor;
+                    ctx.beginPath();
+                    ctx.ellipse(
+                        Math.random() * size, 
+                        Math.random() * size / 2,
+                        Math.random() * size / 8 + size / 15,
+                        Math.random() * size / 30 + size / 40,
+                        (Math.random() - 0.5) * 0.8,
+                        0, Math.PI * 2
+                    );
+                    ctx.filter = 'blur(8px)';
+                    ctx.fill();
+                    ctx.filter = 'none';
+                }
+            } else {
+                // Enhanced terrestrial planet generation
+                ctx.fillStyle = config.baseColor;
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+                
+                // Multi-layer noise for terrain
+                for (let i = 0; i < canvas.width; i++) {
+                    for (let j = 0; j < canvas.height; j++) {
+                        const n1 = (simplex.noise2D(i / 200, j / 200) + 1) * 0.5;
+                        const n2 = (simplex.noise2D(i / 100, j / 100) + 1) * 0.5;
+                        const n3 = (simplex.noise2D(i / 50, j / 50) + 1) * 0.5;
+                        
+                        const combinedNoise = (n1 * 0.5 + n2 * 0.3 + n3 * 0.2);
+                        
+                        if (combinedNoise > config.waterLevel) {
+                            ctx.fillStyle = config.landColor;
+                            ctx.fillRect(i, j, 1, 1);
+                            
+                            // Add detail layer
+                            if (combinedNoise > config.waterLevel + 0.1) {
+                                ctx.fillStyle = config.detailColor;
+                                ctx.fillRect(i, j, 1, 1);
+                            }
+                        }
+                    }
+                }
+            }
+            
+            return new THREE.CanvasTexture(canvas);
+        }
+
+        function generateSpecialTexture(type, size = 1024) {
+            const canvas = document.createElement('canvas');
+            canvas.width = size;
+            canvas.height = size / 2;
+            const ctx = canvas.getContext('2d');
+            const imageData = ctx.createImageData(canvas.width, canvas.height);
+            
+            for (let i = 0; i < imageData.data.length; i += 4) {
+                const x = (i / 4) % canvas.width;
+                const y = Math.floor((i / 4) / canvas.width);
+                
+                let value = 0;
+                let alpha = 255;
+                
+                if (type === 'displacement' || type === 'heightmap') {
+                    const n1 = (simplex.noise2D(x / 150, y / 150) + 1) * 0.5;
+                    const n2 = (simplex.noise2D(x / 75, y / 75) + 1) * 0.5;
+                    value = (n1 * 0.7 + n2 * 0.3) * 255;
+                } else if (type === 'night') {
+                    const cityNoise = (simplex.noise2D(x / 50, y / 50) + 1) * 0.5;
+                    value = cityNoise > 0.7 ? 255 : 0;
+                    alpha = cityNoise > 0.75 ? 255 : 0;
+                } else if (type === 'clouds') {
+                    const c1 = (simplex.noise2D(x / 200, y / 200) + 1) * 0.5;
+                    const c2 = (simplex.noise2D(x / 100, y / 100) + 1) * 0.5;
+                    const c3 = (simplex.noise2D(x / 50, y / 50) + 1) * 0.5;
+                    value = (c1 * 0.5 + c2 * 0.3 + c3 * 0.2) * 255;
+                    alpha = value > 128 ? (value - 128) * 2 : 0;
+                } else if (type === 'normal') {
+                    // Generate normal map
+                    const height = (simplex.noise2D(x / 100, y / 100) + 1) * 0.5;
+                    const heightL = (simplex.noise2D((x-1) / 100, y / 100) + 1) * 0.5;
+                    const heightR = (simplex.noise2D((x+1) / 100, y / 100) + 1) * 0.5;
+                    const heightU = (simplex.noise2D(x / 100, (y-1) / 100) + 1) * 0.5;
+                    const heightD = (simplex.noise2D(x / 100, (y+1) / 100) + 1) * 0.5;
+                    
+                    const normalX = (heightL - heightR) * 0.5 + 0.5;
+                    const normalY = (heightU - heightD) * 0.5 + 0.5;
+                    const normalZ = 0.5;
+                    
+                    imageData.data[i] = normalX * 255;
+                    imageData.data[i+1] = normalY * 255;
+                    imageData.data[i+2] = normalZ * 255;
+                    imageData.data[i+3] = 255;
+                    continue;
+                }
+                
+                imageData.data[i] = value;
+                imageData.data[i+1] = value;
+                imageData.data[i+2] = value;
+                imageData.data[i+3] = alpha;
+            }
+            
+            ctx.putImageData(imageData, 0, 0);
+            return new THREE.CanvasTexture(canvas);
+        }
+
+        // --- ENHANCED OBJECT CREATION ---
+        function createPlanetObjects() {
+            const geometry = new THREE.SphereGeometry(1, 128, 128);
+            
+            // Create shader material with enhanced uniforms
+            const shaderMaterial = new THREE.ShaderMaterial({
+                vertexShader: shaderLibrary.planet.realistic.vertex,
+                fragmentShader: shaderLibrary.planet.realistic.fragment,
+                uniforms: {
+                    tSurface: { value: null },
+                    tNight: { value: null },
+                    tClouds: { value: null },
+                    tNormal: { value: null },
+                    uSunDirection: { value: new THREE.Vector3() },
+                    uSunColor: { value: sunColor },
+                    uSunIntensity: { value: sunIntensity },
+                    uAmbientLight: { value: ambientLightIntensity },
+                    uHasClouds: { value: true },
+                    uTime: { value: 0 },
+                    uRoughness: { value: 0.8 },
+                    uMetallic: { value: 0.1 }
+                }
+            });
+            
+            planetMesh = new THREE.Mesh(geometry, shaderMaterial);
+            planetGroup.add(planetMesh);
+
+            // Heightmap mesh
+            heightmapMesh = new THREE.Mesh(geometry, new THREE.MeshBasicMaterial({ map: null }));
+            planetGroup.add(heightmapMesh);
+
+            // UV grid mesh
+            const uvGridTexture = new THREE.TextureLoader().load('https://threejs.org/examples/textures/uv_grid_opengl.jpg');
+            uvGridMesh = new THREE.Mesh(geometry, new THREE.MeshBasicMaterial({ map: uvGridTexture }));
+            planetGroup.add(uvGridMesh);
+
+            // Wireframe mesh
+            wireframeMesh = new THREE.Mesh(geometry, new THREE.MeshBasicMaterial({ 
+                color: 0x00bfff, 
+                wireframe: true,
+                transparent: true,
+                opacity: 0.6
+            }));
+            planetGroup.add(wireframeMesh);
+
+            // Lat/Long grid
+            latLongGrid = createLatLongGrid();
+            planetGroup.add(latLongGrid);
+            
+            // Point cloud
+            const pointsMaterial = new THREE.PointsMaterial({
+                color: 0x00bfff,
+                size: 0.02,
+                sizeAttenuation: true
+            });
+            pointsCloud = new THREE.Points(geometry, pointsMaterial);
+            planetGroup.add(pointsCloud);
+
+            // Create atmosphere
+            createAtmosphere();
+            
+            updatePlanetType();
+            updateDisplayMode('shader');
+        }
+
+        function createAtmosphere() {
+            const atmosphereGeometry = new THREE.SphereGeometry(1.05, 64, 64);
+            const atmosphereMaterial = new THREE.ShaderMaterial({
+                vertexShader: shaderLibrary.atmosphere.realistic.vertex,
+                fragmentShader: shaderLibrary.atmosphere.realistic.fragment,
+                uniforms: {
+                    uSunDirection: { value: new THREE.Vector3() },
+                    uAtmosphereColor: { value: new THREE.Color(0x87ceeb) },
+                    uAtmosphereIntensity: { value: 0.8 }
+                },
+                side: THREE.BackSide,
+                blending: THREE.AdditiveBlending,
+                transparent: true
+            });
+            
+            atmosphere = new THREE.Mesh(atmosphereGeometry, atmosphereMaterial);
+            atmosphere.visible = false;
+            planetGroup.add(atmosphere);
+        }
+        
+        function updatePlanetSize(newRadius, recreateRings = false) {
+            planetRadius = newRadius;
+            planetGroup.scale.setScalar(planetRadius);
+            document.getElementById('planet-size-label').textContent = newRadius.toFixed(1);
+
+            if (recreateRings && document.getElementById('toggle-rings').checked) {
+                toggleRings(false);
+                toggleRings(true);
+            }
+        }
+
+        function updatePlanetType() {
+            const type = document.getElementById('planet-type').value;
+            const useDisplacement = ['terran', 'desert', 'volcanic', 'crystal'].includes(type);
+
+            const surfaceTexture = generateTexture(type);
+            const nightTexture = generateSpecialTexture('night');
+            const cloudTexture = generateSpecialTexture('clouds');
+            const normalTexture = generateSpecialTexture('normal');
+            const heightmapTexture = useDisplacement ? generateSpecialTexture('heightmap') : blankTexture;
+
+            planetMesh.material.uniforms.tSurface.value = surfaceTexture;
+            planetMesh.material.uniforms.tNight.value = nightTexture;
+            planetMesh.material.uniforms.tClouds.value = cloudTexture;
+            planetMesh.material.uniforms.tNormal.value = normalTexture;
+            heightmapMesh.material.map = heightmapTexture;
+            heightmapMesh.material.needsUpdate = true;
+
+            // Update atmosphere color based on planet type
+            const atmosphereColors = {
+                terran: 0x87ceeb,
+                desert: 0xffa500,
+                gas: 0xffd700,
+                ice: 0xe0ffff,
+                volcanic: 0xff4500,
+                crystal: 0x9370db,
+                toxic: 0x32cd32,
+                oceanic: 0x0066cc
+            };
+
+            if (atmosphere) {
+                atmosphere.material.uniforms.uAtmosphereColor.value.setHex(atmosphereColors[type] || 0x87ceeb);
+            }
+        }
+
+        function createLatLongGrid() {
+            const gridGroup = new THREE.Group();
+            const material = new THREE.LineBasicMaterial({ 
+                color: 0x00bfff, 
+                transparent: true, 
+                opacity: 0.6 
+            });
+            const radius = 1.01;
+
+            // Latitude lines
+            for (let i = -8; i <= 8; i++) {
+                const r = Math.cos(i * 10 * Math.PI / 180) * radius;
+                const y = Math.sin(i * 10 * Math.PI / 180) * radius;
+                const geo = new THREE.RingGeometry(r, r, 128);
+                geo.removeAttribute('normal');
+                const ring = new THREE.LineLoop(geo, material);
+                ring.position.y = y;
+                ring.rotation.x = Math.PI / 2;
+                gridGroup.add(ring);
+            }
+            
+            // Longitude lines
+            for (let i = 0; i < 24; i++) {
+                const geo = new THREE.CircleGeometry(radius, 128);
+                geo.removeAttribute('normal');
+                const circle = new THREE.LineLoop(geo, material);
+                circle.rotation.y = i * 15 * Math.PI / 180;
+                gridGroup.add(circle);
+            }
+            
+            return gridGroup;
+        }
+
+        function updateMoons(count) {
+            // Remove excess moons
+            while (moons.length > count) {
+                const moonToRemove = moons.pop();
+                scene.remove(moonToRemove.pivot);
+                moonToRemove.mesh.geometry.dispose();
+                moonToRemove.mesh.material.dispose();
+                moonToRemove.trajectory.geometry.dispose();
+                moonToRemove.trajectory.material.dispose();
+            }
+            
+            // Add new moons
+            while (moons.length < count) {
+                const moonSize = Math.random() * 0.3 + 0.1;
+                const moonGeo = new THREE.SphereGeometry(moonSize, 32, 32);
+                const moonMat = new THREE.MeshPhongMaterial({ 
+                    color: new THREE.Color().setHSL(0.1, 0.2, 0.7 + Math.random() * 0.2),
+                    shininess: 10
+                });
+                const moonMesh = new THREE.Mesh(moonGeo, moonMat);
+
+                const pivot = new THREE.Group();
+                const distance = planetRadius + 3 + Math.random() * 8;
+                moonMesh.position.set(distance, 0, 0);
+                
+                // Create trajectory
+                const trajectoryGeo = new THREE.RingGeometry(distance, distance, 128);
+                trajectoryGeo.removeAttribute('normal');
+                const trajectoryMat = new THREE.LineBasicMaterial({ 
+                    color: 0x00bfff, 
+                    transparent: true, 
+                    opacity: 0.4 
+                });
+                const trajectory = new THREE.LineLoop(trajectoryGeo, trajectoryMat);
+                trajectory.rotation.x = Math.PI / 2;
+                trajectory.visible = document.getElementById('toggle-trajectories').checked;
+                
+                pivot.add(moonMesh);
+                pivot.add(trajectory);
+                
+                // Random orbital inclination
+                pivot.rotation.set(
+                    (Math.random() - 0.5) * 0.8,
+                    Math.random() * Math.PI * 2,
+                    (Math.random() - 0.5) * 0.3
+                );
+                
+                scene.add(pivot);
+                moons.push({
+                    pivot: pivot,
+                    mesh: moonMesh,
+                    trajectory: trajectory,
+                    speed: Math.random() * 0.8 + 0.3,
+                    size: moonSize
+                });
+            }
+            
+            document.getElementById('moon-count').textContent = count;
+        }
+        
+        function toggleRings(visible) {
+            if (visible && !rings) {
+                const innerRadius = planetRadius + 1.5;
+                const outerRadius = planetRadius + 4.5;
+                const ringGeo = new THREE.RingGeometry(innerRadius, outerRadius, 256);
+                
+                const ringMat = new THREE.ShaderMaterial({
+                    vertexShader: shaderLibrary.ring.realistic.vertex,
+                    fragmentShader: shaderLibrary.ring.realistic.fragment,
+                    uniforms: {
+                        tRing: { value: generateTexture('desert') },
+                        uPlanetPosition: { value: planetGroup.position },
+                        uPlanetRadius: { value: planetRadius },
+                        uSunDirection: { value: new THREE.Vector3() },
+                        uTime: { value: 0 }
+                    },
+                    side: THREE.DoubleSide,
+                    transparent: true,
+                    depthWrite: false
+                });
+                
+                rings = new THREE.Mesh(ringGeo, ringMat);
+                rings.rotation.x = Math.PI * 0.4;
+                rings.rotation.z = Math.PI * 0.1;
+                scene.add(rings);
+            } else if (!visible && rings) {
+                scene.remove(rings);
+                rings.geometry.dispose();
+                rings.material.dispose();
+                rings = null;
+            }
+        }
+
+        function toggleAtmosphere(visible) {
+            if (atmosphere) {
+                atmosphere.visible = visible;
+            }
+        }
+        
+        function updateDisplayMode(mode) {
+            planetMesh.visible = false;
+            latLongGrid.visible = false;
+            heightmapMesh.visible = false;
+            uvGridMesh.visible = false;
+            pointsCloud.visible = false;
+            wireframeMesh.visible = false;
+
+            switch(mode) {
+                case 'shader':
+                    planetMesh.visible = true;
+                    break;
+                case 'grid':
+                    planetMesh.visible = true;
+                    latLongGrid.visible = true;
+                    break;
+                case 'heightmap':
+                    heightmapMesh.visible = true;
+                    break;
+                case 'uvgrid':
+                    uvGridMesh.visible = true;
+                    break;
+                case 'points':
+                    pointsCloud.visible = true;
+                    break;
+                case 'wireframe':
+                    wireframeMesh.visible = true;
+                    break;
+            }
+        }
+
+        // --- PRESET SYSTEM ---
+        function loadPreset(presetName) {
+            const presets = {
+                earth: {
+                    planetType: 'terran',
+                    size: 6.37,
+                    moons: 1,
+                    rings: false,
+                    clouds: true,
+                    atmosphere: true,
+                    sunIntensity: 1.0,
+                    ambientLight: 0.3
+                },
+                mars: {
+                    planetType: 'desert',
+                    size: 3.39,
+                    moons: 2,
+                    rings: false,
+                    clouds: false,
+                    atmosphere: false,
+                    sunIntensity: 0.8,
+                    ambientLight: 0.2
+                },
+                jupiter: {
+                    planetType: 'gas',
+                    size: 14.0,
+                    moons: 4,
+                    rings: true,
+                    clouds: false,
+                    atmosphere: false,
+                    sunIntensity: 0.6,
+                    ambientLight: 0.1
+                },
+                titan: {
+                    planetType: 'ice',
+                    size: 2.57,
+                    moons: 0,
+                    rings: false,
+                    clouds: true,
+                    atmosphere: true,
+                    sunIntensity: 0.4,
+                    ambientLight: 0.4
+                },
+                volcanic: {
+                    planetType: 'volcanic',
+                    size: 5.5,
+                    moons: 1,
+                    rings: false,
+                    clouds: false,
+                    atmosphere: false,
+                    sunIntensity: 1.8,
+                    ambientLight: 0.5
+                },
+                crystal: {
+                    planetType: 'crystal',
+                    size: 4.2,
+                    moons: 3,
+                    rings: true,
+                    clouds: false,
+                    atmosphere: true,
+                    sunIntensity: 1.4,
+                    ambientLight: 0.6
+                }
+            };
+
+            const preset = presets[presetName];
+            if (!preset) return;
+
+            // Apply preset values
+            document.getElementById('planet-type').value = preset.planetType;
+            document.getElementById('planet-size').value = preset.size;
+            document.getElementById('moon-slider').value = preset.moons;
+            document.getElementById('toggle-rings').checked = preset.rings;
+            document.getElementById('toggle-clouds').checked = preset.clouds;
+            document.getElementById('toggle-atmosphere').checked = preset.atmosphere;
+            document.getElementById('sun-intensity').value = preset.sunIntensity;
+            document.getElementById('ambient-light').value = preset.ambientLight;
+
+            // Update the scene
+            updatePlanetType();
+            updatePlanetSize(preset.size, true);
+            updateMoons(preset.moons);
+            toggleRings(preset.rings);
+            toggleAtmosphere(preset.atmosphere);
+            updateLighting();
+        }
+
+        // --- SHADER EDITOR FUNCTIONS ---
+        function loadShaderPreset(presetName) {
+            const shaderType = document.getElementById('shader-type').value;
+            const preset = shaderLibrary[shaderType]?.[presetName];
+            
+            if (preset) {
+                document.getElementById('vertex-shader').value = preset.vertex;
+                document.getElementById('fragment-shader').value = preset.fragment;
+                populateShaderParams(preset);
+            }
+        }
+
+        function populateShaderParams(shader) {
+            const paramsContainer = document.getElementById('shader-params');
+            paramsContainer.innerHTML = '';
+
+            // Extract uniform parameters from shader
+            const fragmentShader = shader.fragment;
+            const uniformMatches = fragmentShader.match(/uniform\s+(\w+)\s+(\w+);/g);
+            
+            if (uniformMatches) {
+                uniformMatches.forEach(match => {
+                    const parts = match.match(/uniform\s+(\w+)\s+(\w+);/);
+                    if (parts) {
+                        const type = parts[1];
+                        const name = parts[2];
+                        
+                        if (!['sampler2D', 'samplerCube'].includes(type)) {
+                            createParamControl(name, type, paramsContainer);
+                        }
+                    }
+                });
+            }
+        }
+
+        function createParamControl(name, type, container) {
+            const div = document.createElement('div');
+            div.className = 'ui-section';
+            
+            const label = document.createElement('label');
+            label.className = 'shader-label';
+            label.textContent = name;
+            div.appendChild(label);
+            
+            let input;
+            
+            switch(type) {
+                case 'float':
+                    input = document.createElement('input');
+                    input.type = 'range';
+                    input.min = '0';
+                    input.max = '2';
+                    input.step = '0.01';
+                    input.value = '1';
+                    break;
+                case 'vec3':
+                    input = document.createElement('input');
+                    input.type = 'color';
+                    input.value = '#ffffff';
+                    break;
+                case 'bool':
+                    input = document.createElement('input');
+                    input.type = 'checkbox';
+                    break;
+                default:
+                    input = document.createElement('input');
+                    input.type = 'text';
+                    input.value = '1.0';
+            }
+            
+            input.id = `param-${name}`;
+            div.appendChild(input);
+            container.appendChild(div);
+        }
+
+        function applyShader() {
+            const shaderType = document.getElementById('shader-type').value;
+            const vertexShader = document.getElementById('vertex-shader').value;
+            const fragmentShader = document.getElementById('fragment-shader').value;
+            
+            if (!vertexShader || !fragmentShader) return;
+            
+            try {
+                if (shaderType === 'planet' && planetMesh) {
+                    const newMaterial = new THREE.ShaderMaterial({
+                        vertexShader: vertexShader,
+                        fragmentShader: fragmentShader,
+                        uniforms: planetMesh.material.uniforms
+                    });
+                    
+                    planetMesh.material.dispose();
+                    planetMesh.material = newMaterial;
+                } else if (shaderType === 'atmosphere' && atmosphere) {
+                    const newMaterial = new THREE.ShaderMaterial({
+                        vertexShader: vertexShader,
+                        fragmentShader: fragmentShader,
+                        uniforms: atmosphere.material.uniforms,
+                        side: THREE.BackSide,
+                        blending: THREE.AdditiveBlending,
+                        transparent: true
+                    });
+                    
+                    atmosphere.material.dispose();
+                    atmosphere.material = newMaterial;
+                } else if (shaderType === 'ring' && rings) {
+                    const newMaterial = new THREE.ShaderMaterial({
+                        vertexShader: vertexShader,
+                        fragmentShader: fragmentShader,
+                        uniforms: rings.material.uniforms,
+                        side: THREE.DoubleSide,
+                        transparent: true,
+                        depthWrite: false
+                    });
+                    
+                    rings.material.dispose();
+                    rings.material = newMaterial;
+                }
+            } catch (error) {
+                console.error('Shader compilation error:', error);
+                alert('Shader compilation failed. Please check your code.');
+            }
+        }
+
+        function exportShader() {
+            const shaderData = {
+                type: document.getElementById('shader-type').value,
+                vertex: document.getElementById('vertex-shader').value,
+                fragment: document.getElementById('fragment-shader').value,
+                timestamp: new Date().toISOString()
+            };
+            
+            const blob = new Blob([JSON.stringify(shaderData, null, 2)], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `shader-${shaderData.type}-${Date.now()}.json`;
+            a.click();
+            URL.revokeObjectURL(url);
+        }
+
+        function importShader(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const shaderData = JSON.parse(e.target.result);
+                    document.getElementById('shader-type').value = shaderData.type;
+                    document.getElementById('vertex-shader').value = shaderData.vertex;
+                    document.getElementById('fragment-shader').value = shaderData.fragment;
+                } catch (error) {
+                    console.error('Error importing shader:', error);
+                    alert('Failed to import shader. Please check the file format.');
+                }
+            };
+            reader.readAsText(file);
+        }
+
+        // --- EXPORT/IMPORT FUNCTIONS ---
+        function exportScene() {
+            const sceneData = {
+                planetType: document.getElementById('planet-type').value,
+                planetSize: parseFloat(document.getElementById('planet-size').value),
+                moonCount: parseInt(document.getElementById('moon-slider').value),
+                hasRings: document.getElementById('toggle-rings').checked,
+                hasClouds: document.getElementById('toggle-clouds').checked,
+                hasAtmosphere: document.getElementById('toggle-atmosphere').checked,
+                hasWeather: document.getElementById('toggle-weather').checked,
+                showTrajectories: document.getElementById('toggle-trajectories').checked,
+                tidalLock: document.getElementById('toggle-tidal-lock').checked,
+                autoRotate: document.getElementById('toggle-auto-rotate').checked,
+                sunIntensity: parseFloat(document.getElementById('sun-intensity').value),
+                ambientLight: parseFloat(document.getElementById('ambient-light').value),
+                sunColor: document.getElementById('sun-color').value,
+                rotationSpeed: parseFloat(document.getElementById('rotation-speed').value),
+                timestamp: new Date().toISOString()
+            };
+            
+            const blob = new Blob([JSON.stringify(sceneData, null, 2)], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `planet-scene-${Date.now()}.json`;
+            a.click();
+            URL.revokeObjectURL(url);
+        }
+
+        function importScene(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const sceneData = JSON.parse(e.target.result);
+                    
+                    // Apply imported settings
+                    document.getElementById('planet-type').value = sceneData.planetType;
+                    document.getElementById('planet-size').value = sceneData.planetSize;
+                    document.getElementById('moon-slider').value = sceneData.moonCount;
+                    document.getElementById('toggle-rings').checked = sceneData.hasRings;
+                    document.getElementById('toggle-clouds').checked = sceneData.hasClouds;
+                    document.getElementById('toggle-atmosphere').checked = sceneData.hasAtmosphere;
+                    document.getElementById('toggle-weather').checked = sceneData.hasWeather;
+                    document.getElementById('toggle-trajectories').checked = sceneData.showTrajectories;
+                    document.getElementById('toggle-tidal-lock').checked = sceneData.tidalLock;
+                    document.getElementById('toggle-auto-rotate').checked = sceneData.autoRotate;
+                    document.getElementById('sun-intensity').value = sceneData.sunIntensity;
+                    document.getElementById('ambient-light').value = sceneData.ambientLight;
+                    document.getElementById('sun-color').value = sceneData.sunColor;
+                    document.getElementById('rotation-speed').value = sceneData.rotationSpeed;
+                    
+                    // Update scene
+                    updatePlanetType();
+                    updatePlanetSize(sceneData.planetSize, true);
+                    updateMoons(sceneData.moonCount);
+                    toggleRings(sceneData.hasRings);
+                    toggleAtmosphere(sceneData.hasAtmosphere);
+                    updateLighting();
+                    
+                    // Update labels
+                    document.getElementById('planet-size-label').textContent = sceneData.planetSize.toFixed(1);
+                    document.getElementById('moon-count').textContent = sceneData.moonCount;
+                    document.getElementById('sun-intensity-label').textContent = sceneData.sunIntensity.toFixed(1);
+                    document.getElementById('ambient-light-label').textContent = sceneData.ambientLight.toFixed(1);
+                    document.getElementById('rotation-speed-label').textContent = sceneData.rotationSpeed.toFixed(2);
+                    
+                } catch (error) {
+                    console.error('Error importing scene:', error);
+                    alert('Failed to import scene. Please check the file format.');
+                }
+            };
+            reader.readAsText(file);
+        }
+
+        // --- LIGHTING FUNCTIONS ---
+        function updateLighting() {
+            sunIntensity = parseFloat(document.getElementById('sun-intensity').value);
+            ambientLightIntensity = parseFloat(document.getElementById('ambient-light').value);
+            sunColor.setHex(parseInt(document.getElementById('sun-color').value.replace('#', '0x')));
+            
+            if (sunLight) {
+                sunLight.intensity = sunIntensity;
+                sunLight.color.copy(sunColor);
+            }
+            
+            if (ambientLight) {
+                ambientLight.intensity = ambientLightIntensity;
+            }
+            
+            if (planetMesh) {
+                planetMesh.material.uniforms.uSunIntensity.value = sunIntensity;
+                planetMesh.material.uniforms.uAmbientLight.value = ambientLightIntensity;
+                planetMesh.material.uniforms.uSunColor.value.copy(sunColor);
+            }
+            
+            document.getElementById('sun-intensity-label').textContent = sunIntensity.toFixed(1);
+            document.getElementById('ambient-light-label').textContent = ambientLightIntensity.toFixed(1);
+        }
+
+        // --- INITIALIZATION ---
+        function init() {
+            clock = new THREE.Clock();
+            const container = document.getElementById('container');
+            
+            // Scene setup
+            scene = new THREE.Scene();
+            camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 5000);
+            camera.position.set(0, 8, 20);
+
+            // Renderer setup
+            renderer = new THREE.WebGLRenderer({ antialias: true });
+            renderer.setPixelRatio(window.devicePixelRatio);
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            renderer.shadowMap.enabled = true;
+            renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+            container.appendChild(renderer.domElement);
+
+            // Create blank texture
+            const canvas = document.createElement('canvas');
+            canvas.width = 1;
+            canvas.height = 1;
+            blankTexture = new THREE.CanvasTexture(canvas);
+
+            // Lighting setup
+            sunLight = new THREE.DirectionalLight(sunColor, sunIntensity);
+            sunLight.castShadow = true;
+            sunLight.shadow.mapSize.width = 2048;
+            sunLight.shadow.mapSize.height = 2048;
+            
+            ambientLight = new THREE.AmbientLight(0x404040, ambientLightIntensity);
+            scene.add(ambientLight);
+            
+            sun = new THREE.Group();
+            sun.add(sunLight);
+            sun.position.set(150, 50, 100);
+            scene.add(sun);
+            
+            // Create planet group
+            planetGroup = new THREE.Group();
+            scene.add(planetGroup);
+            
+            // Create planet objects
+            createPlanetObjects();
+            
+            // Create starfield
+            createStarfield();
+
+            // Controls setup
+            controls = new THREE.OrbitControls(camera, renderer.domElement);
+            controls.enableDamping = true;
+            controls.dampingFactor = 0.05;
+            controls.minDistance = 2;
+            controls.maxDistance = 200;
+            controls.enablePan = false;
+
+            // UI setup
+            setupUI();
+            setupKeyboardControls();
+            
+            // Window resize handler
+            window.addEventListener('resize', onWindowResize);
+            
+            // Initial updates
+            updatePlanetSize(parseFloat(document.getElementById('planet-size').value));
+            updateLighting();
+            
+            // Load initial shader
+            loadShaderPreset('realistic');
+        }
+
+        function createStarfield() {
+            const starGeo = new THREE.BufferGeometry();
+            const starVertices = [];
+            const starColors = [];
+            
+            for (let i = 0; i < 20000; i++) {
+                starVertices.push(THREE.MathUtils.randFloatSpread(4000));
+                starVertices.push(THREE.MathUtils.randFloatSpread(4000));
+                starVertices.push(THREE.MathUtils.randFloatSpread(4000));
+                
+                // Random star colors
+                const color = new THREE.Color().setHSL(Math.random(), 0.3, 0.7 + Math.random() * 0.3);
+                starColors.push(color.r, color.g, color.b);
+            }
+            
+            starGeo.setAttribute('position', new THREE.Float32BufferAttribute(starVertices, 3));
+            starGeo.setAttribute('color', new THREE.Float32BufferAttribute(starColors, 3));
+            
+            const starMaterial = new THREE.PointsMaterial({ 
+                size: 1.0,
+                transparent: true,
+                opacity: 0.8,
+                vertexColors: true,
+                sizeAttenuation: false
+            });
+            
+            stars = new THREE.Points(starGeo, starMaterial);
+            scene.add(stars);
+        }
+
+        function setupUI() {
+            // Planet controls
+            document.getElementById('planet-type').addEventListener('change', updatePlanetType);
+            
+            const sizeSlider = document.getElementById('planet-size');
+            sizeSlider.addEventListener('input', (e) => updatePlanetSize(parseFloat(e.target.value), false));
+            sizeSlider.addEventListener('change', (e) => updatePlanetSize(parseFloat(e.target.value), true));
+
+            // Moon controls
+            document.getElementById('moon-slider').addEventListener('input', (e) => updateMoons(parseInt(e.target.value)));
+            
+            // Toggle controls
+            document.getElementById('toggle-rings').addEventListener('change', (e) => toggleRings(e.target.checked));
+            document.getElementById('toggle-clouds').addEventListener('change', (e) => {
+                if (planetMesh) {
+                    planetMesh.material.uniforms.uHasClouds.value = e.target.checked;
+                }
+            });
+            document.getElementById('toggle-atmosphere').addEventListener('change', (e) => toggleAtmosphere(e.target.checked));
+            document.getElementById('toggle-trajectories').addEventListener('change', (e) => {
+                moons.forEach(moon => moon.trajectory.visible = e.target.checked);
+            });
+            document.getElementById('toggle-auto-rotate').addEventListener('change', (e) => {
+                controls.autoRotate = e.target.checked;
+            });
+
+            // Lighting controls
+            document.getElementById('sun-intensity').addEventListener('input', updateLighting);
+            document.getElementById('ambient-light').addEventListener('input', updateLighting);
+            document.getElementById('sun-color').addEventListener('input', updateLighting);
+            
+            // Animation controls
+            document.getElementById('rotation-speed').addEventListener('input', (e) => {
+                rotationSpeed = parseFloat(e.target.value);
+                document.getElementById('rotation-speed-label').textContent = rotationSpeed.toFixed(2);
+            });
+
+            // UI toggle buttons
+            document.getElementById('toggle-ui-button').addEventListener('click', () => {
+                document.getElementById('ui-panel').classList.toggle('hidden');
+            });
+            
+            document.getElementById('toggle-shader-button').addEventListener('click', () => {
+                document.getElementById('shader-editor').classList.toggle('hidden');
+            });
+            
+            // Display mode buttons
+            document.querySelectorAll('.control-button').forEach(button => {
+                button.addEventListener('click', () => {
+                    document.querySelectorAll('.control-button').forEach(btn => btn.classList.remove('active'));
+                    button.classList.add('active');
+                    updateDisplayMode(button.id.replace('btn-', ''));
+                });
+            });
+
+            // Shader editor
+            document.getElementById('shader-type').addEventListener('change', (e) => {
+                currentShaderType = e.target.value;
+                loadShaderPreset('realistic');
+            });
+        }
+
+        function setupKeyboardControls() {
+            document.addEventListener('keydown', (event) => {
+                switch(event.code) {
+                    case 'Space':
+                        event.preventDefault();
+                        isPaused = !isPaused;
+                        break;
+                    case 'KeyR':
+                        event.preventDefault();
+                        camera.position.set(0, 8, 20);
+                        controls.reset();
+                        break;
+                    case 'KeyH':
+                        event.preventDefault();
+                        document.getElementById('ui-panel').classList.toggle('hidden');
+                        break;
+                    case 'KeyS':
+                        event.preventDefault();
+                        document.getElementById('shader-editor').classList.toggle('hidden');
+                        break;
+                }
+            });
+        }
+
+        function onWindowResize() {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        }
+
+        function animate() {
+            requestAnimationFrame(animate);
+            
+            if (isPaused) return;
+            
+            const delta = clock.getDelta();
+            const elapsedTime = clock.getElapsedTime();
+            
+            // Update FPS counter
+            frameCount++;
+            const currentTime = performance.now();
+            if (currentTime - lastTime >= 1000) {
+                const fps = Math.round((frameCount * 1000) / (currentTime - lastTime));
+                document.getElementById('fps-counter').textContent = `${fps} FPS`;
+                frameCount = 0;
+                lastTime = currentTime;
+            }
+            
+            // Planet rotation
+            if (planetGroup) {
+                const isTidalLocked = document.getElementById('toggle-tidal-lock').checked;
+                if (!isTidalLocked) {
+                    planetGroup.rotation.y += rotationSpeed * delta;
+                }
+            }
+            
+            // Star rotation
+            if (stars) {
+                stars.rotation.y += 0.005 * delta;
+            }
+            
+            // Update shader uniforms
+            const sunDirection = new THREE.Vector3().subVectors(sun.position, planetGroup.position).normalize();
+            
+            if (planetMesh) {
+                planetMesh.material.uniforms.uSunDirection.value = sunDirection;
+                planetMesh.material.uniforms.uTime.value = elapsedTime;
+            }
+            
+            if (rings) {
+                rings.material.uniforms.uSunDirection.value = sunDirection;
+                rings.material.uniforms.uPlanetPosition.value.copy(planetGroup.position);
+                rings.material.uniforms.uTime.value = elapsedTime;
+            }
+            
+            if (atmosphere) {
+                atmosphere.material.uniforms.uSunDirection.value = sunDirection;
+            }
+
+            // Animate moons
+            const isTidalLocked = document.getElementById('toggle-tidal-lock').checked;
+            moons.forEach(moon => {
+                moon.pivot.rotation.y += moon.speed * delta;
+                if (isTidalLocked) {
+                    moon.mesh.rotation.y = -moon.pivot.rotation.y;
+                } else {
+                    moon.mesh.rotation.y += 0.8 * delta;
+                }
+            });
+
+            // Update controls
+            controls.update();
+            
+            // Render
+            renderer.render(scene, camera);
+        }
+
+        // Make functions globally available
+        window.loadPreset = loadPreset;
+        window.loadShaderPreset = loadShaderPreset;
+        window.applyShader = applyShader;
+        window.exportShader = exportShader;
+        window.importShader = importShader;
+        window.exportScene = exportScene;
+        window.importScene = importScene;
+
+        // Initialize the application
+        init();
+        animate();
+    </script>
+</body>
+</html>
