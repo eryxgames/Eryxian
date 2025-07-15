@@ -163,111 +163,243 @@
         const randItem = (arr) => arr && arr.length > 0 ? arr[Math.floor(Math.random() * arr.length)] : null;
         let DOM = {};
 
-        // --- ENHANCED & VARIANT DRAWING FUNCTIONS ---
+// --- ENHANCED & VARIANT DRAWING FUNCTIONS ---
 
-        let activeSVGListeners = []; // Holds active listeners for easy removal
+let activeSVGListeners = []; // Holds active listeners for easy removal
 
-        // Helper to add and track listeners
-        function addTrackedListener(target, event, handler) {
-            target.addEventListener(event, handler);
-            activeSVGListeners.push({ target, event, handler });
-        }
+// Helper to add and track listeners
+function addTrackedListener(target, event, handler) {
+    target.addEventListener(event, handler);
+    activeSVGListeners.push({ target, event, handler });
+}
 
-        function clearSVG() {
-            if (window.animationFrameId) cancelAnimationFrame(window.animationFrameId);
+function clearSVG() {
+    if (window.animationFrameId) cancelAnimationFrame(window.animationFrameId);
+    
+    activeSVGListeners.forEach(({ target, event, handler }) => {
+        target.removeEventListener(event, handler);
+    });
+    activeSVGListeners = [];
+
+    if (DOM.svg) {
+        DOM.svg.innerHTML = '';
+        const defs = document.createElementNS('http://www.w3.org/2000/svg', 'defs');
+        const glowFilter = document.createElementNS('http://www.w3.org/2000/svg', 'filter');
+        glowFilter.id = 'glow';
+        glowFilter.innerHTML = `<feGaussianBlur stdDeviation="3.5" result="coloredBlur"></feGaussianBlur><feMerge><feMergeNode in="coloredBlur"></feMergeNode><feMergeNode in="SourceGraphic"></feMergeNode></feMerge>`;
+        defs.appendChild(glowFilter);
+        DOM.svg.appendChild(defs);
+    }
+}
+
+// --- Spatial Labyrinth Functions ---
+
+function drawSpatial_Interactive() {
+    clearSVG();
+    const mainPath = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+    mainPath.setAttribute('d', "M100 100 H400 V300 H100 L250 200 Z");
+    mainPath.setAttribute('fill', `rgba(129, 140, 248, 0.1)`);
+    mainPath.setAttribute('stroke', `rgba(199, 210, 254, 0.6)`);
+    mainPath.setAttribute('stroke-width', '2');
+    mainPath.setAttribute('stroke-linejoin', 'round');
+    mainPath.style.filter = 'url(#glow)';
+    DOM.svg.appendChild(mainPath);
+
+    addTrackedListener(DOM.svg, 'mousemove', (e) => {
+        const rect = DOM.svg.getBoundingClientRect();
+        const viewBox = DOM.svg.viewBox.baseVal;
+        const mouseX = (e.clientX - rect.left) * (viewBox.width / rect.width);
+        const mouseY = (e.clientY - rect.top) * (viewBox.height / rect.height);
+        mainPath.setAttribute('d', `M100 100 H400 V300 H100 L${mouseX} ${mouseY} Z`);
+    });
+}
+
+function drawSpatial_Variant1() { // Gravity Well
+    clearSVG();
+    const shapes = [];
+    const initialPoints = [
+        [{x:100,y:100}, {x:400,y:100}, {x:400,y:300}, {x:100,y:300}, {x:250, y:200}],
+        [{x:150,y:150}, {x:350,y:150}, {x:350,y:250}, {x:150,y:250}]
+    ];
+
+    initialPoints.forEach((points, i) => {
+        const polygon = document.createElementNS('http://www.w3.org/2000/svg', 'polygon');
+        polygon.setAttribute('fill', `rgba(129, 140, 248, ${0.1 - i*0.05})`);
+        polygon.setAttribute('stroke', `rgba(199, 210, 254, ${0.6 - i*0.2})`);
+        polygon.setAttribute('stroke-width', '2');
+        DOM.svg.appendChild(polygon);
+        shapes.push({ el: polygon, initial: points });
+    });
+
+    const updatePoints = (mx, my) => {
+        shapes.forEach(shape => {
+            const newPoints = shape.initial.map(p => {
+                const dx = p.x - mx;
+                const dy = p.y - my;
+                const dist = Math.sqrt(dx * dx + dy * dy);
+                if (dist < 150) {
+                    const falloff = (150 - dist) / 150;
+                    const strength = 50 * Math.pow(falloff, 2);
+                    const angle = Math.atan2(dy, dx);
+                    return { x: p.x + Math.cos(angle) * strength, y: p.y + Math.sin(angle) * strength };
+                }
+                return p;
+            }).map(p => `${p.x},${p.y}`).join(' ');
+            shape.el.setAttribute('points', newPoints);
+        });
+    };
+    
+    updatePoints(-999, -999);
+
+    addTrackedListener(DOM.svg, 'mousemove', e => {
+        const rect = DOM.svg.getBoundingClientRect();
+        const viewBox = DOM.svg.viewBox.baseVal;
+        const mouseX = (e.clientX - rect.left) * (viewBox.width / rect.width);
+        const mouseY = (e.clientY - rect.top) * (viewBox.height / rect.height);
+        updatePoints(mouseX, mouseY);
+    });
+}
+
+function drawSpatial_Variant2() { // Interactive Tesseract
+    clearSVG();
+    const size = 80;
+    const center_x = 250, center_y = 200;
+    let rotXW = 0, rotYW = 0;
+
+    const vertices = [];
+    for (let i = 0; i < 16; i++) {
+        vertices.push({
+            x: (i & 1 ? 1 : -1), y: (i & 2 ? 1 : -1),
+            z: (i & 4 ? 1 : -1), w: (i & 8 ? 1 : -1)
+        });
+    }
+
+    const edges = [
+        [0,1],[0,2],[0,4],[0,8],[1,3],[1,5],[1,9],[2,3],[2,6],[2,10],[3,7],[3,11],
+        [4,5],[4,6],[4,12],[5,7],[5,13],[6,7],[6,14],[7,15],[8,9],[8,10],[8,12],
+        [9,11],[9,13],[10,11],[10,14],[11,15],[12,13],[12,14],[13,15],[14,15]
+    ];
+    
+    const edgeElements = edges.map(() => {
+        const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+        line.setAttribute('stroke', 'rgba(199, 210, 254, 0.7)');
+        line.setAttribute('stroke-width', '1.5');
+        DOM.svg.appendChild(line);
+        return line;
+    });
+
+    addTrackedListener(DOM.svg, 'mousemove', e => {
+        const rect = DOM.svg.getBoundingClientRect();
+        rotYW = ((e.clientX - rect.left) / rect.width - 0.5) * Math.PI;
+        rotXW = ((e.clientY - rect.top) / rect.height - 0.5) * Math.PI;
+    });
+
+    function animate() {
+        const angleXW = rotXW; const angleYW = rotYW;
+        
+        const projected = vertices.map(v => {
+            // Rotate in 4D
+            let x = v.x, y = v.y, z = v.z, w = v.w;
+            let tempX, tempW, tempY;
+
+            // Rotate on XW plane
+            tempX = x * Math.cos(angleXW) - w * Math.sin(angleXW);
+            tempW = x * Math.sin(angleXW) + w * Math.cos(angleXW);
+            x = tempX; w = tempW;
             
-            // Remove all active event listeners to prevent memory leaks
-            activeSVGListeners.forEach(({ target, event, handler }) => {
-                target.removeEventListener(event, handler);
-            });
-            activeSVGListeners = [];
+            // Rotate on YW plane
+            tempY = y * Math.cos(angleYW) - w * Math.sin(angleYW);
+            tempW = y * Math.sin(angleYW) + w * Math.cos(angleYW);
+            y = tempY; w = tempW;
 
-            if (DOM.svg) {
-                DOM.svg.innerHTML = '';
-                const defs = document.createElementNS('http://www.w3.org/2000/svg', 'defs');
-                const glowFilter = document.createElementNS('http://www.w3.org/2000/svg', 'filter');
-                glowFilter.id = 'glow';
-                glowFilter.innerHTML = `<feGaussianBlur stdDeviation="3.5" result="coloredBlur"></feGaussianBlur><feMerge><feMergeNode in="coloredBlur"></feMergeNode><feMergeNode in="SourceGraphic"></feMergeNode></feMerge>`;
-                defs.appendChild(glowFilter);
-                DOM.svg.appendChild(defs);
-            }
-        }
-
-        // --- Spatial Labyrinth Functions ---
-
-        function drawSpatial_Interactive() {
-            clearSVG();
-            const mainPath = document.createElementNS('http://www.w3.org/2000/svg', 'path');
-            mainPath.setAttribute('d', "M100 100 H400 V300 H100 L250 200 Z");
-            mainPath.setAttribute('fill', `rgba(129, 140, 248, 0.1)`);
-            mainPath.setAttribute('stroke', `rgba(199, 210, 254, 0.6)`);
-            mainPath.setAttribute('stroke-width', '2');
-            mainPath.setAttribute('stroke-linejoin', 'round');
-            mainPath.style.filter = 'url(#glow)';
-            DOM.svg.appendChild(mainPath);
-
-            addTrackedListener(DOM.svg, 'mousemove', (e) => {
-                const rect = DOM.svg.getBoundingClientRect();
-                const viewBox = DOM.svg.viewBox.baseVal;
-                const mouseX = (e.clientX - rect.left) * (viewBox.width / rect.width);
-                const mouseY = (e.clientY - rect.top) * (viewBox.height / rect.height);
-                mainPath.setAttribute('d', `M100 100 H400 V300 H100 L${mouseX} ${mouseY} Z`);
-            });
-        }
-
-        function drawSpatial_Variant1() { // Gravity Well
-            clearSVG();
-            const shapes = [];
-            const initialPoints = [
-                [{x:100,y:100}, {x:400,y:100}, {x:400,y:300}, {x:100,y:300}, {x:250, y:200}],
-                [{x:150,y:150}, {x:350,y:150}, {x:350,y:250}, {x:150,y:250}]
-            ];
-
-            initialPoints.forEach((points, i) => {
-                const polygon = document.createElementNS('http://www.w3.org/2000/svg', 'polygon');
-                polygon.setAttribute('fill', `rgba(129, 140, 248, ${0.1 - i*0.05})`);
-                polygon.setAttribute('stroke', `rgba(199, 210, 254, ${0.6 - i*0.2})`);
-                polygon.setAttribute('stroke-width', '2');
-                DOM.svg.appendChild(polygon);
-                shapes.push({ el: polygon, initial: points });
-            });
-
-            const updatePoints = (mx, my) => {
-                shapes.forEach(shape => {
-                    const newPoints = shape.initial.map(p => {
-                        const dx = p.x - mx;
-                        const dy = p.y - my;
-                        const dist = Math.sqrt(dx * dx + dy * dy);
-                        if (dist < 150) {
-                            const falloff = (150 - dist) / 150;
-                            const strength = 50 * Math.pow(falloff, 2);
-                            const angle = Math.atan2(dy, dx);
-                            return {
-                                x: p.x + Math.cos(angle) * strength,
-                                y: p.y + Math.sin(angle) * strength
-                            };
-                        }
-                        return p;
-                    }).map(p => `${p.x},${p.y}`).join(' ');
-                    shape.el.setAttribute('points', newPoints);
-                });
+            // Project 4D to 3D, then 3D to 2D
+            const perspective = 1 / (3 - w);
+            x *= perspective; y *= perspective; z *= perspective;
+            
+            return {
+                x: x * size + center_x,
+                y: y * size + center_y
             };
-            
-            updatePoints(-999, -999); // Initial draw
+        });
 
-            addTrackedListener(DOM.svg, 'mousemove', e => {
-                const rect = DOM.svg.getBoundingClientRect();
-                const viewBox = DOM.svg.viewBox.baseVal;
-                const mouseX = (e.clientX - rect.left) * (viewBox.width / rect.width);
-                const mouseY = (e.clientY - rect.top) * (viewBox.height / rect.height);
-                updatePoints(mouseX, mouseY);
-            });
-        }
+        edges.forEach((edge, i) => {
+            const p1 = projected[edge[0]];
+            const p2 = projected[edge[1]];
+            edgeElements[i].setAttribute('x1', p1.x); edgeElements[i].setAttribute('y1', p1.y);
+            edgeElements[i].setAttribute('x2', p2.x); edgeElements[i].setAttribute('y2', p2.y);
+        });
 
-        function drawSpatial_Master() {
-            const variants = [drawSpatial_Interactive, drawSpatial_Variant1];
-            randItem(variants)();
-        }
+        window.animationFrameId = requestAnimationFrame(animate);
+    }
+    animate();
+}
+
+function drawSpatial_Variant3() { // Inverse Geometry Portal
+    clearSVG();
+    const portal = { x: 250, y: 200, r: 100 };
+    const gridLines = [];
+
+    // Create a grid of polylines
+    for (let i = 0; i <= 10; i++) {
+        // Horizontal
+        const hLine = document.createElementNS('http://www.w3.org/2000/svg', 'polyline');
+        hLine.setAttribute('fill', 'none'); hLine.setAttribute('stroke', 'rgba(165, 180, 252, 0.3)'); hLine.setAttribute('stroke-width', '1');
+        DOM.svg.appendChild(hLine);
+        gridLines.push({ type: 'h', pos: i * 40, el: hLine, points: [] });
+
+        // Vertical
+        const vLine = document.createElementNS('http://www.w3.org/2000/svg', 'polyline');
+        vLine.setAttribute('fill', 'none'); vLine.setAttribute('stroke', 'rgba(165, 180, 252, 0.3)'); vLine.setAttribute('stroke-width', '1');
+        DOM.svg.appendChild(vLine);
+        gridLines.push({ type: 'v', pos: i * 50, el: vLine, points: [] });
+    }
+
+    addTrackedListener(DOM.svg, 'mousemove', e => {
+        const rect = DOM.svg.getBoundingClientRect();
+        const viewBox = DOM.svg.viewBox.baseVal;
+        portal.x = (e.clientX - rect.left) * (viewBox.width / rect.width);
+        portal.y = (e.clientY - rect.top) * (viewBox.height / rect.height);
+        const dx = portal.x - 250; const dy = portal.y - 200;
+        portal.r = 150 - Math.sqrt(dx*dx + dy*dy) * 0.5; // Radius shrinks as mouse moves away from center
+    });
+
+    let t = 0;
+    function animate() {
+        t += 0.01;
+        const radius = portal.r * (1 + Math.sin(t) * 0.1);
+        const r2 = radius * radius;
+        
+        gridLines.forEach(line => {
+            let pointsStr = '';
+            for (let i = 0; i <= 50; i++) {
+                const p = {};
+                if (line.type === 'h') { p.x = i * 10; p.y = line.pos; }
+                else { p.x = line.pos; p.y = i * 8; }
+                
+                // Inverse transform
+                const dx = p.x - portal.x;
+                const dy = p.y - portal.y;
+                const d2 = dx * dx + dy * dy;
+                
+                if (d2 === 0) continue; // Avoid division by zero at center
+                const factor = r2 / d2;
+                
+                const finalX = portal.x + dx * factor;
+                const finalY = portal.y + dy * factor;
+                pointsStr += `${finalX},${finalY} `;
+            }
+            line.el.setAttribute('points', pointsStr);
+        });
+        
+        window.animationFrameId = requestAnimationFrame(animate);
+    }
+    animate();
+}
+
+function drawSpatial_Master() {
+    const variants = [drawSpatial_Interactive, drawSpatial_Variant1, drawSpatial_Variant2, drawSpatial_Variant3];
+    randItem(variants)();
+}
 
         // --- Temporal Labyrinth Functions ---
 
