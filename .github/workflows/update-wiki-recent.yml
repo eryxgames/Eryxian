@@ -1,0 +1,43 @@
+name: Update Recently Updated on Wiki Home
+
+on:
+  gollum:                      # triggers when any wiki page is edited
+  workflow_dispatch:           # allows manual run
+  schedule:
+    - cron: '0 */6 * * *'      # optional: every 6 hours as backup
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout wiki
+        uses: actions/checkout@v4
+        with:
+          repository: ${{ github.repository }}.wiki
+          path: wiki
+          fetch-depth: 0
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Update Recently Updated section
+        working-directory: ./wiki
+        run: python .github/scripts/update_recent.py
+
+      - name: Commit and push if changed
+        working-directory: ./wiki
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          if git diff --quiet; then
+            echo "No changes to commit"
+          else
+            git add Home.md
+            git commit -m "Update Recently Updated section (automated)"
+            git push
+          fi
