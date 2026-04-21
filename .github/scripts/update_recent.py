@@ -30,7 +30,7 @@ for f in md_files:
 
 files_with_dates.sort(reverse=True)
 
-lines = ["## Recently Updated", "", "*(Automatically updated)*"]
+lines = ["## Recently Updated", "", "*(Articles updated)*"]
 for _, date, filename in files_with_dates[:MAX_ENTRIES]:
     page_name = filename[:-3]
     lines.append(f"- [[{page_name}]] • Last updated: {date}")
